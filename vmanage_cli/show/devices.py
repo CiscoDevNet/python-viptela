@@ -20,8 +20,8 @@ def devices(ctx, device_ip, type, json):
         if device:
             pp.pprint(device)
     else:
+        click.echo(f"{'Hostname':20} {'Device IP':15} {'Model':12} {'State':9} {'Site':4} {'Template':16} {'Status':7} {'Connection':10} {'Version':7}")
         if type in ['all', 'control']:
-            click.echo('Controllers:')
             device_list = vmanage_session.get_device_list('controllers')
             for device in device_list:
                 if 'template' in device:
@@ -31,11 +31,9 @@ def devices(ctx, device_ip, type, json):
                 if json:
                     pp.pprint(device)
                 else:
-                    click.echo(f"{device['host-name']:16} {device['personality']:7} {device['site-id']:4} {device['deviceIP']:15} {template:16} {device['configStatusMessage']}")
-            click.echo('')
+                    click.echo(f"{device['host-name']:20} {device['deviceIP']:15} {device['deviceModel']:12} {device['reachability']:9} {device['site-id']:4} {template:16} {device['configStatusMessage']:7} {device['vmanageConnectionState']:10} {device['version']:7}")
 
         if type in ['all', 'edge']:
-            click.echo('Edges:')
             device_list = vmanage_session.get_device_list('vedges')
             for device in device_list:
                 if 'host-name' in device:
@@ -43,4 +41,4 @@ def devices(ctx, device_ip, type, json):
                         template = device['template']
                     else:
                         template = ''
-                    click.echo(f"{device['host-name']:16} {device['personality']:7} {device['site-id']:4} {device['deviceIP']:15} {template:16} {device['configStatusMessage']}")
+                    click.echo(f"{device['host-name']:20} {device['deviceIP']:15} {device['deviceModel']:12} {device['reachability']:9} {device['site-id']:4} {template:16} {device['configStatusMessage']:7} {device['vmanageConnectionState']:10} {device['version']:7}")
