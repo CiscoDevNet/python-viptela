@@ -23,7 +23,7 @@ class Vmanage(object):
 # @click.group(cls=CatchAllExceptions)
 @click.group()
 @click.option('--host', envvar='VMANAGE_HOST', help='vManage Host (env: VMANAGE_HOST)', required=True)
-@click.option('--user', envvar='VMANAGE_USER', help='vManage Username (env: VMANAGE_USER)', required=True)
+@click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password', envvar='VMANAGE_PASSWORD', prompt=True, hide_input=True, help='vManage Password (env: VMANAGE_PASSWORD)', required=True)
 @click.pass_context
 def vmanage_cli(ctx, host, user, password):

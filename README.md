@@ -17,7 +17,7 @@ command line options, or a combination of the two:
 ### Environment Variables
 
 * `VMANAGE_HOST`
-* `VMANAGE_USER`
+* `VMANAGE_USERNAME`
 * `VMANAGE_PASSWORD`
 
 ### Command Line Options
@@ -28,7 +28,7 @@ Usage: vmanage [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --host TEXT      vManage Host (env: VMANAGE_HOST)  [required]
-  --user TEXT      vManage Username (env: VMANAGE_USER)  [required]
+  --username TEXT      vManage Username (env: VMANAGE_USERNAME)  [required]
   --password TEXT  vManage Password (env: VMANAGE_PASSWORD)  [required]
   --help           Show this message and exit.
 
