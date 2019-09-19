@@ -26,9 +26,9 @@ class Vmanage(object):
 @click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password', envvar='VMANAGE_PASSWORD', prompt=True, hide_input=True, help='vManage Password (env: VMANAGE_PASSWORD)', required=True)
 @click.pass_context
-def vmanage_cli(ctx, host, user, password):
+def vmanage_cli(ctx, host, username, password):
 
-    ctx.obj = vmanage.vmanage_session(host=host, user=user, password=password)
+    ctx.obj = vmanage.vmanage_session(host=host, user=username, password=password)
 
 vmanage_cli.add_command(show)
 vmanage_cli.add_command(export)
