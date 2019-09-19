@@ -2,22 +2,74 @@ import click
 import pprint
 
 @click.command()
-@click.argument('type', default='all')
-# @click.option('--output', '-o', help="output File name ")
-# @click.option('--type',
-#               help="Device type [vedges, controllers]",
-#               type=click.Choice(['vedges', 'controllers']))
+@click.argument('name', required=False, default=None)
+@click.option('--json/--no-json', default=False)
+@click.option('--type', default='all',
+               help="Policy list type")
 @click.pass_context
-def policy(ctx, type):
+def list(ctx, name, type, json):
     """
-    Show policy information
+    Show policy list information
     """
-
     vmanage_session = ctx.obj
     pp = pprint.PrettyPrinter(indent=2)
-    click.echo('Policies:')
-    policy_lists = vmanage_session.get_policy_list_list()
-    policy_definition_list = vmanage_session.get_policy_definition_list()
-    pp.pprint(policy_lists)
-    pp.pprint(policy_definition_list)
-    
+
+    if name:
+        policy_list_dict = vmanage_session.get_policy_list_dict(type=type)
+        if name in policy_list_dict:
+            pp.pprint(policy_list_dict[name])
+    else:
+        policy_lists = vmanage_session.get_policy_list_list(type=type)
+        pp.pprint(policy_lists)
+
+@click.command()
+@click.argument('name', required=False, default=None)
+@click.option('--json/--no-json', default=False)
+@click.option('--type', default='all',
+               help="Device type [vedges, controllers]",
+               type=click.Choice(['vedges', 'controllers', 'all']))
+@click.pass_context
+def definition(ctx, name, type, json):
+    """
+    Show policy list information
+    """
+    vmanage_session = ctx.obj
+    pp = pprint.PrettyPrinter(indent=2)
+
+    if name:
+        policy_list_dict = vmanage_session.get_policy_list_dict(type=type)
+        if name in policy_list_dict:
+            pp.pprint(policy_list_dict[name])
+    else:
+        policy_definition_list = vmanage_session.get_policy_definition_list(type=type)
+        pp.pprint(policy_definition_list) 
+
+@click.command()
+@click.argument('name', required=False, default=None)
+@click.option('--json/--no-json', default=False)
+@click.pass_context
+def central(ctx, name, json):
+    """
+    Show policy list information
+    """
+    vmanage_session = ctx.obj
+    pp = pprint.PrettyPrinter(indent=2)
+
+    if name:
+        policy_list_dict = vmanage_session.get_policy_list_dict(type=type)
+        if name in policy_list_dict:
+            pp.pprint(policy_list_dict[name])
+    else:
+        central_policy_list = vmanage_session.get_central_policy_list()
+        pp.pprint(central_policy_list) 
+
+@click.group()
+@click.pass_context
+def policy(ctx):
+    """
+    OMP commands
+    """
+
+policy.add_command(list)
+policy.add_command(definition)
+policy.add_command(central)

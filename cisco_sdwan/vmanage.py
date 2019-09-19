@@ -91,16 +91,29 @@ class vmanage_session(object):
             else:
                 error = [(str(e))]
 
-        if response.status_code not in status_codes:
-            raise Exception('Status {0}: {1}, {2}'.format(response.status_code, error, details))
-
         try:
-            result_json = response.data()
+            result_json = response.json()
         except:
             if response.text:
                 result_json = json.loads(response.text)
             else:
                 result_json = {}
+
+        if response.status_code not in status_codes:
+            if 'error' in result_json:
+                error='Unknown'
+                details='Unknown'
+                if 'details' in result_json['error']:
+                    details = result_json['error']['details']
+                if 'message' in result_json['error']:
+                    error = result_json['error']['message']
+                raise Exception('{0}: {1}'.format(error, details))
+            else:
+                raise Exception(f"{url}: Error {response.status_code}")
+
+            
+
+
 
         result = {
             'status_code': response.status_code,
@@ -464,7 +477,7 @@ class vmanage_session(object):
         else:
             return result['json']['data']
 
-    def get_policy_list_dict(self, type, key_name='name', remove_key=False):
+    def get_policy_list_dict(self, type='all', key_name='name', remove_key=False):
 
         policy_list = self.get_policy_list_list(type)
 
@@ -478,17 +491,30 @@ class vmanage_session(object):
         if type == 'all':
             policy_definitions = {}
             policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
-            for list_type in POLICY_DEFINITION_TYPES:
+            # Get a list of hub-and-spoke becuase it tells us the other definition types
+            # known by this server (hopefully)
+            definition_types = []
+            result = self.request('/template/policy/definition/hubandspoke')
+            try:
+                definition_type_titles = result['json']['header']['columns'][1]['keyvalue']
+            except:
+                raise Exception('Could not retrieve definition types')
+            for definition_type in definition_type_titles:
+                definition_types.append(definition_type['key'].lower())
+
+            for list_type in definition_types:
                 definition_list = self.get_policy_definition_list(list_type)
-                definition_detail_list = []
                 for definition in definition_list:
                     definition_detail = self.get_policy_definition(list_type, definition['definitionId'])
-                    for sequence in definition_detail['sequences']:
-                        for entry in sequence['match']['entries']:
-                            entry['listName'] = policy_list_dict[entry['ref']]['name']
-                            entry['listType'] = policy_list_dict[entry['ref']]['type']
-                    definition_detail_list.append(definition_detail)
-                policy_definitions[list_type] = definition_detail_list
+                    if 'sequences' in definition_detail:
+                        # We need to translate policy lists IDs to name
+                        for sequence in definition_detail['sequences']:
+                            for entry in sequence['match']['entries']:
+                                entry['listName'] = policy_list_dict[entry['ref']]['name']
+                                entry['listType'] = policy_list_dict[entry['ref']]['type']
+                        # definition_detail_list.append(definition_detail)
+                if definition_detail:
+                    policy_definitions[list_type] = definition_detail
             return policy_definitions
         else:
             result = self.request('/template/policy/definition/{0}'.format(type))
@@ -510,14 +536,14 @@ class vmanage_session(object):
             for policy in central_policy_list:
                 policy['policyDefinition'] = json.loads(policy['policyDefinition'])
                 for item in policy['policyDefinition']['assembly']:
-                    policy_definition = self.get_policy_definition(item['type'], item['definitionId'])
+                    policy_definition = self.get_policy_definition(item['type'].lower(), item['definitionId'])
                     item['definitionName'] = policy_definition['name']
-                    for entry in item['entries']:
-                        for key, list in entry.items():
-                            if key in POLICY_LIST_DICT:
-                                for index, list_id in enumerate(list):
-                                    policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
-                                    list[index] = policy_list['name']
+                #     for entry in item['entries']:
+                #         for key, list in entry.items():
+                #             if key in POLICY_LIST_DICT:
+                #                 for index, list_id in enumerate(list):
+                #                     policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
+                #                     list[index] = policy_list['name']
             return central_policy_list
         else:
             return []
