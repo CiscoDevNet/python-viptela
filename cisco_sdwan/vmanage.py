@@ -78,12 +78,22 @@ class vmanage_session(object):
         """Generic HTTP method for viptela requests."""
         url = '{0}{1}'.format(self.base_url, url_path)
         if payload:
-            data = json.dumps(payload)
-
-        response = self.session.request(method, url, headers=headers, files=files, data=data)
+            data = json.dumps(payload, sort_keys=False)
 
         error = None
         details = None
+        try:
+            response = self.session.request(method, url, headers=headers, files=files, data=data)
+        except requests.RequestException as e:
+            if e.response is not None:
+                details = e.response
+                error = [e.response.json()['errorMessage']]
+            else:
+                error = [(str(e))]
+
+        if response.status_code not in status_codes:
+            raise Exception('Status {0}: {1}, {2}'.format(response.status_code, error, details))
+
         try:
             result_json = response.data()
         except:
@@ -91,14 +101,6 @@ class vmanage_session(object):
                 result_json = json.loads(response.text)
             else:
                 result_json = {}
-
-        if response.status_code not in status_codes:
-            if 'error' in result_json:
-                if 'details' in result_json['error']:
-                    details = result_json['error']['details']
-                if 'message' in result_json['error']:
-                    error = result_json['error']['message']
-            raise Exception('{0}: {1}'.format(error, details))
 
         result = {
             'status_code': response.status_code,
@@ -128,18 +130,39 @@ class vmanage_session(object):
 #
 # Devices
 #
-
-    def get_device_list(self, type, key_name='host-name', remove_key=True):
-        result = self.request('/system/device/{0}'.format(type))
+    def get_device_status_list(self):
+        result = self.request('/device')
 
         try:
             return result['json']['data']
         except:
             return []
 
-    def get_device_dict(self, type, key_name='host-name', remove_key=False):
+    def get_device_status_dict(self, key_name='host-name', remove_key=False):
 
-        device_list = self.get_device_list(type)
+        device_list = self.get_device_status_list()
+
+        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+
+    def get_device_status(self, value, key='system-ip'):
+        result = self.request('/device?{0}={1}'.format(key, value))
+
+        try:
+            return result['json']['data'][0]
+        except:
+            return {}
+
+    def get_device_list(self):
+        result = self.request('/device')
+
+        try:
+            return result['json']['data']
+        except:
+            return []
+
+    def get_device_dict(self, key_name='host-name', remove_key=False):
+
+        device_list = self.get_device_list()
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
 
@@ -154,7 +177,33 @@ class vmanage_session(object):
             return result['json']['data']
         except:
             return {}
-            
+
+    def get_device_config_list(self, type):
+        result = self.request('/system/device/{0}'.format(type))
+
+        try:
+            return result['json']['data']
+        except:
+            return []
+
+    def get_device_config_dict(self, type, key_name='host-name', remove_key=False):
+
+        device_list = self.get_device_config_list(type)
+
+        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+
+    def get_device_by_device_ip(self, device_ip):
+        result = self.request('/system/device/controllers?deviceIP={0}'.format(device_ip))        
+        if 'data' in result['json'] and result['json']['data']:
+            return result['json']['data']
+        
+        result = self.request('/system/device/vedges?deviceIP={0}'.format(device_ip))
+
+        try:
+            return result['json']['data']
+        except:
+            return {}
+
 #
 # Templates
 #
@@ -210,7 +259,7 @@ class vmanage_session(object):
             for template in template_list:
                 if not factory_default and template['factoryDefault']:
                     continue
-                template['templateDefinition'] = json.loads(template['templateDefinition'])
+                template['templateDefinition'] = json.loads(template['templateDefinition'], object_pairs_hook=OrderedDict)
                 template.pop('editedTemplateDefinition', None)
                 return_list.append(template)
 
@@ -267,25 +316,28 @@ class vmanage_session(object):
     def export_templates_to_file(self, file):
         feature_template_list = self.get_feature_template_list()
         device_template_list = self.get_device_template_list()
-        
+        template_export = OrderedDict()
+
         template_export = {
             'feature_templates': feature_template_list,
             'device_templates': device_template_list
         }
 
         with open(file, 'w') as f:
-            json.dump(template_export, f, indent=4, sort_keys=True)
+            json.dump(template_export, f, indent=4, sort_keys=False)
 
     def import_templates_from_file(self, file, update=False, check_mode=False, force=False):
         changed = False
         feature_template_updates = 0
         device_template_updates = 0
+        template_data = OrderedDict()
+        feature_template_data = OrderedDict()
 
         # Read in the datafile
         if not os.path.exists(file):
             raise Exception(msg='Cannot find file {0}'.format(file))
         with open(file) as f:
-            template_data = json.load(f)
+            template_data = json.load(f, sort_keys=False)
 
         # Separate the feature template data from the device template data
         feature_template_data = template_data['feature_templates']
@@ -325,6 +377,7 @@ class vmanage_session(object):
                 }        
 
     def add_feature_template(self, feature_template):
+        payload = OrderedDict()
         payload = {
             'templateName': feature_template['templateName'],
             'templateDescription': feature_template['templateDescription'],
@@ -336,7 +389,7 @@ class vmanage_session(object):
             'configType': feature_template['configType'],
             'feature': feature_template['feature'],
         }
-        return self.request('/template/feature/', method='POST', data=json.dumps(payload))
+        return self.request('/template/feature/', method='POST', data=json.dumps(payload, sort_keys=False))
 
     def add_device_template(self, device_template):
         payload = {
@@ -477,6 +530,22 @@ class vmanage_session(object):
         except:
             return {}
 
+    def get_control_connections_history(self, device_ip):
+        result = self.request('/device/control/connectionshistory?deviceId={0}'.format(device_ip))
+
+        try:
+            return result['json']['data']
+        except:
+            return {}
+
+    def get_device_data(self, path, device_ip):
+        result = self.request('/device/{0}?deviceId={1}'.format(path, device_ip))
+
+        try:
+            return result['json']['data']
+        except:
+            return {}
+
     def reattach_device_template(self, template_id):
         device_list = self.get_template_attachments(template_id, key='uuid')
         # First, we need to get the input to feed to the re-attach
@@ -550,7 +619,7 @@ class vmanage_session(object):
         }
 
         with open(file, 'w') as f:
-            json.dump(policy_export, f, indent=4, sort_keys=True)
+            json.dump(policy_export, f, indent=4, sort_keys=False)
 
     def import_policy_from_file(self, file, update=False, check_mode=False, force=False):
         changed = False

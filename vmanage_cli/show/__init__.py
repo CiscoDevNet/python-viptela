@@ -1,5 +1,5 @@
 import click
-from .devices import devices
+from .device import device
 from .templates import templates
 from .policy import policy
 from .omp import omp
@@ -12,7 +12,7 @@ def show(ctx):
     Show commands
     """
 
-show.add_command(devices)
+show.add_command(device)
 show.add_command(templates)
 show.add_command(policy)
 show.add_command(omp)
