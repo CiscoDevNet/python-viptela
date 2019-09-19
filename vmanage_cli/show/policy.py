@@ -56,12 +56,35 @@ def central(ctx, name, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
+        central_policy_dict = vmanage_session.get_central_policy_dict()
+        if name in central_policy_dict:
+            if json:
+                pp.pprint(central_policy_dict[name])
+            else:
+                preview = vmanage_session.get_central_policy_preview(central_policy_dict[name]['policyId'])
+                pp.pprint(preview)
+    else:
+        central_policy_list = vmanage_session.get_central_policy_list()
+        pp.pprint(central_policy_list) 
+
+@click.command()
+@click.argument('name', required=False, default=None)
+@click.option('--json/--no-json', default=False)
+@click.pass_context
+def local(ctx, name, json):
+    """
+    Show policy list information
+    """
+    vmanage_session = ctx.obj
+    pp = pprint.PrettyPrinter(indent=2)
+
+    if name:
         policy_list_dict = vmanage_session.get_policy_list_dict(type=type)
         if name in policy_list_dict:
             pp.pprint(policy_list_dict[name])
     else:
-        central_policy_list = vmanage_session.get_central_policy_list()
-        pp.pprint(central_policy_list) 
+        local_policy_list = vmanage_session.get_local_policy_list()
+        pp.pprint(local_policy_list) 
 
 @click.group()
 @click.pass_context
@@ -73,3 +96,4 @@ def policy(ctx):
 policy.add_command(list)
 policy.add_command(definition)
 policy.add_command(central)
+policy.add_command(local)

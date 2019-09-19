@@ -509,10 +509,12 @@ class vmanage_session(object):
                     if 'sequences' in definition_detail:
                         # We need to translate policy lists IDs to name
                         for sequence in definition_detail['sequences']:
-                            for entry in sequence['match']['entries']:
-                                entry['listName'] = policy_list_dict[entry['ref']]['name']
-                                entry['listType'] = policy_list_dict[entry['ref']]['type']
-                        # definition_detail_list.append(definition_detail)
+                                if 'match' in sequence and 'entries' in sequence['match']:
+                                    pass
+                                    for entry in sequence['match']['entries']:
+                                        if 'ref' in entry:
+                                            entry['listName'] = policy_list_dict[entry['ref']]['name']
+                                            entry['listType'] = policy_list_dict[entry['ref']]['type']
                 if definition_detail:
                     policy_definitions[list_type] = definition_detail
             return policy_definitions
@@ -538,13 +540,54 @@ class vmanage_session(object):
                 for item in policy['policyDefinition']['assembly']:
                     policy_definition = self.get_policy_definition(item['type'].lower(), item['definitionId'])
                     item['definitionName'] = policy_definition['name']
-                #     for entry in item['entries']:
-                #         for key, list in entry.items():
-                #             if key in POLICY_LIST_DICT:
-                #                 for index, list_id in enumerate(list):
-                #                     policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
-                #                     list[index] = policy_list['name']
+                    #
+                    # Translate list IDs to names
+                    #
+                    if 'entries' in item:
+                        for entry in item['entries']:
+                            for key, list in entry.items():
+                                if key in POLICY_LIST_DICT:
+                                    for index, list_id in enumerate(list):
+                                        policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
+                                        list[index] = policy_list['name']
             return central_policy_list
+        else:
+            return []
+
+    def get_central_policy_dict(self, type, key_name='policyName', remove_key=False):
+
+        central_policy_list = self.get_policy_definition_list(type)
+
+        return self.list_to_dict(central_policy_list, key_name, remove_key=remove_key)
+
+    def get_central_policy_preview(self, policy_id):
+        result = self.request('/template/policy/assembly/vsmart/{0}'.format(policy_id))
+
+        try:
+            return result['json']['preview']
+        except:
+            return None
+
+    def get_local_policy_list(self):
+        result = self.request('/template/policy/vedge')
+        if 'data' in result['json']:
+            local_policy_list = result['json']['data']
+            for policy in local_policy_list:
+                policy['policyDefinition'] = json.loads(policy['policyDefinition'])
+                for item in policy['policyDefinition']['assembly']:
+                    policy_definition = self.get_policy_definition(item['type'].lower(), item['definitionId'])
+                    item['definitionName'] = policy_definition['name']
+                #     #
+                #     # Translate list IDs to names
+                #     #
+                #     if 'entries' in item:
+                #         for entry in item['entries']:
+                #             for key, list in entry.items():
+                #                 if key in POLICY_LIST_DICT:
+                #                     for index, list_id in enumerate(list):
+                #                         policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
+                #                         list[index] = policy_list['name']
+            return local_policy_list
         else:
             return []
 
@@ -637,11 +680,13 @@ class vmanage_session(object):
         policy_lists_list = self.get_policy_list_list()
         policy_definitions_list = self.get_policy_definition_list()
         central_policies_list = self.get_central_policy_list()
+        local_policies_list = self.get_central_policy_list()
         
         policy_export = {
             'policy_lists': policy_lists_list,
             'policy_definitions': policy_definitions_list,
-            'central_policies': central_policies_list
+            'central_policies': central_policies_list,
+            'local_policies': local_policies_list
         }
 
         with open(file, 'w') as f:

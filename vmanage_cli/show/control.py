@@ -17,7 +17,7 @@ def connections(ctx, device, json):
         # Check to see if we were passed in a device IP address or a device name
         try:
             ip = ipaddress.ip_address(device)
-            system_ip = ip
+            system_ip = device
         except ValueError:
             device_dict = vmanage_session.get_device_status(device, key='host-name')
             if 'system-ip' in device_dict:
@@ -58,7 +58,7 @@ def connections_history(ctx, device, json):
     # Check to see if we were passed in a device IP address or a device name
     try:
         ip = ipaddress.ip_address(device)
-        system_ip = ip
+        system_ip = device
     except ValueError:
         device_dict = vmanage_session.get_device_status(device, key='host-name')
         if 'system-ip' in device_dict:
