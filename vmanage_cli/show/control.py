@@ -8,7 +8,7 @@ import ipaddress
 @click.pass_context
 def connections(ctx, device, json):
     """
-    Show device information
+    Show control connections
     """
 
     vmanage_session = ctx.obj
@@ -50,7 +50,7 @@ def connections(ctx, device, json):
 @click.pass_context
 def connections_history(ctx, device, json):
     """
-    Show device information
+    Show control connections history
     """
 
     vmanage_session = ctx.obj

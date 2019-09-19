@@ -31,7 +31,7 @@ def list(ctx, name, type, json):
 @click.pass_context
 def definition(ctx, name, type, json):
     """
-    Show policy list information
+    Show policy definition information
     """
     vmanage_session = ctx.obj
     pp = pprint.PrettyPrinter(indent=2)
@@ -50,7 +50,7 @@ def definition(ctx, name, type, json):
 @click.pass_context
 def central(ctx, name, json):
     """
-    Show policy list information
+    Show central policy information
     """
     vmanage_session = ctx.obj
     pp = pprint.PrettyPrinter(indent=2)
@@ -73,7 +73,7 @@ def central(ctx, name, json):
 @click.pass_context
 def local(ctx, name, json):
     """
-    Show policy list information
+    Show local policy information
     """
     vmanage_session = ctx.obj
     pp = pprint.PrettyPrinter(indent=2)

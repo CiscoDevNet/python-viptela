@@ -12,7 +12,7 @@ from cisco_sdwan import vmanage
 @click.pass_context
 def policy(ctx, type, file):
     """
-    Show device information
+    Export policy to file
     """
 
     vmanage_session = ctx.obj

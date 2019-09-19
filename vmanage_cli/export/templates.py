@@ -12,7 +12,7 @@ from cisco_sdwan import vmanage
 @click.pass_context
 def templates(ctx, type, file):
     """
-    Show device information
+    Export templates to file
     """
     vmanage_session = ctx.obj
     click.echo(f'Exporting templates to {file}')

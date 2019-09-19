@@ -8,7 +8,7 @@ import ipaddress
 @click.pass_context
 def peers(ctx, device, json):
     """
-    Show device information
+    Show OMP peer information
     """
 
     vmanage_session = ctx.obj

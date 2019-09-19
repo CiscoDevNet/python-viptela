@@ -13,7 +13,7 @@ import click
 @click.pass_context
 def policy(ctx, type, file, update, check, force):
     """
-    Show device information
+    Import policy from file
     """
     vmanage_session = ctx.obj
     click.echo(f'Importing policy from {file}')
