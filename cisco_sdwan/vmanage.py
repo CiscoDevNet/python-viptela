@@ -71,14 +71,24 @@ class vmanage_session(object):
 
         if response.status_code != 200 or response.text.startswith('<html>'):
             raise Exception('Could not login to device, check user credentials.')
+
+        response = self.session.get(
+            url='https://{0}/dataservice/client/token'.format(self.host),
+            timeout=self.timeout
+        )
+        if response.status_code == 200:
+            self.session.headers['X-XSRF-TOKEN'] = response.content
+        elif response.status_code == 404:
+            # Assume this is pre-19.2
+            pass
         else:
-            return response
+            raise Exception('Failed getting X-XSRF-TOKEN: {0}'.format(response.status_code))
 
     def request(self, url_path, method='GET', headers=STANDARD_JSON_HEADER, data=None, files=None, payload=None, status_codes=VALID_STATUS_CODES):
         """Generic HTTP method for viptela requests."""
         url = '{0}{1}'.format(self.base_url, url_path)
         if payload:
-            data = json.dumps(payload, sort_keys=False)
+            data = json.dumps(payload)
 
         error = None
         details = None
@@ -185,6 +195,14 @@ class vmanage_session(object):
             return result['json']['data']
         
         result = self.request('/system/device/vedges?deviceIP={0}'.format(device_ip))
+
+        try:
+            return result['json']['data']
+        except:
+            return {}
+
+    def get_device_config(self, type, device_ip):
+        result = self.request('/system/device/{0}?deviceIP={1}'.format(type, device_ip))        
 
         try:
             return result['json']['data']
@@ -350,7 +368,7 @@ class vmanage_session(object):
         if not os.path.exists(file):
             raise Exception(msg='Cannot find file {0}'.format(file))
         with open(file) as f:
-            template_data = json.load(f, sort_keys=False)
+            template_data = json.load(f)
 
         # Separate the feature template data from the device template data
         feature_template_data = template_data['feature_templates']
@@ -402,7 +420,7 @@ class vmanage_session(object):
             'configType': feature_template['configType'],
             'feature': feature_template['feature'],
         }
-        return self.request('/template/feature/', method='POST', data=json.dumps(payload, sort_keys=False))
+        return self.request('/template/feature/', method='POST', data=json.dumps(payload))
 
     def add_device_template(self, device_template):
         payload = {
