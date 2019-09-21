@@ -1,13 +1,13 @@
 import click
 import pprint
 
-@click.command()
+@click.command('list')
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all',
                help="Policy list type")
 @click.pass_context
-def list(ctx, name, type, json):
+def list_cmd(ctx, name, type, json):
     """
     Show policy list information
     """
@@ -26,8 +26,8 @@ def list(ctx, name, type, json):
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all',
-               help="Device type [vedges, controllers]",
-               type=click.Choice(['vedges', 'controllers', 'all']))
+               help="Definition type",
+               type=click.Choice(['hubandspoke', 'controllers', 'all']))
 @click.pass_context
 def definition(ctx, name, type, json):
     """
@@ -37,9 +37,11 @@ def definition(ctx, name, type, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
-        policy_list_dict = vmanage_session.get_policy_list_dict(type=type)
-        if name in policy_list_dict:
-            pp.pprint(policy_list_dict[name])
+        policy_definition_dict = vmanage_session.get_policy_definition_dict(type=type)
+        if name in policy_definition_dict:
+            policy_definition = vmanage_session.get_policy_definition(policy_definition_dict[name]['type'].lower(), policy_definition_dict[name]['definitionId'])
+            # list_keys(policy_definition['definition'])
+            pp.pprint(policy_definition)
     else:
         policy_definition_list = vmanage_session.get_policy_definition_list(type=type)
         pp.pprint(policy_definition_list) 
@@ -93,7 +95,7 @@ def policy(ctx):
     Show policy information
     """
 
-policy.add_command(list)
+policy.add_command(list_cmd)
 policy.add_command(definition)
 policy.add_command(central)
 policy.add_command(local)

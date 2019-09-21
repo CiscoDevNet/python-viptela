@@ -501,9 +501,53 @@ class vmanage_session(object):
 
         return self.list_to_dict(policy_list, key_name, remove_key=remove_key)
 
+    def convert_list_id_to_name(self, input):
+        if isinstance(input, dict):
+            for key, value in input.items():
+                if key.endswith('List'):
+                    type = key[0:len(key)-4]
+                    policy_list = vmanage_session.get_policy_list(self, type, value)
+                    if policy_list:
+                        list_name = policy_list['name']
+                        # print (f"List: {type} = {list_name}")
+                        input[key] = list_name
+                elif key.endswith('Lists'):
+                    type = key[0:len(key)-5]
+                    policy_list_dict = self.get_policy_list_dict(type, key_name='listId')
+                    new_list = []
+                    for list_id in value:
+                        if list_id in policy_list_dict:
+                            list_name = policy_list_dict[list_id]['name']
+                            new_list.add(list_name)
+                        else:
+                            new_list.add(list_id)
+                    input[key] = new_list
+                    # print (f"Lists: {type} = {','.join(value)}")
+                else:
+                    self.convert_list_id_to_name(value)
+        elif isinstance(input, list):
+            for item in input:
+                self.convert_list_id_to_name(item)
+
     def get_policy_definition(self, type, definition_id):
         result = self.request('/template/policy/definition/{0}/{1}'.format(type, definition_id))
-        return result['json']
+
+        if 'json' in result:
+            policy_definition = result['json']
+            if 'definition' in policy_definition:
+                self.convert_list_id_to_name(policy_definition['definition'])
+            return policy_definition
+        else:
+            return {}
+            # if 'sequences' in definition_detail:
+            #     # We need to translate policy lists IDs to name
+            #     for sequence in definition_detail['sequences']:
+            #             if 'match' in sequence and 'entries' in sequence['match']:
+            #                 pass
+            #                 for entry in sequence['match']['entries']:
+            #                     if 'ref' in entry:
+            #                         entry['listName'] = policy_list_dict[entry['ref']]['name']
+            #                         entry['listType'] = policy_list_dict[entry['ref']]['type']
 
     def get_policy_definition_list(self, type='all'):
         if type == 'all':
@@ -520,21 +564,12 @@ class vmanage_session(object):
             for definition_type in definition_type_titles:
                 definition_types.append(definition_type['key'].lower())
 
-            for list_type in definition_types:
-                definition_list = self.get_policy_definition_list(list_type)
+            for definition_type in definition_types:
+                definition_list = self.get_policy_definition_list(definition_type)
                 for definition in definition_list:
-                    definition_detail = self.get_policy_definition(list_type, definition['definitionId'])
-                    if 'sequences' in definition_detail:
-                        # We need to translate policy lists IDs to name
-                        for sequence in definition_detail['sequences']:
-                                if 'match' in sequence and 'entries' in sequence['match']:
-                                    pass
-                                    for entry in sequence['match']['entries']:
-                                        if 'ref' in entry:
-                                            entry['listName'] = policy_list_dict[entry['ref']]['name']
-                                            entry['listType'] = policy_list_dict[entry['ref']]['type']
-                if definition_detail:
-                    policy_definitions[list_type] = definition_detail
+                    definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
+                    if definition_detail:
+                        policy_definitions[definition_type] = definition_detail
             return policy_definitions
         else:
             result = self.request('/template/policy/definition/{0}'.format(type))
