@@ -44,7 +44,7 @@ def peers(ctx, device, json):
 @click.pass_context
 def omp(ctx):
     """
-    OMP commands
+    Show OMP information
     """
 
 omp.add_command(peers)

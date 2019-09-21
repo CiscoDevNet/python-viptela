@@ -83,7 +83,7 @@ def connections_history(ctx, device, json):
 @click.pass_context
 def control(ctx):
     """
-    OMP commands
+    Show control information
     """
 
 control.add_command(connections)

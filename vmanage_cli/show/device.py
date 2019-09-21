@@ -124,7 +124,7 @@ def config(ctx, device, type, json):
 @click.pass_context
 def device(ctx):
     """
-    OMP commands
+    Show device information
     """
 
 device.add_command(status)

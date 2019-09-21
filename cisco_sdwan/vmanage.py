@@ -205,7 +205,7 @@ class vmanage_session(object):
         result = self.request('/system/device/{0}?deviceIP={1}'.format(type, device_ip))        
 
         try:
-            return result['json']['data']
+            return result['json']['data'][0]
         except:
             return {}
 

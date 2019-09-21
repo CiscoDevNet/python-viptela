@@ -90,7 +90,7 @@ def local(ctx, name, json):
 @click.pass_context
 def policy(ctx):
     """
-    OMP commands
+    Show policy information
     """
 
 policy.add_command(list)

@@ -69,3 +69,51 @@ vmanage export policy --file vmanage-policy.json
 ```bash
 vmanage import policy --file vmanage-policy.json
 ```
+
+### Show Information
+
+#### Commands:
+
+* control - Show control information
+  * connections
+  * connections-history
+* device - Show device information
+  * config
+  * status
+* omp - Show OMP information
+  * peers
+* policy - Show policy information
+  * central
+  * local
+  * definition
+  * list
+* template - Show template information
+
+#### Examples
+
+##### Diff two templates:
+
+```
+vmanage show template g0/0/0-R1 --diff g0/0/0-R2
+[ ( 'change',
+    'templateDefinition.tunnel-interface.color.value.vipType',
+    ('ignore', 'constant')),
+  ( 'change',
+    'templateDefinition.tunnel-interface.color.value.vipValue',
+    ('default', 'custom2')),
+  ( 'add',
+    'templateDefinition.tunnel-interface.color.restrict',
+    [('vipVariableName', 'vpn_if_tunnel_color_restrict')]),
+  ( 'change',
+    'templateId',
+    ( '2a0481f4-a5b2-44bf-baad-59de4d3b4e99',
+      '1dc123db-7a14-40f5-9653-1c87ccd5eaa2')),
+  ('change', 'createdOn', (1569072320921, 1569072320260)),
+  ('change', '@rid', (843, 839)),
+  ( 'change',
+    'templateDescription',
+    ( 'G0/0/0 Interface for R1 router with TLOC extension, adds NAT',
+      'G0/0/0 Interface for R2 router with TLOC extension, adds NAT, changes '
+      'color to custom2')),
+  ('change', 'lastUpdatedOn', (1569072320921, 1569072320260))]
+```
