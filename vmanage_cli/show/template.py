@@ -6,7 +6,7 @@ import dictdiffer
 @click.command()
 @click.option('--type', help="Template type [device, feature] (default: all)",
               default='all', type=click.Choice(['device', 'feature', 'all']))
-@click.option('--diff', help="Diff eith template of specified name", default=None)
+@click.option('--diff', help="Diff with template of specified name", default=None)
 @click.option('--default/--no-default', help="Print system default templates")
 @click.argument('name', default=None, required=False)          
 @click.option('--json/--no-json', help="JSON Output")

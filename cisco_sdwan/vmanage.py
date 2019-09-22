@@ -7,6 +7,8 @@ import time
 import os
 from collections import OrderedDict
 import urllib3
+import dictdiffer
+import pprint
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 try:
@@ -120,10 +122,6 @@ class vmanage_session(object):
                 raise Exception('{0}: {1}'.format(error, details))
             else:
                 raise Exception(f"{url}: Error {response.status_code}")
-
-            
-
-
 
         result = {
             'status_code': response.status_code,
@@ -357,10 +355,25 @@ class vmanage_session(object):
         with open(file, 'w') as f:
             json.dump(template_export, f, indent=4, sort_keys=False)
 
-    def import_templates_from_file(self, file, update=False, check_mode=False, force=False):
+    def read_templates_from_file(self, file, update=False, check_mode=False, force=False):
         changed = False
         feature_template_updates = 0
         device_template_updates = 0
+        template_data = OrderedDict()
+        feature_template_data = OrderedDict()
+
+        # Read in the datafile
+        if not os.path.exists(file):
+            raise Exception(msg='Cannot find file {0}'.format(file))
+        with open(file) as f:
+            template_data = json.load(f)
+
+        return template_data
+
+    def import_templates_from_file(self, file, update=False, check_mode=False):
+        changed = False
+        feature_template_updates = []
+        device_template_updates = []
         template_data = OrderedDict()
         feature_template_data = OrderedDict()
 
@@ -375,16 +388,19 @@ class vmanage_session(object):
         device_template_data = template_data['device_templates']
 
         # Process the feature templates
-        feature_template_dict = self.get_feature_template_dict(factory_default=True)
+        feature_template_dict = self.get_feature_template_dict(factory_default=True, remove_key=False)
         for feature_template in feature_template_data:
             if feature_template['templateName'] in feature_template_dict:
-                # Need to figure out how to update feature templates
-                if update:
-                    feature_template_updates = feature_template_updates + 1
-                    if not check_mode:
-                        self.add_feature_template(feature_template)
+                existing_template = feature_template_dict[feature_template['templateName']]
+                diff = list(dictdiffer.diff(existing_template['templateDefinition'], feature_template['templateDefinition']))
+                if len(diff):
+                    feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
+                    if not check_mode and update:
+                        if not check_mode:
+                            self.add_feature_template(feature_template)
             else:
-                feature_template_updates = feature_template_updates + 1
+                diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
+                feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                 if not check_mode:
                     self.add_feature_template(feature_template)                
 
@@ -392,17 +408,20 @@ class vmanage_session(object):
         device_template_dict = self.get_device_template_dict()
         for device_template in device_template_data:
             if device_template['templateName'] in device_template_dict:
-                # Need to figure out how to update device templates
-                if update:
-                    device_template_updates = device_template_updates + 1
-                    if not check_mode:
-                        self.add_device_template(device_template)
+                existing_template = device_template_dict[device_template['templateName']]
+                diff = list(dictdiffer.diff(existing_template['generalTemplates'], device_template['generalTemplates']))
+                if len(diff):
+                    device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
+                    if not check_mode and update:
+                        if not check_mode:
+                            self.add_device_template(device_template)
             else:
-                device_template_updates = device_template_updates + 1
+                diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
+                device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
                 if not check_mode:
                     self.add_device_template(device_template)
 
-        return {'changed': True if device_template_updates + feature_template_updates > 0 else False,
+        return {
                 'feature_template_updates': feature_template_updates,
                 'device_template_updates': device_template_updates,
                 }        
@@ -508,9 +527,7 @@ class vmanage_session(object):
                     type = key[0:len(key)-4]
                     policy_list = vmanage_session.get_policy_list(self, type, value)
                     if policy_list:
-                        list_name = policy_list['name']
-                        # print (f"List: {type} = {list_name}")
-                        input[key] = list_name
+                        input[key] = policy_list['name']
                 elif key.endswith('Lists'):
                     type = key[0:len(key)-5]
                     policy_list_dict = self.get_policy_list_dict(type, key_name='listId')
@@ -518,65 +535,93 @@ class vmanage_session(object):
                     for list_id in value:
                         if list_id in policy_list_dict:
                             list_name = policy_list_dict[list_id]['name']
-                            new_list.add(list_name)
+                            new_list.append(list_name)
                         else:
-                            new_list.add(list_id)
+                            new_list.append(list_id)
                     input[key] = new_list
-                    # print (f"Lists: {type} = {','.join(value)}")
+                elif key.endswith('Zone'):
+                    policy_list_dict = self.get_policy_list_dict('zone', key_name='listId')
+                    if value in policy_list_dict:
+                        input[key] = policy_list_dict[value]['name']
                 else:
                     self.convert_list_id_to_name(value)
         elif isinstance(input, list):
             for item in input:
                 self.convert_list_id_to_name(item)
 
-    def get_policy_definition(self, type, definition_id):
-        result = self.request('/template/policy/definition/{0}/{1}'.format(type, definition_id))
+    def convert_list_name_to_id(self, input):
+        if isinstance(input, dict):
+            for key, value in input.items():
+                if key.endswith('List'):
+                    type = key[0:len(key)-4]
+                    policy_list_dict = self.get_policy_list_dict(type)
+                    if value in policy_list_dict:
+                        input[key] = policy_list_dict[value]['listId']
+                elif key.endswith('Lists'):
+                    type = key[0:len(key)-5]
+                    policy_list_dict = self.get_policy_list_dict(type)
+                    new_list = []
+                    for list_name in value:
+                        if list_name in policy_list_dict:
+                            list_id = policy_list_dict[list_name]['listId']
+                            new_list.append(list_id)
+                        else:
+                            new_list.append(list_name)
+                    input[key] = new_list
+                elif key.endswith('Zone'):
+                    policy_list_dict = self.get_policy_list_dict('zone')
+                    if value in policy_list_dict:
+                        input[key] = policy_list_dict[value]['listId']
+                else:
+                    self.convert_list_name_to_id(value)
+        elif isinstance(input, list):
+            for item in input:
+                self.convert_list_name_to_id(item)
+
+    def get_policy_definition(self, definition_type, definition_id):
+        result = self.request('/template/policy/definition/{0}/{1}'.format(definition_type.lower(), definition_id))
 
         if 'json' in result:
             policy_definition = result['json']
             if 'definition' in policy_definition:
                 self.convert_list_id_to_name(policy_definition['definition'])
+            if 'sequences' in policy_definition:
+                self.convert_list_id_to_name(policy_definition['sequences'])    
             return policy_definition
         else:
             return {}
-            # if 'sequences' in definition_detail:
-            #     # We need to translate policy lists IDs to name
-            #     for sequence in definition_detail['sequences']:
-            #             if 'match' in sequence and 'entries' in sequence['match']:
-            #                 pass
-            #                 for entry in sequence['match']['entries']:
-            #                     if 'ref' in entry:
-            #                         entry['listName'] = policy_list_dict[entry['ref']]['name']
-            #                         entry['listType'] = policy_list_dict[entry['ref']]['type']
 
-    def get_policy_definition_list(self, type='all'):
-        if type == 'all':
-            policy_definitions = {}
-            policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
-            # Get a list of hub-and-spoke becuase it tells us the other definition types
+    def get_policy_definition_list(self, definition_type='all'):
+        if definition_type == 'all':
+            # policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
+            # Get a list of hub-and-spoke because it tells us the other definition types
             # known by this server (hopefully)
-            definition_types = []
+            all_definitions_list = []
+            definition_list_types = []
             result = self.request('/template/policy/definition/hubandspoke')
             try:
                 definition_type_titles = result['json']['header']['columns'][1]['keyvalue']
             except:
                 raise Exception('Could not retrieve definition types')
             for definition_type in definition_type_titles:
-                definition_types.append(definition_type['key'].lower())
+                definition_list_types.append(definition_type['key'].lower())
 
-            for definition_type in definition_types:
+            for definition_type in definition_list_types:
                 definition_list = self.get_policy_definition_list(definition_type)
-                for definition in definition_list:
+                if definition_list:
+                    all_definitions_list.extend(definition_list)
+            return all_definitions_list
+        else:
+            definition_list = []
+            result = self.request('/template/policy/definition/{0}'.format(definition_type.lower()))
+            if 'data' in result['json']:
+                for definition in result['json']['data']:
                     definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
                     if definition_detail:
-                        policy_definitions[definition_type] = definition_detail
-            return policy_definitions
-        else:
-            result = self.request('/template/policy/definition/{0}'.format(type))
-            try:
-                return result['json']['data']
-            except:
-                return {}
+                        definition_list.append(definition_detail)
+                return definition_list
+            else:
+                return []
 
     def get_policy_definition_dict(self, type, key_name='name', remove_key=False):
 
@@ -584,28 +629,18 @@ class vmanage_session(object):
 
         return self.list_to_dict(policy_definition_list, key_name, remove_key=remove_key)
 
-    def get_central_policy_list(self):
-        result = self.request('/template/policy/vsmart')
-        if 'data' in result['json']:
-            central_policy_list = result['json']['data']
-            for policy in central_policy_list:
-                policy['policyDefinition'] = json.loads(policy['policyDefinition'])
-                for item in policy['policyDefinition']['assembly']:
-                    policy_definition = self.get_policy_definition(item['type'].lower(), item['definitionId'])
-                    item['definitionName'] = policy_definition['name']
-                    #
+    def convert_definition_id_to_name(self, policy_definition):
+        if 'assembly' in policy_definition:
+            for assembly_item in policy_definition['assembly']:
+                policy_definition_detail = self.get_policy_definition(assembly_item['type'].lower(), assembly_item['definitionId'])
+                definition_id = assembly_item.pop('definitionId')
+                if policy_definition_detail:
+                    assembly_item['definitionName'] = policy_definition_detail['name']
+                else:
+                    raise Exception("Cannot find policy definition for {0}".format(definition_id))
+                if 'entries' in assembly_item:
                     # Translate list IDs to names
-                    #
-                    if 'entries' in item:
-                        for entry in item['entries']:
-                            for key, list in entry.items():
-                                if key in POLICY_LIST_DICT:
-                                    for index, list_id in enumerate(list):
-                                        policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
-                                        list[index] = policy_list['name']
-            return central_policy_list
-        else:
-            return []
+                    self.convert_list_id_to_name(assembly_item['entries'])
 
     def get_central_policy_dict(self, type, key_name='policyName', remove_key=False):
 
@@ -621,28 +656,274 @@ class vmanage_session(object):
         except:
             return None
 
+    def export_policy_to_file(self, file):
+        policy_lists_list = self.get_policy_list_list()
+        policy_definitions_list = self.get_policy_definition_list()
+        central_policies_list = self.get_central_policy_list()
+        local_policies_list = self.get_local_policy_list()
+        
+        policy_export = {
+            'policy_lists': policy_lists_list,
+            'policy_definitions': policy_definitions_list,
+            'central_policies': central_policies_list,
+            'local_policies': local_policies_list
+        }
+
+        with open(file, 'w') as f:
+            json.dump(policy_export, f, indent=4, sort_keys=False)
+
+    def import_policy_from_file(self, file, update=False, check_mode=False, force=False):
+        changed = False
+        policy_list_updates = []
+        policy_definition_updates = []
+        central_policy_updates = []
+        local_policy_updates = []
+
+        # Read in the datafile
+        if not os.path.exists(file):
+            raise Exception(msg='Cannot find file {0}'.format(file))
+        with open(file) as f:
+            policy_data = json.load(f)
+
+        # Separate the feature template data from the device template data
+        policy_list_data = policy_data['policy_lists']
+        policy_definition_data = policy_data['policy_definitions']
+        central_policy_data = policy_data['central_policies']
+        local_policy_data = policy_data['local_policies']
+
+        for policy_list in policy_list_data:
+            diff = self.import_policy_list(policy_list, check_mode=check_mode, update=update, force=force)
+            if len(diff):
+                policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
+
+        for definition in policy_definition_data:
+            diff = self.import_policy_definition(definition, check_mode=check_mode, update=update, force=force)
+            if len(diff):
+                policy_definition_updates.append({'name': definition['name'], 'diff': diff})
+
+        for central_policy in central_policy_data:
+            diff = self.import_central_policy(central_policy, check_mode=check_mode, update=update, force=force)
+            if len(diff):
+                central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
+
+        for local_policy in local_policy_data:
+            diff = self.import_local_policy(local_policy, check_mode=check_mode, update=update, force=force)
+            if len(diff):
+                local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
+
+        return {
+            'policy_list_updates': policy_list_updates,
+            'policy_definition_updates': policy_definition_updates,
+            'central_policy_updates': central_policy_updates,
+            'local_policy_updates': local_policy_updates
+        }
+
+    def import_policy_list(self, policy_list, push=False, update=False, check_mode=False, force=False):
+        diff = []
+        # Policy Lists
+        policy_list_dict = self.get_policy_list_dict('all', remove_key=False)
+        if policy_list['name'] in policy_list_dict:
+            existing_list = policy_list_dict[policy_list['name']]
+            diff = list(dictdiffer.diff(existing_list['entries'], policy_list['entries']))
+            if diff:
+                policy_list['listId'] = policy_list_dict[policy_list['name']]['listId']
+                # If description is not specified, try to get it from the existing information
+                if not policy_list['description']:
+                    policy_list['description'] = policy_list_dict[policy_list['name']]['description']
+                if not check_mode and update:
+                    result = self.request('/template/policy/list/{0}/{1}'.format(policy_list['type'].lower(), policy_list['listId']),
+                                    method='PUT', payload=policy_list)
+                    if result['json']:
+                        # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
+                        # that lists the templates affected by the change.
+                        if 'error' in result['json']:
+                            raise Exception(result['json']['error']['message'])
+                        elif 'processId' in result['json']:
+                            process_id = result['json']['processId']
+                            self.result['put_payload'] = response.json['processId']
+                            if push:
+                                # If told to push out the change, we need to reattach each template affected by the change
+                                for template_id in result['json']['masterTemplatesAffected']:
+                                    action_id = self.reattach_device_template(template_id)
+
+                            # Delete the lock on the policy list
+                            # FIXME: The list does not seem to update when we unlock too soon, so I think that we need
+                            # to wait for the attachment, but need to understand this better.
+                            response = self.request('/template/lock/{0}'.format(process_id), method='DELETE')
+                        else:
+                            raise Exception("Did not get a process id when updating policy list")
+        else:
+            diff = list(dictdiffer.diff({}, policy_list))
+            if not check_mode:
+                self.request('/template/policy/list/{0}/'.format(policy_list['type'].lower()),
+                                method='POST', payload=list)
+
+        return diff
+
+    def import_policy_definition(self, definition, update=False, push=False, check_mode=False, force=False):
+        policy_definition_dict = self.get_policy_definition_dict(definition['type'], remove_key=False)
+        diff = []
+        payload = { 
+            "name": definition['name'],
+            "description": definition['description'],
+            "type": definition['type'],
+        }
+        if 'defaultAction' in definition:
+            payload.update({'defaultAction': definition['defaultAction']})           
+        if 'sequences' in definition:
+            payload.update({'sequences': definition['sequences']})        
+        if 'definition' in definition:
+            payload.update({'definition': definition['definition']})
+
+        if definition['name'] in policy_definition_dict:
+            existing_definition = policy_definition_dict[definition['name']]
+            if 'defaultAction' in payload:
+                diff.extend(list(dictdiffer.diff(existing_definition['defaultAction'], payload['defaultAction'])))           
+            if 'sequences' in payload:
+                diff.extend(list(dictdiffer.diff(existing_definition['sequences'], payload['sequences'])))        
+            if 'definition' in payload:
+                diff.extend(list(dictdiffer.diff(existing_definition['definition'], payload['definition'])))            
+            if len(diff):
+                if 'definition' in definition:
+                    self.convert_list_name_to_id(definition['definition'])
+                if 'sequences' in definition:
+                    self.convert_list_name_to_id(definition['sequences'])  
+                if not check_mode and update:
+                    self.request('/template/policy/definition/{0}/{1}'.format(definition['type'].lower(), policy_definition_dict[definition['name']]['definitionId']),
+                                    method='PUT', payload=payload)
+        else:
+            diff = list(dictdiffer.diff({}, payload))
+            # List does not exist
+            if 'definition' in definition:
+                self.convert_list_name_to_id(definition['definition'])
+            if 'sequences' in definition:
+                self.convert_list_name_to_id(definition['sequences'])    
+            if not check_mode:
+                self.request('/template/policy/definition/{0}/'.format(definition['type'].lower()),
+                                method='POST', payload=payload)
+
+        return diff
+
+    # def convert_sequences_to_id(self, sequence_list):
+    #     for sequence in sequence_list:
+    #         for entry in sequence['match']['entries']:
+    #             policy_list_dict = self.get_policy_list_dict(entry['listType'])
+    #             if entry['listName'] in policy_list_dict:
+    #                 entry['ref'] = policy_list_dict[entry['listName']]['listId']
+    #                 entry.pop('listName')
+    #                 entry.pop('listType')
+    #             else:
+    #                 raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
+    #     return sequence_list
+
+
+    def convert_definition_name_to_id(self, policy_definition):
+        if 'assembly' in policy_definition:
+            for assembly_item in policy_definition['assembly']:
+                definition_name = assembly_item.pop('definitionName')
+                policy_definition_dict = self.get_policy_definition_dict(assembly_item['type'])
+                if definition_name in policy_definition_dict:
+                    assembly_item['definitionId'] = policy_definition_dict[definition_name]['definitionId']
+                else:
+                    raise Exception("Cannot find policy definition {0}".format(definition_name))
+                if 'entries' in assembly_item:
+                    self.convert_list_name_to_id(assembly_item['entries'])
+
+#
+# Central Policy
+#
+    def get_central_policy_list(self):
+        result = self.request('/template/policy/vsmart')
+        if 'data' in result['json']:
+            central_policy_list = result['json']['data']
+            for policy in central_policy_list:
+                policy['policyDefinition'] = json.loads(policy['policyDefinition'])
+                self.convert_definition_id_to_name(policy['policyDefinition'])
+            return central_policy_list
+        else:
+            return []
+
+    def get_central_policy_dict(self, key_name='policyName', remove_key=False):
+
+        central_policy_list = self.get_central_policy_list()
+
+        return self.list_to_dict(central_policy_list, key_name, remove_key=remove_key)
+
+    def import_central_policy(self, central_policy, update=False, push=False, check_mode=False, force=False):
+        diff = []
+        central_policy_dict = self.get_central_policy_dict(remove_key=True)
+        payload = {
+            'policyName': central_policy['policyName']
+        }
+        payload['policyDescription'] = central_policy['policyDescription']
+        payload['policyType'] = central_policy['policyType']
+        payload['policyDefinition'] = central_policy['policyDefinition']
+        if payload['policyName'] in central_policy_dict:
+            # A policy by that name already exists
+            existing_policy = central_policy_dict[payload['policyName']]
+            diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
+            if len(diff):
+                # Convert list and definition names to template IDs
+                if 'policyDefinition' in payload:
+                    self.convert_definition_name_to_id(payload['policyDefinition'])
+                if not check_mode and update:
+                    self.request('/template/policy/vsmart/{0}'.format(existing_policy['policyId']), method='PUT', payload=payload)
+        else:
+            diff = list(dictdiffer.diff({}, payload['policyDefinition']))
+            if not check_mode:
+                # Convert list and definition names to template IDs
+                if 'policyDefinition' in payload:
+                    self.convert_definition_name_to_id(payload['policyDefinition'])
+                self.request('/template/policy/vsmart', method='POST', payload=payload)        
+        return diff
+
+#
+# Local Policy
+#
     def get_local_policy_list(self):
         result = self.request('/template/policy/vedge')
         if 'data' in result['json']:
             local_policy_list = result['json']['data']
             for policy in local_policy_list:
                 policy['policyDefinition'] = json.loads(policy['policyDefinition'])
-                for item in policy['policyDefinition']['assembly']:
-                    policy_definition = self.get_policy_definition(item['type'].lower(), item['definitionId'])
-                    item['definitionName'] = policy_definition['name']
-                #     #
-                #     # Translate list IDs to names
-                #     #
-                #     if 'entries' in item:
-                #         for entry in item['entries']:
-                #             for key, list in entry.items():
-                #                 if key in POLICY_LIST_DICT:
-                #                     for index, list_id in enumerate(list):
-                #                         policy_list = self.get_policy_list(POLICY_LIST_DICT[key], list_id)
-                #                         list[index] = policy_list['name']
+                self.convert_definition_id_to_name(policy['policyDefinition'])
             return local_policy_list
         else:
             return []
+
+    def get_local_policy_dict(self, key_name='policyName', remove_key=False):
+
+        local_policy_list = self.get_local_policy_list()
+
+        return self.list_to_dict(local_policy_list, key_name, remove_key=remove_key)
+
+    def import_local_policy(self, local_policy, update=False, push=False, check_mode=False, force=False):
+        diff = []
+        changes = False
+        local_policy_dict = self.get_local_policy_dict(remove_key=False)
+        payload = {
+            'policyName': local_policy['policyName']
+        }
+        payload['policyDescription'] = local_policy['policyDescription']
+        payload['policyType'] = local_policy['policyType']
+        payload['policyDefinition'] = local_policy['policyDefinition']
+        if payload['policyName'] in local_policy_dict:
+            # A policy by that name already exists
+            existing_policy = local_policy_dict[payload['policyName']]
+            diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
+            if len(diff):
+                if 'policyDefinition' in payload:
+                    self.convert_definition_name_to_id(payload['policyDefinition'])
+                if not check_mode and update:
+                    self.request('/template/policy/vedge/{0}'.format(existing_policy['policyId']), method='PUT', payload=payload)
+        else:
+            diff = list(dictdiffer.diff({}, payload['policyDefinition']))
+            if 'policyDefinition' in payload:
+                # Convert list and definition names to template IDs
+                self.convert_definition_name_to_id(payload['policyDefinition'])
+            if not check_mode:
+                self.request('/template/policy/vedge', method='POST', payload=payload)        
+        return diff
 
     def get_control_connections(self, device_ip):
         result = self.request('/device/control/connections?deviceId={0}'.format(device_ip))
@@ -728,201 +1009,3 @@ class vmanage_session(object):
             'action_activity': action_activity,
             'action_config': action_config
         }
-
-    def export_policy_to_file(self, file):
-        policy_lists_list = self.get_policy_list_list()
-        policy_definitions_list = self.get_policy_definition_list()
-        central_policies_list = self.get_central_policy_list()
-        local_policies_list = self.get_central_policy_list()
-        
-        policy_export = {
-            'policy_lists': policy_lists_list,
-            'policy_definitions': policy_definitions_list,
-            'central_policies': central_policies_list,
-            'local_policies': local_policies_list
-        }
-
-        with open(file, 'w') as f:
-            json.dump(policy_export, f, indent=4, sort_keys=False)
-
-    def import_policy_from_file(self, file, update=False, check_mode=False, force=False):
-        changed = False
-        policy_list_updates = 0
-        policy_definition_updates = 0
-        central_policy_updates = 0
-
-        # Read in the datafile
-        if not os.path.exists(file):
-            raise Exception(msg='Cannot find file {0}'.format(file))
-        with open(file) as f:
-            policy_data = json.load(f)
-
-        # Separate the feature template data from the device template data
-        policy_list_data = policy_data['policy_lists']
-        policy_definition_data = policy_data['policy_definitions']
-        central_policy_data = policy_data['central_policies']
-
-        for policy_list in policy_list_data:
-            if self.import_policy_list(policy_list, update=update, force=force):
-                policy_list_updates = policy_list_updates + 1
-
-        for type, definition_list in policy_definition_data.items():
-            for definition in definition_list:
-                if self.import_policy_definition(definition, update=update, force=force):
-                    policy_definition_updates = policy_definition_updates + 1
-
-        for central_policy in central_policy_data:
-            if self.import_central_policy(central_policy, update=update, force=force):
-                central_policy_updates = central_policy_updates + 1
-
-        return {
-            'policy_list_updates': policy_list_updates,
-            'policy_definition_updates': policy_definition_updates,
-            'central_policy_updates': central_policy_updates
-        }
-
-    def import_policy_list(self, list, push=False, update=False, check_mode=False, force=False):
-        changed = False
-        # Policy Lists
-        policy_list_dict = self.get_policy_list_dict('all', remove_key=False)
-        if list['name'] in policy_list_dict:
-            if update:
-                # FIXME Just compare the entries for now.
-                if list['entries'] != policy_list_dict[list['name']]['entries'] or force:
-                    changed = True
-                    list['listId'] = policy_list_dict[list['name']]['listId']
-                    # If description is not specified, try to get it from the existing information
-                    if not list['description']:
-                        list['description'] = policy_list_dict[list['name']]['description']
-                    if not check_mode:
-                        result = self.request('/template/policy/list/{0}/{1}'.format(list['type'].lower(), list['listId']),
-                                        method='PUT', payload=list)
-                        if result['json']:
-                            # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
-                            # that lists the templates affected by the change.
-                            if 'error' in result['json']:
-                                raise Exception(result['json']['error']['message'])
-                            elif 'processId' in result['json']:
-                                process_id = result['json']['processId']
-                                self.result['put_payload'] = response.json['processId']
-                                if push:
-                                    # If told to push out the change, we need to reattach each template affected by the change
-                                    for template_id in result['json']['masterTemplatesAffected']:
-                                        action_id = self.reattach_device_template(template_id)
-
-                                # Delete the lock on the policy list
-                                # FIXME: The list does not seem to update when we unlock too soon, so I think that we need
-                                # to wait for the attachment, but need to understand this better.
-                                response = self.request('/template/lock/{0}'.format(process_id), method='DELETE')
-                            else:
-                                raise Exception("Did not get a process id when updating policy list")
-        else:
-            if not check_mode:
-                self.request('/template/policy/list/{0}/'.format(list['type'].lower()),
-                                method='POST', payload=list)
-            changed = True
-
-        return changed
-
-    def import_policy_definition(self, list, update=False, push=False, check_mode=False, force=False):
-        policy_definition_dict = self.get_policy_definition_dict(list['type'], remove_key=False)
-        changed = False
-        payload = {
-            "name": list['name'],
-            "description": list['description'],
-            "type": list['type'],
-            "sequences": list['sequences'],
-            "defaultAction": list['defaultAction']
-        }
-        if list['name'] in policy_definition_dict:
-            # List already exist
-            if update:
-                changed_items = self.compare_payloads(list, policy_definition_dict[list['name']], compare_values=compare_values)
-                if changed_items:
-                    changed = True
-                    payload['sequences'] = self.convert_sequences_to_id(list['sequences'])
-                    if not check_mode:
-                        self.request('/template/policy/definition/{0}/{1}'.format(list['type'], policy_definition_dict[list['name']]['definitionId']),
-                                        method='PUT', payload=payload)
-        else:
-            # List does not exist
-            payload['sequences'] = self.convert_sequences_to_id(list['sequences'])
-            if not check_mode:
-                self.request('/template/policy/definition/{0}/'.format(list['type']),
-                                method='POST', payload=payload)
-            changed = True
-
-        return changed
-
-    def convert_sequences_to_id(self, sequence_list):
-        for sequence in sequence_list:
-            for entry in sequence['match']['entries']:
-                policy_list_dict = self.get_policy_list_dict(entry['listType'])
-                if entry['listName'] in policy_list_dict:
-                    entry['ref'] = policy_list_dict[entry['listName']]['listId']
-                    entry.pop('listName')
-                    entry.pop('listType')
-                else:
-                    raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
-        return sequence_list
-
-    def import_central_policy(self, central_policy, update=False, push=False, check_mode=False, force=False):
-        changed = False
-        central_policy_dict = self.get_central_policy_dict(remove_key=False)
-        payload = {
-            'policyName': central_policy['policyName']
-        }
-        payload['policyDescription'] = central_policy['policyDescription']
-        payload['policyType'] = central_policy['policyType']
-        payload['policyDefinition'] = central_policy['policyDefinition']
-        # If a template by that name is already there
-        if payload['policyName'] in central_policy_dict:
-            changed = False
-            # changed_items = viptela.compare_payloads(payload, device_template_dict[payload['templateName']], compare_values=compare_values)
-            # if changed_items:
-            #     viptela.result['changed'] = True
-            #     viptela.result['what_changed'] = changed_items
-            #     viptela.result['old_payload'] = device_template_dict[payload['templateName']]
-            #     if not module.check_mode:
-            #         #
-            #         # Convert template names to template IDs
-            #         #
-            #         if payload['configType'] == 'template':
-            #             payload['generalTemplates'] = viptela.generalTemplates_to_id(device_template['generalTemplates'])
-            #         viptela.request('/dataservice/template/device/feature/{0}'.format(device_template_dict[payload['templateName']]['templateId']),
-            #                         method='PUT', payload=payload)
-        else:
-            if not check_mode:
-                #
-                # Convert list and definition names to template IDs
-                #
-                regex = re.compile(r'^(?P<type>.*)Lists$')
-                for policy_item in central_policy['policyDefinition']['assembly']:
-                    definition_name = policy_item.pop('definitionName')
-                    policy_definition_dict = self.get_policy_definition_dict(policy_item['type'])
-                    if definition_name in policy_definition_dict:
-                        policy_item['definitionId'] = policy_definition_dict[definition_name]['definitionId']
-                    else:
-                        raise Exception("Cannot find policy definition {0}".format(definition_name))
-                    for entry in policy_item['entries']:
-                        for list_type, list in entry.items():
-                            match = regex.search(list_type)
-                            if match:
-                                type = match.groups('type')[0]
-                                if type in POLICY_LIST_TYPES:
-                                    policy_list_dict = self.get_policy_list_dict(type)
-                                    for index, list_name in enumerate(list):
-                                        list[index] = policy_list_dict[list_name]['listId']
-                                else:
-                                    raise Exception("Cannot find list type {0}".format(type))
-
-                self.request('/template/policy/vsmart', method='POST', payload=payload)
-                changed = True
-        
-        return changed
-
-    def get_central_policy_dict(self, key_name='policyName', remove_key=False):
-
-        central_policy_list = self.get_central_policy_list()
-
-        return self.list_to_dict(central_policy_list, key_name, remove_key=remove_key)

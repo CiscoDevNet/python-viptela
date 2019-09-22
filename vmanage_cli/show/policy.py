@@ -27,7 +27,7 @@ def list_cmd(ctx, name, type, json):
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all',
                help="Definition type",
-               type=click.Choice(['hubandspoke', 'controllers', 'all']))
+               type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
 @click.pass_context
 def definition(ctx, name, type, json):
     """

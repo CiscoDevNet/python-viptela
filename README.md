@@ -42,6 +42,7 @@ Commands:
 
 ### Exporting Templates
 
+
 ```bash
 vmanage export templates --file vmanage-templates.json
 ```
@@ -54,6 +55,12 @@ vmanage --host=192.133.178.54 export templates --file vmanage-templates.json
 
 ### Import Templates
 
+#### Options
+
+* `--check`: Just check. No changes. (default=False)
+* `--update`: Update if exists (default=False)
+* `--diff`: Show diffs (default=False)
+
 ```bash
 vmanage import templates --file vmanage-templates.json
 ```
@@ -65,6 +72,12 @@ vmanage export policy --file vmanage-policy.json
 ```
 
 ### Import Policy
+
+#### Options
+
+* `--check`: Just check. No changes. (default=False)
+* `--update`: Update if exists (default=False)
+* `--diff`: Show diffs (default=False)
 
 ```bash
 vmanage import policy --file vmanage-policy.json

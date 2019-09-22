@@ -7,6 +7,7 @@ setup(
     install_requires=[
         'Click',
         'requests',
+        'dictdiffer',
     ],
     entry_points='''
         [console_scripts]
