@@ -1,6 +1,9 @@
 # cisco-sdwan-python
 
-## Using this repo directly
+This repo contains a Python SDK for Cisco SDWAN as well as a CLI for excercising that SDK
+
+## Installation
+
 ```bash
 git clone https://github.com/CiscoDevNet/cisco-sdwan-python.git
 cd cisco-sdwan-python
@@ -9,18 +12,15 @@ python3 -m venv env
 pip install -e .
 ```
 
-## vManage Command Line Interface
+## Environment Variables
 
-Vmanage host and credentials can be specified via environment variables,
-command line options, or a combination of the two:
-
-### Environment Variables
+IP/DNS and credentials for the vManage server can be set for the SDK via environment variable
 
 * `VMANAGE_HOST`
 * `VMANAGE_USERNAME`
 * `VMANAGE_PASSWORD`
 
-### Command Line Options
+## vManage Command Line Interface
 
 ```bash
 $ vmanage --help
@@ -38,46 +38,61 @@ Commands:
   show    Show commands
 ```
 
->Note: If no password is specified, the user will be prompted for one.
+vManage host and credentials can be also specified via command line options.  The
+command line options override the environment variables. If no password is specified,
+the user will be prompted for one.
 
-### Exporting Templates
+### Importing and exporting of templates and policy
 
+#### Data file format
+
+All template information is exported to a single file with to lists: `feature_templates` and `device_templates`.  Each list contains dictionaries as pulled from the vManage API with a few
+additions and modifications.  First, a list of attached devices and a list of input variables
+is added to the device template.  Then instance IDs are translated into name so that the templates
+can be imported into another vManage.
+
+All policy template information is exported to a single file with four lists: `policy_lists`,
+`policy_definitions`, `central_policies`, `local_policies`.  Each list contains dictionaries as
+pulled from the vManage API with the instance IDs converted to names so that policies can be
+imported into another vManage.
+
+#### Import Options
+
+* `--check`: Just check. No changes. (default=False)
+* `--update`: Update if exists (default=False)
+* `--diff`: Show diffs (default=False)
+
+The CLI/SDK will import templates and policy idempotently and as non-destructivly as possible.
+It will only add templates and policies that are not there.  When a template or policy does exist
+but is different than what is in the import file, it will not he updates unless the `--update`
+option is given.
+
+##### Export templates to a file
 
 ```bash
 vmanage export templates --file vmanage-templates.json
 ```
 
-#### To specify/override the host:
+##### Export templates from a specific vMaange
 
 ```bash
 vmanage --host=192.133.178.54 export templates --file vmanage-templates.json
 ```
 
-### Import Templates
+##### Import templates
 
-#### Options
-
-* `--check`: Just check. No changes. (default=False)
-* `--update`: Update if exists (default=False)
-* `--diff`: Show diffs (default=False)
 
 ```bash
 vmanage import templates --file vmanage-templates.json
 ```
 
-### Exporting Policy
+##### Exporting Policy
 
 ```bash
 vmanage export policy --file vmanage-policy.json
 ```
 
-### Import Policy
-
-#### Options
-
-* `--check`: Just check. No changes. (default=False)
-* `--update`: Update if exists (default=False)
-* `--diff`: Show diffs (default=False)
+##### Import Policy
 
 ```bash
 vmanage import policy --file vmanage-policy.json
@@ -85,7 +100,7 @@ vmanage import policy --file vmanage-policy.json
 
 ### Show Information
 
-#### Commands:
+#### The following show commands are available
 
 * control - Show control information
   * connections
@@ -104,7 +119,7 @@ vmanage import policy --file vmanage-policy.json
 
 #### Examples
 
-##### Diff two templates:
+##### Diff two templates
 
 ```
 vmanage show template g0/0/0-R1 --diff g0/0/0-R2
@@ -130,3 +145,7 @@ vmanage show template g0/0/0-R1 --diff g0/0/0-R2
       'color to custom2')),
   ('change', 'lastUpdatedOn', (1569072320921, 1569072320260))]
 ```
+
+## License
+
+CISCO SAMPLE CODE LICENSE

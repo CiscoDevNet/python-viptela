@@ -672,7 +672,7 @@ class vmanage_session(object):
         with open(file, 'w') as f:
             json.dump(policy_export, f, indent=4, sort_keys=False)
 
-    def import_policy_from_file(self, file, update=False, check_mode=False, force=False):
+    def import_policy_from_file(self, file, update=False, check_mode=False, push=False):
         changed = False
         policy_list_updates = []
         policy_definition_updates = []
@@ -692,22 +692,22 @@ class vmanage_session(object):
         local_policy_data = policy_data['local_policies']
 
         for policy_list in policy_list_data:
-            diff = self.import_policy_list(policy_list, check_mode=check_mode, update=update, force=force)
+            diff = self.import_policy_list(policy_list, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
 
         for definition in policy_definition_data:
-            diff = self.import_policy_definition(definition, check_mode=check_mode, update=update, force=force)
+            diff = self.import_policy_definition(definition, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 policy_definition_updates.append({'name': definition['name'], 'diff': diff})
 
         for central_policy in central_policy_data:
-            diff = self.import_central_policy(central_policy, check_mode=check_mode, update=update, force=force)
+            diff = self.import_central_policy(central_policy, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
 
         for local_policy in local_policy_data:
-            diff = self.import_local_policy(local_policy, check_mode=check_mode, update=update, force=force)
+            diff = self.import_local_policy(local_policy, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
 
@@ -803,19 +803,6 @@ class vmanage_session(object):
                                 method='POST', payload=payload)
 
         return diff
-
-    # def convert_sequences_to_id(self, sequence_list):
-    #     for sequence in sequence_list:
-    #         for entry in sequence['match']['entries']:
-    #             policy_list_dict = self.get_policy_list_dict(entry['listType'])
-    #             if entry['listName'] in policy_list_dict:
-    #                 entry['ref'] = policy_list_dict[entry['listName']]['listId']
-    #                 entry.pop('listName')
-    #                 entry.pop('listType')
-    #             else:
-    #                 raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
-    #     return sequence_list
-
 
     def convert_definition_name_to_id(self, policy_definition):
         if 'assembly' in policy_definition:

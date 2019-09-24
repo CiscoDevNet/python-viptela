@@ -6,13 +6,14 @@ import pprint
 @click.argument('type', default='all')
 @click.option('--check/--no-check', help="Just check (no changes)", default=False)
 @click.option('--update/--no-update', help="Update if exists", default=False)
+@click.option('--push/--no-push', help="Push update (when specifed with --update)", default=False)
 @click.option('--diff/--no-diff', help="Show Diffs", default=False)
 @click.option('--file', '-f', help="output File name", required=True)
 # @click.option('--type',
 #               help="Device type [vedges, controllers]",
 #               type=click.Choice(['vedges', 'controllers']))
 @click.pass_context
-def policy(ctx, type, file, update, check, diff):
+def policy(ctx, type, file, update, check, diff, push):
     """
     Import policy from file
     """
@@ -20,7 +21,7 @@ def policy(ctx, type, file, update, check, diff):
     pp = pprint.PrettyPrinter(indent=2)
 
     click.echo(f"{'Checking' if check else 'Importing'} policy from {file}")
-    result = vmanage_session.import_policy_from_file(file, update=update, check_mode=check)
+    result = vmanage_session.import_policy_from_file(file, update=update, check_mode=check, push=push)
     print(f"Policy List Updates: {len(result['policy_list_updates'])}")
     if diff:
         for diff_item in result['policy_list_updates']:
