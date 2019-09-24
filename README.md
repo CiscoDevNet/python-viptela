@@ -1,4 +1,4 @@
-# cisco-sdwan-python
+# Cisco SDWAN Python CLI/SDK
 
 This repo contains a Python SDK for Cisco SDWAN as well as a CLI for excercising that SDK
 
