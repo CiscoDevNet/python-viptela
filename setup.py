@@ -8,6 +8,7 @@ setup(
         'Click',
         'requests',
         'dictdiffer',
+        'PyYAML'
     ],
     entry_points='''
         [console_scripts]
