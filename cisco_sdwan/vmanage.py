@@ -5,9 +5,9 @@ import requests
 import re
 import time
 import os
-from collections import OrderedDict
 import urllib3
 import dictdiffer
+import yaml
 import pprint
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -134,7 +134,7 @@ class vmanage_session(object):
         return result
 
     def list_to_dict(self, list, key_name, remove_key=True):
-        dict = OrderedDict()
+        dict = {}
         for item in list:
             if key_name in item:
                 if remove_key:
@@ -288,7 +288,7 @@ class vmanage_session(object):
             for template in template_list:
                 if not factory_default and template['factoryDefault']:
                     continue
-                template['templateDefinition'] = json.loads(template['templateDefinition'], object_pairs_hook=OrderedDict)
+                template['templateDefinition'] = json.loads(template['templateDefinition'])
                 template.pop('editedTemplateDefinition', None)
                 return_list.append(template)
 
@@ -342,40 +342,31 @@ class vmanage_session(object):
                         return_dict['columns'].append(entry)
 
         return return_dict
-    def export_templates_to_file(self, file):
+    def export_templates_to_file(self, export_file):
         feature_template_list = self.get_feature_template_list()
         device_template_list = self.get_device_template_list()
-        template_export = OrderedDict()
+        template_export = {}
 
         template_export = {
             'feature_templates': feature_template_list,
             'device_templates': device_template_list
         }
 
-        with open(file, 'w') as f:
-            json.dump(template_export, f, indent=4, sort_keys=False)
-
-    def read_templates_from_file(self, file, update=False, check_mode=False, force=False):
-        changed = False
-        feature_template_updates = 0
-        device_template_updates = 0
-        template_data = OrderedDict()
-        feature_template_data = OrderedDict()
-
-        # Read in the datafile
-        if not os.path.exists(file):
-            raise Exception(msg='Cannot find file {0}'.format(file))
-        with open(file) as f:
-            template_data = json.load(f)
-
-        return template_data
+        if export_file.endswith('.json'):
+            with open(export_file, 'w') as outfile:
+                json.dump(template_export, outfile, indent=4, sort_keys=False)
+        elif export_file.endswith('.yaml') or export_file.endswith('.yml'):
+            with open(export_file, 'w') as outfile:
+                yaml.dump(template_export, outfile, indent=4, sort_keys=False)
+        else:
+            raise Exception("File format not supported")    
 
     def import_templates_from_file(self, file, update=False, check_mode=False):
         changed = False
         feature_template_updates = []
         device_template_updates = []
-        template_data = OrderedDict()
-        feature_template_data = OrderedDict()
+        template_data = {}
+        feature_template_data = {}
 
         # Read in the datafile
         if not os.path.exists(file):
@@ -427,7 +418,6 @@ class vmanage_session(object):
                 }        
 
     def add_feature_template(self, feature_template):
-        payload = OrderedDict()
         payload = {
             'templateName': feature_template['templateName'],
             'templateDescription': feature_template['templateDescription'],
@@ -656,7 +646,7 @@ class vmanage_session(object):
         except:
             return None
 
-    def export_policy_to_file(self, file):
+    def export_policy_to_file(self, export_file):
         policy_lists_list = self.get_policy_list_list()
         policy_definitions_list = self.get_policy_definition_list()
         central_policies_list = self.get_central_policy_list()
@@ -669,8 +659,14 @@ class vmanage_session(object):
             'local_policies': local_policies_list
         }
 
-        with open(file, 'w') as f:
-            json.dump(policy_export, f, indent=4, sort_keys=False)
+        if export_file.endswith('.json'):
+            with open(export_file, 'w') as outfile:
+                json.dump(policy_export, outfile, indent=4, sort_keys=False)
+        elif export_file.endswith('.yaml') or export_file.endswith('.yml'):
+            with open(export_file, 'w') as outfile:
+                yaml.dump(policy_export, outfile, default_flow_style=False)
+        else:
+            raise Exception("File format not supported")    
 
     def import_policy_from_file(self, file, update=False, check_mode=False, push=False):
         changed = False
@@ -681,7 +677,7 @@ class vmanage_session(object):
 
         # Read in the datafile
         if not os.path.exists(file):
-            raise Exception(msg='Cannot find file {0}'.format(file))
+            raise Exception('Cannot find file {0}'.format(file))
         with open(file) as f:
             policy_data = json.load(f)
 
@@ -756,7 +752,7 @@ class vmanage_session(object):
             diff = list(dictdiffer.diff({}, policy_list))
             if not check_mode:
                 self.request('/template/policy/list/{0}/'.format(policy_list['type'].lower()),
-                                method='POST', payload=list)
+                                method='POST', payload=policy_list)
 
         return diff
 
@@ -824,7 +820,12 @@ class vmanage_session(object):
         if 'data' in result['json']:
             central_policy_list = result['json']['data']
             for policy in central_policy_list:
-                policy['policyDefinition'] = json.loads(policy['policyDefinition'])
+                try:
+                    json_policy = json.loads(policy['policyDefinition'])
+                    policy['policyDefinition'] = json_policy
+                except:
+                    pass
+                # policy['policyDefinition'] = json.loads(policy['policyDefinition'])
                 self.convert_definition_id_to_name(policy['policyDefinition'])
             return central_policy_list
         else:
