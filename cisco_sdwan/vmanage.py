@@ -682,7 +682,7 @@ class vmanage_session(object):
             policy_data = json.load(f)
 
         # Separate the feature template data from the device template data
-        policy_list_data = policy_data['policy_l    ists']
+        policy_list_data = policy_data['policy_lists']
         policy_definition_data = policy_data['policy_definitions']
         central_policy_data = policy_data['central_policies']
         local_policy_data = policy_data['local_policies']
@@ -820,7 +820,6 @@ class vmanage_session(object):
         if 'data' in result['json']:
             central_policy_list = result['json']['data']
             for policy in central_policy_list:
-                # This is to accommodate CLI policy
                 try:
                     json_policy = json.loads(policy['policyDefinition'])
                     policy['policyDefinition'] = json_policy
