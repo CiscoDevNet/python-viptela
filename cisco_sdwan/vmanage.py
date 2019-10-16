@@ -613,7 +613,7 @@ class vmanage_session(object):
                             for sequence in definition_detail['sequences']:
                                 if 'match' in sequence and 'entries' in sequence['match']:
                                     for entry in sequence['match']['entries']:
-                                        if entry['ref'] in policy_list_dict:
+                                        if 'ref' in entry and entry['ref'] in policy_list_dict:
                                             entry['listName'] = policy_list_dict[entry['ref']]['name']
                                             entry['listType'] = policy_list_dict[entry['ref']]['type']
                                             entry.pop('ref')    
