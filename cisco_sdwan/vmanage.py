@@ -546,6 +546,14 @@ class vmanage_session(object):
                         input.pop('ref')   
                     else:
                         raise Exception("Could not find list {0}".format(input['ref']))
+                elif key == 'class':
+                    policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
+                    if input['class'] in policy_list_dict:
+                        input['className'] = policy_list_dict[input['class']]['name']
+                        input['classType'] = policy_list_dict[input['class']]['type']
+                        input.pop('class')   
+                    else:
+                        raise Exception("Could not find list {0}".format(input['ref']))                    
                 else:
                     self.convert_list_id_to_name(value)
         elif isinstance(input, list):
@@ -578,7 +586,7 @@ class vmanage_session(object):
                 elif key == 'listName':
                     # print(input['listName'])
                     if 'listType' in input:
-                        policy_list_dict = self.get_policy_list_dict(input['listType'])
+                        policy_list_dict = self.get_policy_list_dict(input['listType'], key_name='name')
                     else:
                         raise Exception("Could not find type for list {0}".format(input['listName']))
                     if input['listName'] in policy_list_dict and 'listId' in policy_list_dict[input['listName']]:
@@ -586,7 +594,18 @@ class vmanage_session(object):
                         input.pop('listName')
                         input.pop('listType') 
                     else:
-                        raise Exception("Could not find id for list {0}".format(input['listName']))                        
+                        raise Exception("Could not find id for list {0}, type {1}".format(input['listName'], input['listType']))
+                elif key == 'className':
+                    if 'classType' in input:
+                        policy_list_dict = self.get_policy_list_dict(input['classType'], key_name='name')
+                    else:
+                        raise Exception("Could not find type for list {0}".format(input['className']))
+                    if input['className'] in policy_list_dict and 'listId' in policy_list_dict[input['className']]:
+                        input['class'] = policy_list_dict[input['className']]['listId']
+                        input.pop('className')
+                        input.pop('classType') 
+                    else:
+                        raise Exception("Could not find id for list {0}, type {1}".format(input['listName'], input['listType']))                                              
                 else:
                     self.convert_list_name_to_id(value)
         elif isinstance(input, list):
@@ -601,7 +620,9 @@ class vmanage_session(object):
             if 'definition' in policy_definition:
                 self.convert_list_id_to_name(policy_definition['definition'])
             if 'sequences' in policy_definition:
-                self.convert_list_id_to_name(policy_definition['sequences'])    
+                self.convert_list_id_to_name(policy_definition['sequences'])
+            if 'rules' in policy_definition:
+                self.convert_list_id_to_name(policy_definition['rules'])                    
             return policy_definition
         else:
             return {}
@@ -780,7 +801,7 @@ class vmanage_session(object):
     def import_policy_list(self, policy_list, push=False, update=False, check_mode=False, force=False):
         diff = []
         # Policy Lists
-        policy_list_dict = self.get_policy_list_dict('all', remove_key=False, cache=False)
+        policy_list_dict = self.get_policy_list_dict(policy_list['type'], remove_key=False, cache=False)
         if policy_list['name'] in policy_list_dict:
             existing_list = policy_list_dict[policy_list['name']]
             diff = list(dictdiffer.diff(existing_list['entries'], policy_list['entries']))
@@ -846,7 +867,9 @@ class vmanage_session(object):
                 if 'definition' in definition:
                     self.convert_list_name_to_id(definition['definition'])
                 if 'sequences' in definition:
-                    self.convert_sequences_to_id(definition['sequences'])  
+                    self.convert_sequences_to_id(definition['sequences'])
+                if 'rules' in definition:
+                    self.convert_sequences_to_id(definition['rules'])                      
                 if not check_mode and update:
                     self.request('/template/policy/definition/{0}/{1}'.format(definition['type'].lower(), policy_definition_dict[definition['name']]['definitionId']),
                                     method='PUT', payload=payload)
@@ -856,7 +879,9 @@ class vmanage_session(object):
             if 'definition' in definition:
                 self.convert_list_name_to_id(definition['definition'])
             if 'sequences' in definition:
-                self.convert_list_name_to_id(definition['sequences'])    
+                self.convert_list_name_to_id(definition['sequences']) 
+            if 'rules' in definition:
+                self.convert_list_name_to_id(definition['rules'])        
             if not check_mode:
                 self.request('/template/policy/definition/{0}/'.format(definition['type'].lower()),
                                 method='POST', payload=payload)
