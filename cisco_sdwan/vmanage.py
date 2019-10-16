@@ -603,15 +603,35 @@ class vmanage_session(object):
             return all_definitions_list
         else:
             definition_list = []
+            policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
             result = self.request('/template/policy/definition/{0}'.format(definition_type.lower()))
             if 'data' in result['json']:
                 for definition in result['json']['data']:
                     definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
                     if definition_detail:
+                        if 'sequences' in definition_detail:
+                            for sequence in definition_detail['sequences']:
+                                if 'match' in sequence and 'entries' in sequence['match']:
+                                    for entry in sequence['match']['entries']:
+                                        entry['listName'] = policy_list_dict[entry['ref']]['name']
+                                        entry['listType'] = policy_list_dict[entry['ref']]['type']
+                                        entry.pop('ref')
                         definition_list.append(definition_detail)
                 return definition_list
             else:
                 return []
+
+    def convert_sequences_id_to_name(self, sequence_list):
+        policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
+        for sequence in sequence_list:
+            if 'match' in sequence and 'entries' in sequence['match']:
+                for entry in sequence['match']['entries']:
+                    if entry['ref'] in policy_list_dict:
+                        entry['listName'] = policy_list_dict[entry['ref']]['name']
+                        entry['listType'] = policy_list_dict[entry['ref']]['type']
+                        entry.pop('ref')
+                    else:
+                        raise Exception("Could not find list {0}".format(entry['ref']))
 
     def get_policy_definition_dict(self, type, key_name='name', remove_key=False):
 
@@ -631,6 +651,18 @@ class vmanage_session(object):
                 if 'entries' in assembly_item:
                     # Translate list IDs to names
                     self.convert_list_id_to_name(assembly_item['entries'])
+
+    def convert_sequences_to_id(self, sequence_list):
+        for sequence in sequence_list:
+            if 'match' in sequence and 'entries' in sequence['match']:
+                for entry in sequence['match']['entries']:
+                    policy_list_dict = self.get_policy_list_dict(entry['listType'])
+                    if entry['listName'] in policy_list_dict:
+                        entry['ref'] = policy_list_dict[entry['listName']]['listId']
+                        entry.pop('listName')
+                        entry.pop('listType')
+                    else:
+                        raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
 
     def get_central_policy_dict(self, type, key_name='policyName', remove_key=False):
 
@@ -783,7 +815,7 @@ class vmanage_session(object):
                 if 'definition' in definition:
                     self.convert_list_name_to_id(definition['definition'])
                 if 'sequences' in definition:
-                    self.convert_list_name_to_id(definition['sequences'])  
+                    self.convert_sequences_to_id(definition['sequences'])  
                 if not check_mode and update:
                     self.request('/template/policy/definition/{0}/{1}'.format(definition['type'].lower(), policy_definition_dict[definition['name']]['definitionId']),
                                     method='PUT', payload=payload)
@@ -793,7 +825,7 @@ class vmanage_session(object):
             if 'definition' in definition:
                 self.convert_list_name_to_id(definition['definition'])
             if 'sequences' in definition:
-                self.convert_list_name_to_id(definition['sequences'])    
+                self.convert_sequences_to_id(definition['sequences'])    
             if not check_mode:
                 self.request('/template/policy/definition/{0}/'.format(definition['type'].lower()),
                                 method='POST', payload=payload)
