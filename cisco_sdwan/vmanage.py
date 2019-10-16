@@ -56,7 +56,7 @@ class vmanage_session(object):
         self.base_url = 'https://{0}:{1}/dataservice'.format(self.host, self.port)
         self.session = requests.Session()
         self.session.verify = validate_certs
-
+        self.policy_list_cache = {}
         self.login()
 
 
@@ -489,30 +489,35 @@ class vmanage_session(object):
 #
 # Policy
 #
-    def get_policy_list(self, type, list_id):
-        result = self.request('/template/policy/list/{0}/{1}'.format(type.lower(), list_id))
-        return result['json']
+    # def get_policy_list(self, type, list_id):
+    #     result = self.request('/template/policy/list/{0}/{1}'.format(type.lower(), list_id))
+    #     return result['json']
 
-    def get_policy_list_list(self, type='all'):
-        if type == 'all':
-            result = self.request('/template/policy/list', status_codes=[200])
+    def get_policy_list_list(self, type='all', cache=True):
+        # print("Get list {0}". format(type))
+        if cache and type in self.policy_list_cache:
+            result = self.policy_list_cache[type]
         else:
-            result = self.request('/template/policy/list/{0}'.format(type.lower()), status_codes=[200, 404])
+            if type == 'all':
+                result = self.request('/template/policy/list', status_codes=[200])
+            else:
+                result = self.request('/template/policy/list/{0}'.format(type.lower()), status_codes=[200, 404])
 
         if result['status_code'] == 404:
             return []
         else:
+            self.policy_list_cache[type] = result
             return result['json']['data']
 
-    def get_policy_list_dict(self, type='all', key_name='name', remove_key=False):
+    def get_policy_list_dict(self, type='all', key_name='name', remove_key=False, cache=True):
 
-        policy_list = self.get_policy_list_list(type)
+        policy_list = self.get_policy_list_list(type, cache=cache)
 
         return self.list_to_dict(policy_list, key_name, remove_key=remove_key)
 
     def convert_list_id_to_name(self, input):
         if isinstance(input, dict):
-            for key, value in input.items():
+            for key, value in list(input.items()):
                 if key.endswith('List'):
                     type = key[0:len(key)-4]
                     policy_list = vmanage_session.get_policy_list(self, type, value)
@@ -533,6 +538,14 @@ class vmanage_session(object):
                     policy_list_dict = self.get_policy_list_dict('zone', key_name='listId')
                     if value in policy_list_dict:
                         input[key] = policy_list_dict[value]['name']
+                elif key == 'ref':
+                    policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
+                    if input['ref'] in policy_list_dict:
+                        input['listName'] = policy_list_dict[input['ref']]['name']
+                        input['listType'] = policy_list_dict[input['ref']]['type']
+                        input.pop('ref')   
+                    else:
+                        raise Exception("Could not find list {0}".format(input['ref']))
                 else:
                     self.convert_list_id_to_name(value)
         elif isinstance(input, list):
@@ -541,7 +554,7 @@ class vmanage_session(object):
 
     def convert_list_name_to_id(self, input):
         if isinstance(input, dict):
-            for key, value in input.items():
+            for key, value in list(input.items()):
                 if key.endswith('List'):
                     type = key[0:len(key)-4]
                     policy_list_dict = self.get_policy_list_dict(type)
@@ -562,6 +575,18 @@ class vmanage_session(object):
                     policy_list_dict = self.get_policy_list_dict('zone')
                     if value in policy_list_dict:
                         input[key] = policy_list_dict[value]['listId']
+                elif key == 'listName':
+                    # print(input['listName'])
+                    if 'listType' in input:
+                        policy_list_dict = self.get_policy_list_dict(input['listType'])
+                    else:
+                        raise Exception("Could not find type for list {0}".format(input['listName']))
+                    if input['listName'] in policy_list_dict and 'listId' in policy_list_dict[input['listName']]:
+                        input['ref'] = policy_list_dict[input['listName']]['listId']
+                        input.pop('listName')
+                        input.pop('listType') 
+                    else:
+                        raise Exception("Could not find id for list {0}".format(input['listName']))                        
                 else:
                     self.convert_list_name_to_id(value)
         elif isinstance(input, list):
@@ -609,30 +634,30 @@ class vmanage_session(object):
                 for definition in result['json']['data']:
                     definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
                     if definition_detail:
-                        if 'sequences' in definition_detail:
-                            for sequence in definition_detail['sequences']:
-                                if 'match' in sequence and 'entries' in sequence['match']:
-                                    for entry in sequence['match']['entries']:
-                                        if 'ref' in entry and entry['ref'] in policy_list_dict:
-                                            entry['listName'] = policy_list_dict[entry['ref']]['name']
-                                            entry['listType'] = policy_list_dict[entry['ref']]['type']
-                                            entry.pop('ref')    
+                        # if 'sequences' in definition_detail:
+                        #     for sequence in definition_detail['sequences']:
+                        #         if 'match' in sequence and 'entries' in sequence['match']:
+                        #             for entry in sequence['match']['entries']:
+                        #                 if 'ref' in entry and entry['ref'] in policy_list_dict:
+                        #                     entry['listName'] = policy_list_dict[entry['ref']]['name']
+                        #                     entry['listType'] = policy_list_dict[entry['ref']]['type']
+                        #                     entry.pop('ref')    
                         definition_list.append(definition_detail)
                 return definition_list
             else:
                 return []
 
-    def convert_sequences_id_to_name(self, sequence_list):
-        policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
-        for sequence in sequence_list:
-            if 'match' in sequence and 'entries' in sequence['match']:
-                for entry in sequence['match']['entries']:
-                    if entry['ref'] in policy_list_dict:
-                        entry['listName'] = policy_list_dict[entry['ref']]['name']
-                        entry['listType'] = policy_list_dict[entry['ref']]['type']
-                        entry.pop('ref')
-                    else:
-                        raise Exception("Could not find list {0}".format(entry['ref']))
+    # def convert_sequences_id_to_name(self, sequence_list):
+    #     policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
+    #     for sequence in sequence_list:
+    #         if 'match' in sequence and 'entries' in sequence['match']:
+    #             for entry in sequence['match']['entries']:
+    #                 if entry['ref'] in policy_list_dict:
+    #                     entry['listName'] = policy_list_dict[entry['ref']]['name']
+    #                     entry['listType'] = policy_list_dict[entry['ref']]['type']
+    #                     entry.pop('ref')
+    #                 else:
+    #                     raise Exception("Could not find list {0}".format(entry['ref']))
 
     def get_policy_definition_dict(self, type, key_name='name', remove_key=False):
 
@@ -657,13 +682,14 @@ class vmanage_session(object):
         for sequence in sequence_list:
             if 'match' in sequence and 'entries' in sequence['match']:
                 for entry in sequence['match']['entries']:
-                    policy_list_dict = self.get_policy_list_dict(entry['listType'])
-                    if entry['listName'] in policy_list_dict:
-                        entry['ref'] = policy_list_dict[entry['listName']]['listId']
-                        entry.pop('listName')
-                        entry.pop('listType')
-                    else:
-                        raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
+                    if 'listName' in entry:
+                        policy_list_dict = self.get_policy_list_dict(entry['listType'])
+                        if entry['listName'] in policy_list_dict:
+                            entry['ref'] = policy_list_dict[entry['listName']]['listId']
+                            entry.pop('listName')
+                            entry.pop('listType')
+                        else:
+                            raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
 
     def get_central_policy_dict(self, type, key_name='policyName', remove_key=False):
 
@@ -721,21 +747,25 @@ class vmanage_session(object):
         local_policy_data = policy_data['local_policies']
 
         for policy_list in policy_list_data:
+            # print("Importing Policy Lists")
             diff = self.import_policy_list(policy_list, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
 
         for definition in policy_definition_data:
+            # print("Importing Policy Definitions")
             diff = self.import_policy_definition(definition, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 policy_definition_updates.append({'name': definition['name'], 'diff': diff})
 
         for central_policy in central_policy_data:
+            # print("Importing Central Policy")
             diff = self.import_central_policy(central_policy, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
 
         for local_policy in local_policy_data:
+            # print("Importing Local Policy")
             diff = self.import_local_policy(local_policy, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
@@ -750,7 +780,7 @@ class vmanage_session(object):
     def import_policy_list(self, policy_list, push=False, update=False, check_mode=False, force=False):
         diff = []
         # Policy Lists
-        policy_list_dict = self.get_policy_list_dict('all', remove_key=False)
+        policy_list_dict = self.get_policy_list_dict('all', remove_key=False, cache=False)
         if policy_list['name'] in policy_list_dict:
             existing_list = policy_list_dict[policy_list['name']]
             diff = list(dictdiffer.diff(existing_list['entries'], policy_list['entries']))
@@ -826,7 +856,7 @@ class vmanage_session(object):
             if 'definition' in definition:
                 self.convert_list_name_to_id(definition['definition'])
             if 'sequences' in definition:
-                self.convert_sequences_to_id(definition['sequences'])    
+                self.convert_list_name_to_id(definition['sequences'])    
             if not check_mode:
                 self.request('/template/policy/definition/{0}/'.format(definition['type'].lower()),
                                 method='POST', payload=payload)
