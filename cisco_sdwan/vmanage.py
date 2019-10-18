@@ -400,14 +400,24 @@ class vmanage_session(object):
         for device_template in device_template_data:
             if device_template['templateName'] in device_template_dict:
                 existing_template = device_template_dict[device_template['templateName']]
-                diff = list(dictdiffer.diff(existing_template['generalTemplates'], device_template['generalTemplates']))
+                if 'generalTemplates' in device_template:
+                    diff = list(dictdiffer.diff(existing_template['generalTemplates'], device_template['generalTemplates']))
+                elif 'templateConfiguration' in device_template:
+                    diff = list(dictdiffer.diff(existing_template['templateConfiguration'], device_template['templateConfiguration']))
+                else:
+                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
                 if len(diff):
                     device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
                     if not check_mode and update:
                         if not check_mode:
                             self.add_device_template(device_template)
             else:
-                diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
+                if 'generalTemplates' in device_template:
+                    diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
+                elif 'templateConfiguration' in device_template:
+                    diff = list(dictdiffer.diff({}, device_template['templateConfiguration']))
+                else:
+                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
                 device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
                 if not check_mode:
                     self.add_device_template(device_template)
@@ -427,7 +437,7 @@ class vmanage_session(object):
             'templateMinVersion': feature_template['templateMinVersion'],
             'factoryDefault': feature_template['factoryDefault'],
             'configType': feature_template['configType'],
-            'feature': feature_template['feature'],
+            # 'feature': feature_template['feature'],
         }
         return self.request('/template/feature/', method='POST', data=json.dumps(payload))
 
@@ -762,10 +772,22 @@ class vmanage_session(object):
             policy_data = json.load(f)
 
         # Separate the feature template data from the device template data
-        policy_list_data = policy_data['policy_lists']
-        policy_definition_data = policy_data['policy_definitions']
-        central_policy_data = policy_data['central_policies']
-        local_policy_data = policy_data['local_policies']
+        if 'policy_lists' in policy_data:
+            policy_list_data = policy_data['policy_lists']
+        else:
+            policy_list_data = []
+        if 'policy_definitions' in policy_data:
+            policy_definition_data = policy_data['policy_definitions']
+        else:
+            policy_definition_data = []
+        if 'central_policies' in policy_data:
+            central_policy_data = policy_data['central_policies']
+        else:
+            central_policy_data = []
+        if 'local_policies' in policy_data:
+            local_policy_data = policy_data['local_policies']
+        else:
+            local_policy_data = []
 
         for policy_list in policy_list_data:
             # print("Importing Policy Lists")
