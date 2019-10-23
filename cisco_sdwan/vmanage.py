@@ -375,8 +375,12 @@ class vmanage_session(object):
             template_data = json.load(f)
 
         # Separate the feature template data from the device template data
-        feature_template_data = template_data['feature_templates']
-        device_template_data = template_data['device_templates']
+        if 'feature_templates' in template_data:
+            feature_template_data = template_data['feature_templates']
+        else:
+            feature_template_data = []
+        if 'device_templates' in template_data:
+            device_template_data = template_data['device_templates']
 
         # Process the feature templates
         feature_template_dict = self.get_feature_template_dict(factory_default=True, remove_key=False)
@@ -530,9 +534,9 @@ class vmanage_session(object):
             for key, value in list(input.items()):
                 if key.endswith('List'):
                     type = key[0:len(key)-4]
-                    policy_list = vmanage_session.get_policy_list(self, type, value)
-                    if policy_list:
-                        input[key] = policy_list['name']
+                    policy_list_dict = self.get_policy_list_dict(type, key_name='listId')
+                    if value in policy_list_dict:
+                        input[key] = policy_list_dict[value]['name']
                 elif key.endswith('Lists'):
                     type = key[0:len(key)-5]
                     policy_list_dict = self.get_policy_list_dict(type, key_name='listId')
