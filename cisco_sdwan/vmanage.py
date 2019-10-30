@@ -221,18 +221,6 @@ class vmanage_session(object):
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
 
-    def get_device_by_device_ip(self, device_ip):
-        result = self.request('/system/device/controllers?deviceIP={0}'.format(device_ip))        
-        if 'data' in result['json'] and result['json']['data']:
-            return result['json']['data']
-        
-        result = self.request('/system/device/vedges?deviceIP={0}'.format(device_ip))
-
-        try:
-            return result['json']['data']
-        except:
-            return {}
-
 #
 # Templates
 #
@@ -348,8 +336,8 @@ class vmanage_session(object):
         template_export = {}
 
         template_export = {
-            'feature_templates': feature_template_list,
-            'device_templates': device_template_list
+            'vmanage_feature_templates': feature_template_list,
+            'vmanage_device_templates': device_template_list
         }
 
         if export_file.endswith('.json'):
@@ -372,15 +360,20 @@ class vmanage_session(object):
         if not os.path.exists(file):
             raise Exception(msg='Cannot find file {0}'.format(file))
         with open(file) as f:
-            template_data = json.load(f)
+            if file.endswith('.yaml') or file.endswith('.yml'):
+                template_data = yaml.safe_load(f)
+            else:
+                template_data = json.load(f)
 
         # Separate the feature template data from the device template data
-        if 'feature_templates' in template_data:
-            feature_template_data = template_data['feature_templates']
+        if 'vmanage_feature_templates' in template_data:
+            feature_template_data = template_data['vmanage_feature_templates']
         else:
             feature_template_data = []
-        if 'device_templates' in template_data:
-            device_template_data = template_data['device_templates']
+        if 'vmanage_device_templates' in template_data:
+            device_template_data = template_data['vmanage_device_templates']
+        else:
+            device_template_data = []
 
         # Process the feature templates
         feature_template_dict = self.get_feature_template_dict(factory_default=True, remove_key=False)
@@ -506,6 +499,9 @@ class vmanage_session(object):
     # def get_policy_list(self, type, list_id):
     #     result = self.request('/template/policy/list/{0}/{1}'.format(type.lower(), list_id))
     #     return result['json']
+
+    def clear_policy_list_cache(self):
+        self.policy_list_cache = {}
 
     def get_policy_list_list(self, type='all', cache=True):
         # print("Get list {0}". format(type))
@@ -682,18 +678,6 @@ class vmanage_session(object):
             else:
                 return []
 
-    # def convert_sequences_id_to_name(self, sequence_list):
-    #     policy_list_dict = self.get_policy_list_dict('all', key_name='listId')
-    #     for sequence in sequence_list:
-    #         if 'match' in sequence and 'entries' in sequence['match']:
-    #             for entry in sequence['match']['entries']:
-    #                 if entry['ref'] in policy_list_dict:
-    #                     entry['listName'] = policy_list_dict[entry['ref']]['name']
-    #                     entry['listType'] = policy_list_dict[entry['ref']]['type']
-    #                     entry.pop('ref')
-    #                 else:
-    #                     raise Exception("Could not find list {0}".format(entry['ref']))
-
     def get_policy_definition_dict(self, type, key_name='name', remove_key=False):
 
         policy_definition_list = self.get_policy_definition_list(type)
@@ -726,12 +710,6 @@ class vmanage_session(object):
                         else:
                             raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
 
-    def get_central_policy_dict(self, type, key_name='policyName', remove_key=False):
-
-        central_policy_list = self.get_policy_definition_list(type)
-
-        return self.list_to_dict(central_policy_list, key_name, remove_key=remove_key)
-
     def get_central_policy_preview(self, policy_id):
         result = self.request('/template/policy/assembly/vsmart/{0}'.format(policy_id))
 
@@ -747,10 +725,10 @@ class vmanage_session(object):
         local_policies_list = self.get_local_policy_list()
         
         policy_export = {
-            'policy_lists': policy_lists_list,
-            'policy_definitions': policy_definitions_list,
-            'central_policies': central_policies_list,
-            'local_policies': local_policies_list
+            'vmanage_policy_lists': policy_lists_list,
+            'vmanage_policy_definitions': policy_definitions_list,
+            'vmanage_central_policies': central_policies_list,
+            'vmanage_local_policies': local_policies_list
         }
 
         if export_file.endswith('.json'):
@@ -773,23 +751,26 @@ class vmanage_session(object):
         if not os.path.exists(file):
             raise Exception('Cannot find file {0}'.format(file))
         with open(file) as f:
-            policy_data = json.load(f)
+            if file.endswith('.yaml') or file.endswith('.yml'):
+                policy_data = yaml.safe_load(f)
+            else:
+                policy_data = json.load(f)
 
         # Separate the feature template data from the device template data
-        if 'policy_lists' in policy_data:
-            policy_list_data = policy_data['policy_lists']
+        if 'vmanage_policy_lists' in policy_data:
+            policy_list_data = policy_data['vmanage_policy_lists']
         else:
             policy_list_data = []
-        if 'policy_definitions' in policy_data:
-            policy_definition_data = policy_data['policy_definitions']
+        if 'vmanage_policy_definitions' in policy_data:
+            policy_definition_data = policy_data['vmanage_policy_definitions']
         else:
             policy_definition_data = []
-        if 'central_policies' in policy_data:
-            central_policy_data = policy_data['central_policies']
+        if 'vmanage_central_policies' in policy_data:
+            central_policy_data = policy_data['vmanage_central_policies']
         else:
             central_policy_data = []
-        if 'local_policies' in policy_data:
-            local_policy_data = policy_data['local_policies']
+        if 'vmanage_local_policies' in policy_data:
+            local_policy_data = policy_data['vmanage_local_policies']
         else:
             local_policy_data = []
 
@@ -798,6 +779,8 @@ class vmanage_session(object):
             diff = self.import_policy_list(policy_list, check_mode=check_mode, update=update, push=push)
             if len(diff):
                 policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
+
+        self.clear_policy_list_cache()
 
         for definition in policy_definition_data:
             # print("Importing Policy Definitions")
@@ -1033,6 +1016,9 @@ class vmanage_session(object):
                 self.request('/template/policy/vedge', method='POST', payload=payload)        
         return diff
 
+#
+# Show commands
+#
     def get_control_connections(self, device_ip):
         result = self.request('/device/control/connections?deviceId={0}'.format(device_ip))
 
