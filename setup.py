@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="vmanage",
-    version='0.1.5',
+    name="viptela",
+    version='0.1.6',
     packages=[
         'vmanage',
-        'vmanage.command',
-        'vmanage.command.show',
-        'vmanage.command.import_cmd',
-        'vmanage.command.export'
+        'vmanage.cli',
+        'vmanage.cli.show',
+        'vmanage.cli.import_cmd',
+        'vmanage.cli.export'
         ],
     description="Cisco DevNet Viptela vManage CLI/SDK",
     install_requires=[
@@ -22,6 +22,6 @@ setuptools.setup(
     ],
     entry_points='''
         [console_scripts]
-        vmanage=vmanage.vmanage_cli:vmanage_cli     
+        vmanage=vmanage.cli.vmanage:main     
     ''',
 )

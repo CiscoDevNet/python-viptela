@@ -1,6 +1,6 @@
 import click
-from vmanage.command.import_cmd.templates import templates
-from vmanage.command.import_cmd.policy import policy
+from vmanage.cli.import_cmd.templates import templates
+from vmanage.cli.import_cmd.policy import policy
 
 @click.group('import')
 @click.pass_context

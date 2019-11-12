@@ -1,8 +1,8 @@
 import click
-from vmanage.command.show import show
-from vmanage.command.export import export
-from vmanage.command.import_cmd import import_cmd
-from vmanage.vmanage_api import vmanage_session
+from vmanage.cli.show import show
+from vmanage.cli.export import export
+from vmanage.cli.import_cmd import import_cmd
+from vmanage.api import vmanage_session
 
 class CatchAllExceptions(click.Group):
 
@@ -26,13 +26,13 @@ class Vmanage(object):
 @click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password', envvar='VMANAGE_PASSWORD', prompt=True, hide_input=True, help='vManage Password (env: VMANAGE_PASSWORD)', required=True)
 @click.pass_context
-def vmanage_cli(ctx, host, username, password):
+def main(ctx, host, username, password):
 
     ctx.obj = vmanage_session(host=host, user=username, password=password)
 
-vmanage_cli.add_command(show)
-vmanage_cli.add_command(export)
-vmanage_cli.add_command(import_cmd)
+main.add_command(show)
+main.add_command(export)
+main.add_command(import_cmd)
 
 if __name__ == '__main__':
     vmanage_cli()  # pragma: no cover
