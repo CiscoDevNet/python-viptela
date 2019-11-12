@@ -7,13 +7,13 @@ This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for e
 ### Installation from PyPI
 
 ```
-pip install vmanage
+pip install viptela
 ```
 
 ### Installation directly from repo
 
 ```bash
-git clone https://github.com/CiscoDevNet/cisco-sdwan-python.git
+git clone https://github.com/CiscoDevNet/python-viptela.git
 cd cisco-sdwan-python
 python3 -m venv env
 . env/bin/activate
