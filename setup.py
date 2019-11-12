@@ -1,9 +1,19 @@
-from setuptools import setup
+import setuptools
 
-setup(
-    name="cisco-sdwan",
-    version='0.1',
-    py_modules=['vmanage_cli', 'cisco_sdwan'],
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name="vmanage",
+    version='0.1.5',
+    packages=[
+        'vmanage',
+        'vmanage.command',
+        'vmanage.command.show',
+        'vmanage.command.import_cmd',
+        'vmanage.command.export'
+        ],
+    description="Cisco DevNet Viptela vManage CLI/SDK",
     install_requires=[
         'Click',
         'requests',
@@ -12,6 +22,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        vmanage=vmanage_cli.main:vmanage_cli     
+        vmanage=vmanage.vmanage_cli:vmanage_cli     
     ''',
 )

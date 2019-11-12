@@ -1,8 +1,8 @@
 import click
-from .show import show
-from .export import export
-from .import_cmd import import_cmd
-from cisco_sdwan import vmanage
+from vmanage.command.show import show
+from vmanage.command.export import export
+from vmanage.command.import_cmd import import_cmd
+from vmanage.vmanage_api import vmanage_session
 
 class CatchAllExceptions(click.Group):
 
@@ -28,7 +28,7 @@ class Vmanage(object):
 @click.pass_context
 def vmanage_cli(ctx, host, username, password):
 
-    ctx.obj = vmanage.vmanage_session(host=host, user=username, password=password)
+    ctx.obj = vmanage_session(host=host, user=username, password=password)
 
 vmanage_cli.add_command(show)
 vmanage_cli.add_command(export)

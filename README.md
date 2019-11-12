@@ -1,8 +1,16 @@
-# Cisco SDWAN Python CLI/SDK
+# Cisco Viptela vManage Python CLI/SDK
 
-This repo contains a Python SDK for Cisco SDWAN as well as a CLI for excercising that SDK
+This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for exercising that SDK
 
 ## Installation
+
+### Installation from PyPI
+
+```
+pip install vmanage
+```
+
+### Installation directly from repo
 
 ```bash
 git clone https://github.com/CiscoDevNet/cisco-sdwan-python.git

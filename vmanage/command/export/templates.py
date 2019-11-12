@@ -1,7 +1,6 @@
     
 import click
 import json
-from cisco_sdwan import vmanage
 
 @click.command()
 @click.argument('type', default='all')
@@ -10,11 +9,10 @@ from cisco_sdwan import vmanage
 #               help="Device type [vedges, controllers]",
 #               type=click.Choice(['vedges', 'controllers']))
 @click.pass_context
-def policy(ctx, type, file):
+def templates(ctx, type, file):
     """
-    Export policy to file
+    Export templates to file
     """
-
     vmanage_session = ctx.obj
-    click.echo(f'Exporting policy to {file}')
-    vmanage_session.export_policy_to_file(file)
+    click.echo(f'Exporting templates to {file}')
+    vmanage_session.export_templates_to_file(file)
