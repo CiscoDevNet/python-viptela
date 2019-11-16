@@ -75,35 +75,62 @@ It will only add templates and policies that are not there.  When a template or 
 but is different than what is in the import file, it will not he updates unless the `--update`
 option is given.
 
-##### Export templates to a file
+#### Export Templates
+
+##### Export all templates to a file
 
 ```bash
 vmanage export templates --file vmanage-templates.json
 ```
 
-##### Export templates from a specific vMaange
+##### Export templates from a specific vManange
 
 ```bash
 vmanage --host=192.133.178.54 export templates --file vmanage-templates.json
 ```
 
-##### Import templates
+##### Export specific device templates
 
+```bash
+vmanage export templates --type=device --file vmanage-templates.json --name=isr4331 --name=ISR1111-8P
+```
+
+##### Export just feature templates
+
+```bash
+vmanage export templates --type=feature --file vmanage-templates.json
+```
+
+#### Import Templates
+
+##### Import all templates
 
 ```bash
 vmanage import templates --file vmanage-templates.json
 ```
 
-##### Exporting Policy
+##### Import feature templates
 
 ```bash
-vmanage export policy --file vmanage-policy.json
+vmanage import templates --type=feature --file vmanage-templates.json
 ```
 
-##### Import Policy
+##### Import specific device templates
 
 ```bash
-vmanage import policy --file vmanage-policy.json
+vmanage import templates --type=device --file vmanage-templates.json --name=isr4331 --name=ISR1111-8P
+```
+
+#### Export Policies
+
+```bash
+vmanage export policies --file vmanage-policies.json
+```
+
+#### Import Policies
+
+```bash
+vmanage import policies --file vmanage-policies.json
 ```
 
 ### Show Information

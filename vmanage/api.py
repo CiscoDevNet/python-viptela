@@ -349,7 +349,7 @@ class vmanage_session(object):
                                 for sub_template in general_template['subTemplates']:
                                     if 'templateName' in sub_template:
                                         feature_name_list.append(sub_template['templateName'])
-                name_list = feature_name_list
+                name_list = list(set(feature_name_list))
         # Since device templates depend on feature templates, we always add them.
         feature_template_list = self.get_feature_template_list(name_list=name_list)
         template_export.update({'vmanage_feature_templates': feature_template_list})
