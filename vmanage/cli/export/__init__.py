@@ -1,6 +1,6 @@
 import click
 from vmanage.cli.export.templates import templates
-from vmanage.cli.export.policy import policy
+from vmanage.cli.export.policies import policies
 
 @click.group()
 @click.pass_context
@@ -10,4 +10,4 @@ def export(ctx):
     """
 
 export.add_command(templates)
-export.add_command(policy)
+export.add_command(policies)
