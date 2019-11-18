@@ -90,12 +90,12 @@ def local(ctx, name, json):
 
 @click.group()
 @click.pass_context
-def policy(ctx):
+def policies(ctx):
     """
     Show policy information
     """
 
-policy.add_command(list_cmd)
-policy.add_command(definition)
-policy.add_command(central)
-policy.add_command(local)
+policies.add_command(list_cmd)
+policies.add_command(definition)
+policies.add_command(central)
+policies.add_command(local)

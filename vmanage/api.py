@@ -225,7 +225,7 @@ class vmanage_session(object):
 # Templates
 #
 
-    def get_device_template_list(self, factory_default=False):
+    def get_device_template_list(self, factory_default=False, name_list = []):
         result = self.request('/template/device')
 
         return_list = []
@@ -233,12 +233,13 @@ class vmanage_session(object):
             device_body = result['json']
             feature_template_dict = self.get_feature_template_dict(factory_default=True, key_name='templateId')
             for device in device_body['data']:
+                if name_list and device['templateName'] not in name_list:
+                    continue
                 object_result = self.request('/template/device/object/{0}'.format(device['templateId']))
                 if object_result['json']:
                     object = object_result['json']
                     if not factory_default and object['factoryDefault']:
                         continue
-
                     if 'generalTemplates' in object:
                         generalTemplates = []
                         for old_template in object.pop('generalTemplates'):
@@ -250,24 +251,23 @@ class vmanage_session(object):
                                 for sub_template in old_template['subTemplates']:
                                     subTemplates.append({'templateName':feature_template_dict[sub_template['templateId']]['templateName'], 'templateType':sub_template['templateType']})
                                 new_template['subTemplates'] = subTemplates
-
                             generalTemplates.append(new_template)
                         object['generalTemplates'] = generalTemplates
 
                     object['templateId'] = device['templateId']
                     object['attached_devices'] = self.get_template_attachments(device['templateId'])
                     object['input'] = self.get_template_input(device['templateId'])
-
+                    object.pop('templateId')
                     return_list.append(object)
 
         return return_list
 
-    def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True):
-        device_template_list = self.get_device_template_list(factory_default=factory_default)
+    def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list = []):
+        device_template_list = self.get_device_template_list(factory_default=factory_default, name_list=name_list)
 
         return self.list_to_dict(device_template_list, key_name, remove_key)
 
-    def get_feature_template_list(self, factory_default=False):
+    def get_feature_template_list(self, factory_default=False, name_list = []):
         result = self.request('/template/feature')
 
         return_list = []
@@ -276,14 +276,16 @@ class vmanage_session(object):
             for template in template_list:
                 if not factory_default and template['factoryDefault']:
                     continue
+                if name_list and template['templateName'] not in name_list:
+                    continue
                 template['templateDefinition'] = json.loads(template['templateDefinition'])
                 template.pop('editedTemplateDefinition', None)
                 return_list.append(template)
 
         return return_list
 
-    def get_feature_template_dict(self, factory_default=False, key_name='templateName', remove_key=True):
-        feature_template_list = self.get_feature_template_list(factory_default=factory_default)
+    def get_feature_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list = []):
+        feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
         return self.list_to_dict(feature_template_list, key_name, remove_key)
 
@@ -330,15 +332,28 @@ class vmanage_session(object):
                         return_dict['columns'].append(entry)
 
         return return_dict
-    def export_templates_to_file(self, export_file):
-        feature_template_list = self.get_feature_template_list()
-        device_template_list = self.get_device_template_list()
+    def export_templates_to_file(self, export_file, name_list = [], type = None):
         template_export = {}
+        if type != 'feature':
+            # Export the device templates and associated feature templates
+            device_template_list = self.get_device_template_list(name_list=name_list)
+            template_export.update({'vmanage_device_templates': device_template_list})
+            feature_name_list = []
+            if name_list:
+                for device_template in device_template_list:
+                    if 'generalTemplates' in device_template:
+                        for general_template in device_template['generalTemplates']:
+                            if 'templateName' in general_template:
+                                feature_name_list.append(general_template['templateName'])
+                            if 'subTemplates' in general_template:
+                                for sub_template in general_template['subTemplates']:
+                                    if 'templateName' in sub_template:
+                                        feature_name_list.append(sub_template['templateName'])
+                name_list = list(set(feature_name_list))
+        # Since device templates depend on feature templates, we always add them.
+        feature_template_list = self.get_feature_template_list(name_list=name_list)
+        template_export.update({'vmanage_feature_templates': feature_template_list})
 
-        template_export = {
-            'vmanage_feature_templates': feature_template_list,
-            'vmanage_device_templates': device_template_list
-        }
 
         if export_file.endswith('.json'):
             with open(export_file, 'w') as outfile:
@@ -349,7 +364,7 @@ class vmanage_session(object):
         else:
             raise Exception("File format not supported")    
 
-    def import_templates_from_file(self, file, update=False, check_mode=False):
+    def import_templates_from_file(self, file, update=False, check_mode=False, name_list = [], type = None):
         changed = False
         feature_template_updates = []
         device_template_updates = []
@@ -365,19 +380,46 @@ class vmanage_session(object):
             else:
                 template_data = json.load(f)
 
-        # Separate the feature template data from the device template data
         if 'vmanage_feature_templates' in template_data:
-            feature_template_data = template_data['vmanage_feature_templates']
+            imported_feature_template_list = template_data['vmanage_feature_templates']
         else:
-            feature_template_data = []
-        if 'vmanage_device_templates' in template_data:
-            device_template_data = template_data['vmanage_device_templates']
-        else:
-            device_template_data = []
+            imported_feature_template_list = []
+
+        imported_device_template_list = []
+
+        if type != 'feature':
+            # Import the device templates and associated feature templates
+            if 'vmanage_device_templates' in template_data:
+                imported_device_template_list = template_data['vmanage_device_templates']
+            if name_list:
+                feature_name_list = []
+                pruned_device_template_list = []
+                for device_template in imported_device_template_list:
+                    if device_template['templateName'] in name_list:
+                        pruned_device_template_list.append(device_template)
+                        if 'generalTemplates' in device_template:
+                            for general_template in device_template['generalTemplates']:
+                                if 'templateName' in general_template:
+                                    feature_name_list.append(general_template['templateName'])
+                                if 'subTemplates' in general_template:
+                                    for sub_template in general_template['subTemplates']:
+                                        if 'templateName' in sub_template:
+                                            feature_name_list.append(sub_template['templateName'])
+                imported_device_template_list = pruned_device_template_list
+                name_list = list(set(feature_name_list))
+        # Since device templates depend on feature templates, we always add them.
+        if name_list:
+            pruned_feature_template_list = []
+            imported_feature_template_dict = self.list_to_dict(imported_feature_template_list, key_name='templateName', remove_key=False)
+            for feature_template_name in name_list:
+                if feature_template_name in imported_feature_template_dict:
+                    pruned_feature_template_list.append(imported_feature_template_dict[feature_template_name])
+                # Otherwise, we hope the feature list is already there (e.g. Factory Default)
+            imported_feature_template_list = pruned_feature_template_list
 
         # Process the feature templates
         feature_template_dict = self.get_feature_template_dict(factory_default=True, remove_key=False)
-        for feature_template in feature_template_data:
+        for feature_template in imported_feature_template_list:
             if feature_template['templateName'] in feature_template_dict:
                 existing_template = feature_template_dict[feature_template['templateName']]
                 diff = list(dictdiffer.diff(existing_template['templateDefinition'], feature_template['templateDefinition']))
@@ -394,7 +436,7 @@ class vmanage_session(object):
 
         # Process the device templates
         device_template_dict = self.get_device_template_dict()
-        for device_template in device_template_data:
+        for device_template in imported_device_template_list:
             if device_template['templateName'] in device_template_dict:
                 existing_template = device_template_dict[device_template['templateName']]
                 if 'generalTemplates' in device_template:

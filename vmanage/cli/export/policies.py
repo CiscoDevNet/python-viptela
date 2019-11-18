@@ -9,11 +9,11 @@ import json
 #               help="Device type [vedges, controllers]",
 #               type=click.Choice(['vedges', 'controllers']))
 @click.pass_context
-def policy(ctx, type, file):
+def policies(ctx, type, file):
     """
-    Export policy to file
+    Export policies to file
     """
 
     vmanage_session = ctx.obj
-    click.echo(f'Exporting policy to {file}')
+    click.echo(f'Exporting policies to {file}')
     vmanage_session.export_policy_to_file(file)

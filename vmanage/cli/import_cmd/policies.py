@@ -13,14 +13,14 @@ import pprint
 #               help="Device type [vedges, controllers]",
 #               type=click.Choice(['vedges', 'controllers']))
 @click.pass_context
-def policy(ctx, type, file, update, check, diff, push):
+def policies(ctx, type, file, update, check, diff, push):
     """
-    Import policy from file
+    Import policies from file
     """
     vmanage_session = ctx.obj
     pp = pprint.PrettyPrinter(indent=2)
 
-    click.echo(f"{'Checking' if check else 'Importing'} policy from {file}")
+    click.echo(f"{'Checking' if check else 'Importing'} policies from {file}")
     result = vmanage_session.import_policy_from_file(file, update=update, check_mode=check, push=push)
     print(f"Policy List Updates: {len(result['policy_list_updates'])}")
     if diff:

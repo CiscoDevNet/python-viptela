@@ -1,18 +1,12 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name="viptela",
-    version='0.1.6',
-    packages=[
-        'vmanage',
-        'vmanage.cli',
-        'vmanage.cli.show',
-        'vmanage.cli.import_cmd',
-        'vmanage.cli.export'
-        ],
+    version='0.1.7',
+    packages=find_packages(),
     description="Cisco DevNet Viptela vManage CLI/SDK",
     install_requires=[
         'Click',

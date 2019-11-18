@@ -4,14 +4,16 @@ import pprint
 import dictdiffer
 
 @click.command()
-@click.option('--type', help="Template type [device, feature] (default: all)",
-              default='all', type=click.Choice(['device', 'feature', 'all']))
+@click.option('--type', '-t',
+               help="Template type",
+               type=click.Choice(['device', 'feature']),
+               default=None)
 @click.option('--diff', help="Diff with template of specified name", default=None)
-@click.option('--default/--no-default', help="Print system default templates")
-@click.argument('name', default=None, required=False)          
+@click.option('--default/--no-default', help="Print system default templates", default=False)
+@click.option('--name', '-n')          
 @click.option('--json/--no-json', help="JSON Output")
 @click.pass_context
-def template(ctx, type, name, diff, default, json):
+def templates(ctx, type, name, diff, default, json):
     """
     Show template information
     """
@@ -19,32 +21,32 @@ def template(ctx, type, name, diff, default, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
-        template = {}
-        template_type = None
-        device_template_dict = vmanage_session.get_device_template_dict()
-        if name in device_template_dict:
-            template_type = 'device'
-            template = device_template_dict[name]
-        feature_template_dict = vmanage_session.get_feature_template_dict()
-        if name in feature_template_dict:
-            template_type = 'feature'
-            template = feature_template_dict[name]
+        if type == 'device':
+            template_list = vmanage_session.get_device_template_list(name_list=[name])
+        elif type == 'feature':
+            template_list = vmanage_session.get_feature_template_list(name_list=[name])
+        else:
+            raise click.ClickException("Must specify template type with name")
+        template = template_list[0] if template_list else None
+        
         if template:
             if diff:
                 diff_template = {}
-                if template_type == 'device':
-                    if diff in device_template_dict:
-                        diff_template = device_template_dict[diff]
+                if type == 'device':
+                    diff_template_list = vmanage_session.get_device_template_list(name_list=[diff])
+                    if diff_template_list:
+                        diff_template = diff_template_list[0]
                     else:
-                        click.secho(f"Cannot find device template named {diff}", fg="red")
-                elif template_type == 'feature':
-                    if diff in feature_template_dict:
-                        diff_template = feature_template_dict[diff]
+                        click.secho(f"Cannot find device template {diff}", fg="red")
+                elif type == 'feature':
+                    diff_template_list = vmanage_session.get_feature_template_list(name_list=[diff])
+                    if diff_template_list:
+                        diff_template = diff_template_list[0]
                     else:
-                        click.secho(f"Cannot find device template named {diff}", fg="red") 
+                        click.secho(f"Cannot find feature template {diff}", fg="red")
                 else:
-                    # Need to handle CLI
-                    pass
+                    # Should not get here
+                    raise click.ClickException(f"Unknown template type {type}")
                 if diff_template:
                     diff = dictdiffer.diff(template, diff_template)
                     pp.pprint(list(diff))
@@ -53,7 +55,7 @@ def template(ctx, type, name, diff, default, json):
         else:
             click.secho(f"Cannot find template named {name}", fg="red")   
     else:
-        if type in ['device', 'all']:
+        if type in ['device', None]:
             device_template_list = vmanage_session.get_device_template_list(factory_default=default)
             if not json:
                 click.echo("                                          DEVICES")
@@ -64,7 +66,7 @@ def template(ctx, type, name, diff, default, json):
                 click.echo()
             else:
                 pp.pprint(device_template_list)
-        if type in ['feature', 'all']:
+        if type in ['feature', None]:
             feature_template_list = vmanage_session.get_feature_template_list(factory_default=default)
             if not json:
                 click.echo("                                                    DEVICE     DEVICES   DEVICE")
