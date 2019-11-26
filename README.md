@@ -31,6 +31,8 @@ pip install git+https://github.com/CiscoDevNet/python-viptela.git@specific_templ
 ```bash
 git clone https://github.com/CiscoDevNet/python-viptela.git
 cd python-viptela
+python3 -m venv env
+. env/bin/activate
 pip install -e .
 ```
 
