@@ -16,11 +16,6 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
-# from requests.exceptions import ConnectionError
-
-# from . import constants, exceptions, utils
-
-
 STANDARD_HTTP_TIMEOUT = 10
 STANDARD_JSON_HEADER = {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
 POLICY_LIST_DICT = {
@@ -36,13 +31,18 @@ POLICY_LIST_TYPES = ['community', 'localdomain', 'ipv6prefix', 'dataipv6prefix',
 VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
 
 class vmanage_session(object):
+    """
+    class for all interactions with the vManage API
+    """
 
-    def __init__(self, host=None, user=None, password=None, port=8443,
+    def __init__(self, host=None, user=None, password=None, port=443,
                 validate_certs=False, disable_warnings=False, timeout=10):
+        """
+        default constructor for vmanage_session class, initialize self variables
+        """
         self.headers = dict()
         self.cookies = None
         self.json = None
-
         self.method = None
         self.path = None
         self.response = None
@@ -59,8 +59,13 @@ class vmanage_session(object):
         self.policy_list_cache = {}
         self.login()
 
-
     def login(self):
+        """
+        login authenticates user, obtains jsessionid and adds it to the header, then
+        checks device version to determine if x-xsrf token is needed.  if token is 
+        required the x-xsrf token is added to the session header.
+        """
+        # auth user, add cookie jsessionid to header
         try:
             response = self.session.post(
                 url='{0}/j_security_check'.format(self.base_url),
@@ -68,23 +73,26 @@ class vmanage_session(object):
                 data={'j_username': self.user, 'j_password': self.password},
                 timeout=self.timeout
             )
+            if response.status_code != 200 or response.text.startswith('<html>'):
+                raise Exception('Could not login to device, check user credentials.')
         except requests.exceptions.RequestException as e:
             raise Exception('Could not connect to {0}: {1}'.format(self.host, e))
-
-        if response.status_code != 200 or response.text.startswith('<html>'):
-            raise Exception('Could not login to device, check user credentials.')
-
-        response = self.session.get(
-            url='https://{0}/dataservice/client/token'.format(self.host),
-            timeout=self.timeout
-        )
-        if response.status_code == 200:
-            self.session.headers['X-XSRF-TOKEN'] = response.content
-        elif response.status_code == 404:
-            # Assume this is pre-19.2
-            pass
-        else:
-            raise Exception('Failed getting X-XSRF-TOKEN: {0}'.format(response.status_code))
+        
+        # check vmanage version to determine if x-xsrf token is needed
+        try:
+            response = self.session.get(
+                url='https://{0}/dataservice/system/device/controllers?model=vmanage&&&&'.format(self.host),
+                timeout=self.timeout
+            )
+            version = response.json()['data'][0]['version']
+            if version >= '19.2.0':
+                response = self.session.get(
+                    url='https://{0}/dataservice/client/token'.format(self.host),
+                    timeout=self.timeout
+                )
+                self.session.headers['X-XSRF-TOKEN'] = response.content
+        except requests.exceptions.RequestException as e:
+            raise Exception('Could not connect to {0}: {1}'.format(self.host, e))
 
     def request(self, url_path, method='GET', headers=STANDARD_JSON_HEADER, data=None, files=None, payload=None, status_codes=VALID_STATUS_CODES):
         """Generic HTTP method for viptela requests."""
