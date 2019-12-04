@@ -61,7 +61,7 @@ class vmanage_session(object):
 
     def login(self):
         """
-        login authenticates user, obtains jsessionid and adds it to the header, then
+        login() authenticates user, obtains jsessionid and adds it to the header, then
         checks device version to determine if x-xsrf token is needed.  if token is 
         required the x-xsrf token is added to the session header.
         """
@@ -95,7 +95,9 @@ class vmanage_session(object):
             raise Exception('Could not connect to {0}: {1}'.format(self.host, e))
 
     def request(self, url_path, method='GET', headers=STANDARD_JSON_HEADER, data=None, files=None, payload=None, status_codes=VALID_STATUS_CODES):
-        """Generic HTTP method for viptela requests."""
+        """
+        request() is a generic http method for viptela GET requests.
+        """
         url = '{0}{1}'.format(self.base_url, url_path)
         if payload:
             data = json.dumps(payload)
@@ -142,6 +144,9 @@ class vmanage_session(object):
         return result
 
     def list_to_dict(self, list, key_name, remove_key=True):
+        """
+        list_to_dict() is a method for converting a list to a dictionary object type.
+        """
         dict = {}
         for item in list:
             if key_name in item:
@@ -153,12 +158,11 @@ class vmanage_session(object):
                 dict[key] = item
             # else:
             #     self.fail_json(msg="key {0} not found in dictionary".format(key_name))
-
         return dict
 
-#
-# Devices
-#
+    #
+    # Devices
+    #
     def get_device_status_list(self):
         result = self.request('/device')
 
