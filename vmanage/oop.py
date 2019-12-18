@@ -5,7 +5,10 @@ import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+STANDARD_JSON_HEADER = {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
+
 session = requests.Session()
+session.headers.update(STANDARD_JSON_HEADER)
 base_url = ''
 
 class GenericMethods:
@@ -79,8 +82,13 @@ class Authentication:
                 session.headers['X-XSRF-TOKEN'] = response.content
         except requests.exceptions.RequestException as e:
             raise Exception('Could not connect to {0}: {1}'.format(self.host, e))
+
+    @staticmethod
+    def end_session():
+        #TODO
+        pass
     
-class SharedLists(GenericMethods, ErrorHandling):
+class SharedLists():
 
     @staticmethod
     def get_data_prefix_list():
@@ -88,34 +96,77 @@ class SharedLists(GenericMethods, ErrorHandling):
         response = session.get(api)
         return response.content
 
-class CentralizedLists(SharedLists):
+    @staticmethod
+    def get_data_prefix_list_id_by_name(name):
+        list_id = ''
+        api = base_url + "/template/policy/list/dataprefix"
+        response = session.get(api)
+        data = response.json()['data']
+        for entry in data:
+            if entry["name"] == name:
+                list_id = entry["listId"]        
+        return list_id
+
+    @staticmethod
+    def get_data_prefix_list_name_by_id(list_id):
+        list_name = ''
+        api = base_url + "/template/policy/list/dataprefix"
+        response = session.get(api)
+        data = response.json()['data']
+        for entry in data:
+            if entry["listId"] == list_id:
+                list_name = entry["name"]        
+        return list_name
+
+class CentralizedLists():
+    #TODO    
+    pass
+
+class LocalizedLists():
     #TODO
     pass
 
-class LocalizedLists(SharedLists):
+class SecurityLists():
     #TODO
     pass
 
-class SecurityLists(SharedLists):
+class CentralizedPolicy():
+    
+    @staticmethod
+    def post_cflowd_policy(templateName, templateDescription):
+        api = base_url + "/template/policy/definition/cflowd"
+        
+        templateType = "cflowd"
+        
+        templateDefinition = {
+            "flowActiveTimeout":180,
+            "flowInactiveTimeout":60,
+            "flowSamplingInterval":180,
+            "templateRefresh":180,
+            "collectors":[]
+        }
+        
+        payload = f"{{'name':'{templateName}','type':'{templateType}','description':'{templateDescription}',"\
+                f"'definition':{templateDefinition}}}"     
+        payload = payload.replace("\'", "\"")
+        response = session.post(url=api, data=payload)
+    
+    @staticmethod
+    def post_traffic_data_policy():
+        pass
+
+class LocalizedPolicy():
     #TODO
     pass
 
-class CentralizedPolicy(CentralizedLists):
+class SecurityPolicy():
     #TODO
     pass
 
-class LocalizedPolicy(LocalizedLists):
+class FeatureTemplates():
     #TODO
     pass
 
-class SecurityPolicy(SecurityLists):
-    #TODO
-    pass
-
-class FeatureTemplates(GenericMethods, ErrorHandling):
-    #TODO
-    pass
-
-class DeviceTemplates(FeatureTemplates, LocalizedPolicy, SecurityPolicy):
+class DeviceTemplates():
     #TODO
     pass
