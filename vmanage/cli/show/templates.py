@@ -2,12 +2,16 @@
 import click
 import pprint
 import dictdiffer
+from vmanage.api.device_templates import DeviceTemplates
+from vmanage.api.feature_templates import FeatureTemplates
 
 @click.command()
-@click.option('--type', '-t',
-               help="Template type",
-               type=click.Choice(['device', 'feature']),
-               default=None)
+@click.option(
+    '--type', '-t',
+    help="Template type",
+    type=click.Choice(['device', 'feature']),
+    default=None
+)
 @click.option('--diff', help="Diff with template of specified name", default=None)
 @click.option('--default/--no-default', help="Print system default templates", default=False)
 @click.option('--name', '-n')          
