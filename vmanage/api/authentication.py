@@ -37,8 +37,10 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class Authentication(object):
-    def __init__(self, host=None, user=None, password=None, port=443,
-                validate_certs=False, disable_warnings=False, timeout=10):
+    def __init__(
+        self, host=None, user=None, password=None, port=443,
+        validate_certs=False, disable_warnings=False, timeout=10
+    ):
         self.headers = dict()
         self.cookies = None
         self.json = None
@@ -56,10 +58,9 @@ class Authentication(object):
         self.session = requests.Session()
         self.session.verify = validate_certs
         self.policy_list_cache = {}
-        self.login()
-
 
     def login(self):
+        
         try:
             response = self.session.post(
                 url='{0}/j_security_check'.format(self.base_url),
@@ -67,6 +68,7 @@ class Authentication(object):
                 data={'j_username': self.user, 'j_password': self.password},
                 timeout=self.timeout
             )
+
         except requests.exceptions.RequestException as e:
             raise Exception('Could not connect to {0}: {1}'.format(self.host, e))
 
@@ -79,10 +81,12 @@ class Authentication(object):
         )
         if response.status_code == 200:
             self.session.headers['X-XSRF-TOKEN'] = response.content
+            
         elif response.status_code == 404:
             # Assume this is pre-19.2
             pass
         else:
             raise Exception('Failed getting X-XSRF-TOKEN: {0}'.format(response.status_code))
 
-        return self.session
+        
+        return(self.session)
