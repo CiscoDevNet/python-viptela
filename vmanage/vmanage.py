@@ -36,8 +36,14 @@ class CatchAllExceptions(click.Group):
         try:
             return self.main(*args, **kwargs)
         except Exception as exc:
-            click.secho('Exception raised while running your command', fg="red")
-            click.secho("Please open an issue and provide this info:", fg="red")
+            click.secho(
+                'Exception raised while running your command',
+                fg="red"
+            )
+            click.secho(
+                "Please open an issue and provide this info:",
+                fg="red"
+            )
             click.secho("%s" % exc, fg="red")
 
 class Vmanage(object):
@@ -49,32 +55,33 @@ class Vmanage(object):
 # @click.group(cls=CatchAllExceptions)
 @click.group()
 @click.option(
-    '--host', 
-    envvar='VMANAGE_HOST', 
-    help='vManage Host (env: VMANAGE_HOST)', 
+    '--host',
+    envvar='VMANAGE_HOST',
+    help='vManage Host (env: VMANAGE_HOST)',
     required=True
 )
 @click.option(
-    '--username', 
-    envvar='VMANAGE_USERNAME', 
-    help='vManage Username (env: VMANAGE_USERNAME)', 
+    '--username',
+    envvar='VMANAGE_USERNAME',
+    help='vManage Username (env: VMANAGE_USERNAME)',
     required=True
 )
 @click.option(
-    '--password', 
-    envvar='VMANAGE_PASSWORD', 
-    prompt=True, 
-    hide_input=True, 
-    help='vManage Password (env: VMANAGE_PASSWORD)', 
+    '--password',
+    envvar='VMANAGE_PASSWORD',
+    prompt=True,
+    hide_input=True,
+    help='vManage Password (env: VMANAGE_PASSWORD)',
     required=True
 )
 @click.pass_context
 def main(ctx, host, username, password):
     ctx.obj = Authentication(
-        host=host, 
-        user=username, 
+        host=host,
+        user=username,
         password=password
     )
+
 
 main.add_command(show)
 main.add_command(export)
