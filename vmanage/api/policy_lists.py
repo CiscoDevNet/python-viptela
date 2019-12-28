@@ -23,6 +23,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import requests
+
 class PolicyLists(object):
-    # TODO
-    pass
+    
+    def __init__(self, session, host):
+        self.session = session
+        self.host = host
+        self.base_url = 'https://{0}/dataservice'.format(self.host)
+
+    def get_policy_list_all(self):
+        api = "/template/policy/list"
+        url = self.base_url + api
+        response = self.session.get(url=url)
+        return(response.content)
