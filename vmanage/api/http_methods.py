@@ -35,19 +35,58 @@ VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
 
 
 class HttpMethods(object):
+    """HTTP Methods for vManage API Interaction
+
+    Provides a consistent interaction with the vManage REST API.  Contains
+    error handling for common HTTP interaction issues.
+
+    """
 
     def __init__(self, session, url):
+        """Initialize HttpMethods object with session parameters.
+
+        Args:
+            session (obj): Requests Session object
+            url (str): URL of the API service being called
+
+        """
+
         self.session = session
         self.url = url
 
     def request(
         self, method, headers=STANDARD_HEADERS, payload=None, files=None
     ):
+        """Performs HTTP REST API Call.
+
+        Args:
+            method (str): DELETE, GET, POST, PUT
+            headers (dict): Use standard vManage header provided in
+                module or custom header for specific API interaction
+            payload (str): A formatted string to be delivered to
+                vManage via POST or PUT REST call
+            file (obj): A file to be sent to vManage
+
+        Returns:
+            result (dict): A parsable dictionary containing the full
+                response from vManage for an interaction
+
+        Raises:
+            JSONDecodeError: Payload format error.
+            ConnectionError: Connection error.
+            HTTPError: An HTTP error occurred.
+            URLRequired: A valid URL is required to make a request.
+            TooManyRedirects: Too many redirects.
+            Timeout: The request timed out.
+            RequestException: There was an ambiguous exception.
+
+        """
 
         result = {}
         data = None
         error = None
         details = None
+        result_json = None
 
         try:
             if payload:
@@ -58,7 +97,8 @@ class HttpMethods(object):
                 data=data, timeout=STANDARD_TIMEOUT
             )
 
-            result_json = json.loads(response.text)
+            if response.text:
+                result_json = json.loads(response.text)
 
             if response.status_code not in VALID_STATUS_CODES:
                 details = json.loads(response.text)['error']['details']
