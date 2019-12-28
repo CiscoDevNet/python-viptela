@@ -16,6 +16,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        vmanage=vmanage.cli.vmanage:main     
+        vmanage=vmanage.vmanage:main     
     ''',
 )
