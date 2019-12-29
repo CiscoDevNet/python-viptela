@@ -24,68 +24,39 @@ SOFTWARE.
 """
 
 import click
-from vmanage.cli.show import show
-from vmanage.cli.export import export
-from vmanage.cli.import_cmd import import_cmd
+from vmanage.cli.show_cmds import show
 from vmanage.api.authentication import Authentication
 
-"""
-class CatchAllExceptions(click.Group):
 
-    def __call__(self, *args, **kwargs):
-        try:
-            return self.main(*args, **kwargs)
-        except Exception as exc:
-            click.secho(
-                'Exception raised while running your command',
-                fg="red"
-            )
-            click.secho(
-                "Please open an issue and provide this info:",
-                fg="red"
-            )
-            click.secho("%s" % exc, fg="red")
+class Viptela(object):
 
-class Vmanage(object):
-    def __init__(self, host=None, user=None, password=None):
+    def __init__(self, host, username, password):
         self.host = host
-        self.user = user
+        self.username = username
         self.password = password
-"""
-# @click.group(cls=CatchAllExceptions)
+        self.auth = Authentication(
+            host=host, user=username, password=password).login()
+
+
 @click.group()
 @click.option(
-    '--host',
-    envvar='VMANAGE_HOST',
-    help='vManage Host (env: VMANAGE_HOST)',
-    required=True
+    '--host', envvar='VMANAGE_HOST',
+    help='vManage Host (env: VMANAGE_HOST)', required=True
 )
 @click.option(
-    '--username',
-    envvar='VMANAGE_USERNAME',
-    help='vManage Username (env: VMANAGE_USERNAME)',
-    required=True
+    '--username', envvar='VMANAGE_USERNAME',
+    help='vManage Username (env: VMANAGE_USERNAME)', required=True
 )
 @click.option(
-    '--password',
-    envvar='VMANAGE_PASSWORD',
-    prompt=True,
-    hide_input=True,
-    help='vManage Password (env: VMANAGE_PASSWORD)',
-    required=True
+    '--password', envvar='VMANAGE_PASSWORD',
+    help='vManage Password (env: VMANAGE_PASSWORD)', required=True
 )
 @click.pass_context
-def main(ctx, host, username, password):
-    ctx.obj = Authentication(
-        host=host,
-        user=username,
-        password=password
-    )
+def main(ctx=None, host=None, username=None, password=None):
+    ctx.obj = Viptela(host, username, password)
 
 
 main.add_command(show)
-main.add_command(export)
-main.add_command(import_cmd)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
