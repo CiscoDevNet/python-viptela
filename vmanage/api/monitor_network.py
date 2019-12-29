@@ -26,6 +26,7 @@ SOFTWARE.
 import json
 import requests
 from vmanage.api.http_methods import HttpMethods
+from vmanage.data.parse_methods import ParseMethods
 
 
 class MonitorNetwork(object):
@@ -51,27 +52,6 @@ class MonitorNetwork(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    def error_handling(self, response):
-        """Error Handling for Empty Data.
-
-        Args:
-            response (obj): Requests response object
-
-        Returns:
-            result (dict): All data associated with a response.
-
-        Raises:
-            Exception: Provides error message and details of issue.
-        """
-
-        if 'data' in response['json']:
-            result = response['json']['data']
-        else:
-            error = response['error']
-            result = response['details']
-            raise Exception(f'{error}: {result}')
-        return(result)
-
     def get_control_connections(self, system_ip):
         """Provides current control connections for device.
 
@@ -85,7 +65,7 @@ class MonitorNetwork(object):
         api = "device/control/connections?deviceId=" + system_ip
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
-        result = self.error_handling(response)
+        result = ParseMethods.parse_data(response)
         return(result)
 
     def get_control_connections_history(self, system_ip):
@@ -101,7 +81,7 @@ class MonitorNetwork(object):
         api = "device/control/connectionshistory?deviceId=" + system_ip
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
-        result = self.error_handling(response)
+        result = ParseMethods.parse_data(response)
         return(result)
 
     def get_device_status(self, system_ip):
@@ -117,5 +97,5 @@ class MonitorNetwork(object):
         api = "device?system-ip=" + system_ip
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
-        result = self.error_handling(response)
+        result = ParseMethods.parse_data(response)
         return(result)
