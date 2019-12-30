@@ -32,6 +32,7 @@ from __future__ import (
 import json
 import requests
 import urllib3
+from vmanage.api.utilities import Utilities
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -104,13 +105,7 @@ class Authentication(object):
             ):
                 raise Exception('Login failed, check user credentials.')
 
-            api = 'system/device/controllers?model=vmanage&&&&'
-            url = f'{self.base_url}{api}'
-            response = self.session.get(
-                url=url,
-                timeout=self.timeout
-            )
-            version = json.loads(response.text)['data'][0]['version']
+            version = Utilities(self.session, self.host).get_vmanage_version()
 
             if (version >= '19.2.0'):
                 api = 'client/token'
