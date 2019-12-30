@@ -95,7 +95,8 @@ class PolicyLists(object):
         api = "template/policy/list"
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
-        return(response)
+        result = ParseMethods.parse_data(response)
+        return(result)
 
     def post_data_prefix_list(self, name, entries):
         """Add a new Data Prefix List to vManage.
@@ -112,8 +113,11 @@ class PolicyLists(object):
 
         api = "template/policy/list/dataprefix"
         url = self.base_url + api
-        payload = f"{{'name':'{name}','type':'dataPrefix','listId':null,'entries':{entries}}}"
-        response = HttpMethods(self.session, url).request('POST', payload=payload)
+        payload = f"{{'name':'{name}','type':'dataPrefix',\
+            'listId':null,'entries':{entries}}}"
+        response = HttpMethods(self.session, url).request(
+            'POST', payload=payload
+        )
         result = ParseMethods.parse_status(response)
         return(result)
 
@@ -133,7 +137,28 @@ class PolicyLists(object):
 
         api = f"template/policy/list/dataprefix/{listid}"
         url = self.base_url + api
-        payload = f"{{'name':'{name}','type':'dataPrefix','listId':'{listid}','entries':{entries}}}"
-        response = HttpMethods(self.session, url).request('PUT', payload=payload)
+        payload = f"{{'name':'{name}','type':'dataPrefix',\
+            'listId':'{listid}','entries':{entries}}}"
+        response = HttpMethods(self.session, url).request(
+            'PUT', payload=payload
+        )
+        result = ParseMethods.parse_status(response)
+        return(result)
+
+    def delete_policy_list(self, listType, listId):
+        """Deletes the specified policy list type
+
+        Args:
+            listType (str): Policy list type
+            listId (str): ID of the policy list
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        api = f"template/policy/list/{listType}/{listId}"
+        url = self.base_url + api
+        response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
         return(result)
