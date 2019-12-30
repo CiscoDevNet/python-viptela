@@ -29,6 +29,10 @@ from vmanage.api.utilities import Utilities
 from vmanage.api.centralized_policy import CentralizedPolicy
 from vmanage.api.device_inventory import DeviceInventory
 from vmanage.api.device_templates import DeviceTemplates
+from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.api.localized_policy import LocalizedPolicy
+from vmanage.api.security_policy import SecurityPolicy
+from vmanage.api.policy_lists import PolicyLists
 
 
 class ResetVmanage(object):
@@ -54,9 +58,13 @@ class ResetVmanage(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.utilities = Utilities(self.session, self.host)
-        self.cp = CentralizedPolicy(self.session, self.host)
+        self.cen_pol = CentralizedPolicy(self.session, self.host)
         self.inventory = DeviceInventory(self.session, self.host)
         self.dev_temps = DeviceTemplates(self.session, self.host)
+        self.fet_temps = FeatureTemplates(self.session, self.host)
+        self.loc_pol = LocalizedPolicy(self.session, self.host)
+        self.sec_pol = SecurityPolicy(self.session, self.host)
+        self.pol_lists = PolicyLists(self.session, self.host)
 
     def active_count_delay(self):
 
@@ -69,11 +77,11 @@ class ResetVmanage(object):
     def execute(self):
 
         # Step 1 - Deactivate Centralized Policy
-        data = self.cp.get_centralized_policy()
+        data = self.cen_pol.get_centralized_policy()
         for policy in data:
             if policy['isPolicyActivated']:
                 policyId = policy['policyId']
-                self.cp.deactivate_centralized_policy(policyId)
+                self.cen_pol.deactivate_centralized_policy(policyId)
         self.active_count_delay()
 
         # Step 2 - Detach vedges from template
@@ -116,13 +124,98 @@ class ResetVmanage(object):
         self.active_count_delay()
 
         # Step 5 - Delete All Feature Templates
+        data = self.fet_temps.get_feature_templates()
+        for device in data:
+            if device['factoryDefault']:
+                continue
+            else:
+                templateId = device['templateId']
+                self.fet_temps.delete_feature_template(templateId)
+        self.active_count_delay()
 
         # Step 6 - Delete All Centralized Policies
+        data = self.cen_pol.get_centralized_policy()
+        for policy in data:
+            policyId = policy['policyId']
+            self.cen_pol.delete_centralized_policy(policyId)
+        self.active_count_delay()
 
-        # Step 7 - Delete All Localized Policies
+        # Step 7 - Delete All Topology, Traffic, Cflowd Policies
+        definitionList = ['control','mesh','hubandspoke',
+            'vpnmembershipgroup','approute','data','cflowd'
+        ]
+        for definition in definitionList:
+            data = self.cen_pol.get_policy_definition(definition)
+            if data:
+                for policy in data:
+                    definitionId = policy['definitionId']
+                    self.cen_pol.delete_policy_definition(
+                        definition, definitionId
+                    )
+        self.active_count_delay()
 
-        # Step 8 - Delete All Topology, Traffic, Cflowd Policies
+        # Step 8 - Delete All Localized Policies
+        data = self.loc_pol.get_localized_policy()
+        for policy in data:
+            policyId = policy['policyId']
+            self.loc_pol.delete_localized_policy(policyId)
+        self.active_count_delay()
 
-        # Step 9 - Delete All Security Policies
+        # Step 9 - Delete All Localized Specific Definitions
+        definitionList = ['qosmap','rewriterule','acl','aclv6',
+            'vedgeroute'
+        ]
+        for definition in definitionList:
+            data = self.loc_pol.get_localized_definition(definition)
+            if data:
+                for policy in data:
+                    definitionId = policy['definitionId']
+                    self.loc_pol.delete_localized_definition(
+                        definition, definitionId
+                    )
+        self.active_count_delay()
 
-        # Step 10 - Delete All Lists
+        # Step 10 - Delete All Security Policies
+        version = self.utilities.get_vmanage_version()
+        if version >= '18.2.0':
+            data = self.sec_pol.get_security_policy()
+            for policy in data:
+                policyId = policy['policyId']
+                self.sec_pol.delete_security_policy(policyId)
+            self.active_count_delay()
+
+        # Step 11 - Delete All UTD Specific Security Policies
+        version = self.utilities.get_vmanage_version()
+        definitionList = []
+        if version >= '18.4.0':
+            definitionList = ['zonebasedfw','urlfiltering', 'dnssecurity',
+                'intrusionprevention','advancedMalwareProtection'
+            ]
+        if '18.4.0' > version and version >= '18.2.0':
+            definitionList = ['zonebasedfw']
+
+        if definitionList:
+            for definition in definitionList:
+                data = self.sec_pol.get_security_definition(definition)
+                if data:
+                    for policy in data:
+                        definitionId = policy['definitionId']
+                        self.sec_pol.delete_security_definition(
+                            definition, definitionId
+                        )
+        self.active_count_delay()
+
+        # Step 12 - Delete All Lists
+
+        data = self.pol_lists.get_policy_list_all()
+        for policy_list in data:
+            owner = policy_list['owner']
+
+            if owner != 'system':
+                listType = policy_list['type'].lower()
+                listId = policy_list['listId']
+                self.pol_lists.delete_policy_list(
+                    listType, listId
+                )
+
+        return('Reset Complete')
