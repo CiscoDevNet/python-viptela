@@ -25,6 +25,7 @@ SOFTWARE.
 
 import click
 from vmanage.cli.show_cmds import show
+from vmanage.cli.apps_cmds import apps
 from vmanage.api.authentication import Authentication
 
 
@@ -57,6 +58,7 @@ def main(ctx=None, host=None, username=None, password=None):
 
 
 main.add_command(show)
+main.add_command(apps)
 
 if __name__ == "__main__":
     main()
