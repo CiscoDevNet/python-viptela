@@ -26,6 +26,7 @@ SOFTWARE.
 import json
 import requests
 from vmanage.api.http_methods import HttpMethods
+from vmanage.data.parse_methods import ParseMethods
 
 
 class PolicyLists(object):
@@ -65,7 +66,8 @@ class PolicyLists(object):
         api = "template/policy/list/dataprefix/" + listid
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
-        return(response)
+        result = ParseMethods.parse_status(response)
+        return(result)
 
     def get_data_prefix_list(self):
         """Get all Data Prefix Lists from vManage.
@@ -112,7 +114,8 @@ class PolicyLists(object):
         url = self.base_url + api
         payload = f"{{'name':'{name}','type':'dataPrefix','listId':null,'entries':{entries}}}"
         response = HttpMethods(self.session, url).request('POST', payload=payload)
-        return(response)
+        result = ParseMethods.parse_status(response)
+        return(result)
 
     def put_data_prefix_list(self, name, listid, entries):
         """Update an existing Data Prefix List on vManage.
@@ -128,8 +131,9 @@ class PolicyLists(object):
 
         """
 
-        api = "template/policy/list/dataprefix/" + listid
+        api = f"template/policy/list/dataprefix/{listid}"
         url = self.base_url + api
         payload = f"{{'name':'{name}','type':'dataPrefix','listId':'{listid}','entries':{entries}}}"
         response = HttpMethods(self.session, url).request('PUT', payload=payload)
-        return(response)
+        result = ParseMethods.parse_status(response)
+        return(result)
