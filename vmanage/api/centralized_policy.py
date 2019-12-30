@@ -57,6 +57,8 @@ class CentralizedPolicy(object):
 
         Args:
             policyId (str): ID of the active centralized policy
+        Returns:
+            result (dict): All data associated with a response.
 
         """
 
@@ -66,11 +68,48 @@ class CentralizedPolicy(object):
         result = ParseMethods.parse_status(response)
         return(result)
 
+    def delete_centralized_policy(self, policyId):
+        """Deletes the specified centralized policy
+
+        Args:
+            policyId (str): ID of the active centralized policy
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        api = f"template/policy/vsmart/{policyId}"
+        url = self.base_url + api
+        response = HttpMethods(self.session, url).request('DELETE')
+        result = ParseMethods.parse_status(response)
+        return(result)
+
+    def delete_policy_definition(self, definition, definitionId):
+        """Deletes the specified policy definition which include:
+        'control','mesh','hubandspoke','vpnmembershipgroup',
+        'approute','data','cflowd'
+
+        Args:
+            definition (str): One of the above policy types
+            definitionId (str): ID of the policy definition
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        api = f"template/policy/definition/{definition}/{definitionId}"
+        url = self.base_url + api
+        response = HttpMethods(self.session, url).request('DELETE')
+        result = ParseMethods.parse_status(response)
+        return(result)
+
     def get_centralized_policy(self):
         """Obtain a list of all configured centralized policies
 
         Returns:
             result (dict): All data associated with a response.
+
         """
 
         api = "template/policy/vsmart"
@@ -79,3 +118,21 @@ class CentralizedPolicy(object):
         result = ParseMethods.parse_data(response)
         return(result)
 
+    def get_policy_definition(self, definition):
+        """Obtain a list of various policy definitions which include:
+        'control','mesh','hubandspoke','vpnmembershipgroup',
+        'approute','data','cflowd'
+
+        Args:
+            definition (str): One of the above policy types
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        api = f"template/policy/definition/{definition}"
+        url = self.base_url + api
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return(result)
