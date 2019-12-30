@@ -26,6 +26,8 @@ SOFTWARE.
 import json
 import requests
 
+VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
+
 
 class ParseMethods():
     """Reset all configuratios on a vManage instance.
@@ -69,6 +71,10 @@ class ParseMethods():
             result (dict): All data associated with a response.
 
         """
-
-        result = {'status_code': response.status_code}
+        if response['status_code'] in VALID_STATUS_CODES:
+            result = response['status_code']
+        else:
+            status = response['status']
+            result = response['status_code']
+            raise Exception(f'{status}: {result}')
         return(result)
