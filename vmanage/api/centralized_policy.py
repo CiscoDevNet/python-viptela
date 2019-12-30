@@ -23,6 +23,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import json
+import requests
+from vmanage.api.http_methods import HttpMethods
+from vmanage.data.parse_methods import ParseMethods
+
+
 class CentralizedPolicy(object):
-    # TODO
-    pass
+    """vManage Centralized Policy API
+
+    Responsible for DELETE, GET, POST, PUT methods against vManage
+    Centralized Policy.
+
+    """
+
+    def __init__(self, session, host, port=443):
+        """Initialize Centralized Policy object with session parameters.
+
+        Args:
+            session (obj): Requests Session object
+            host (str): hostname or IP address of vManage
+            port (int): default HTTPS 443
+
+        """
+
+        self.session = session
+        self.host = host
+        self.port = port
+        self.base_url = f'https://{self.host}:{self.port}/dataservice/'
+
+    def deactivate_centralized_policy(self, policyId):
+        """Deactivates the current active centralized policy
+
+        Args:
+            policyId (str): ID of the active centralized policy
+
+        """
+
+        api = f"template/policy/vsmart/deactivate/{policyId}?confirm=true"
+        url = self.base_url + api
+        response = HttpMethods(self.session, url).request('POST')
+        result = ParseMethods.parse_status(response)
+        return(result)
+
+    def get_centralized_policy(self):
+        """Obtain a list of all configured centralized policies
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        api = "template/policy/vsmart"
+        url = self.base_url + api
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return(result)
+
