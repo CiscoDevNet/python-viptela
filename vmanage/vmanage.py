@@ -35,8 +35,15 @@ class Viptela(object):
         self.host = host
         self.username = username
         self.password = password
-        self.auth = Authentication(
-            host=host, user=username, password=password).login()
+        self.__auth = None
+        
+    # use this to defer authentication until it's needed
+    @property 
+    def auth(self):
+        if self.__auth is None:
+            self.__auth = Authentication(
+                host=self.host, user=self.username, password=self.password).login()
+        return self.__auth
 
 
 @click.group()
