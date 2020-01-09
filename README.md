@@ -2,6 +2,13 @@
 
 This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for exercising that SDK
 
+## Systems
+
+The SDK has been tested on the following systems:
+
+* Ubuntu 18.04.3
+* Windows 10
+
 ## Requirements
 * Python 3.6+
 
@@ -20,7 +27,7 @@ python3 -m venv env
 pip install viptela
 ```
 
-### Installation from github 
+### Installation from github
 
 ```bash
 pip install git+https://github.com/CiscoDevNet/python-viptela.git@specific_template
@@ -197,4 +204,4 @@ vmanage show template g0/0/0-R1 --diff g0/0/0-R2
 
 ## License
 
-CISCO SAMPLE CODE LICENSE
+MIT License
