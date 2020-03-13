@@ -1,4 +1,5 @@
-"""
+"""Cisco vManage Administration API Methods.
+
 MIT License
 
 Copyright (c) 2019 Cisco Systems and/or its affiliates.
@@ -22,4 +23,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-name = "vmanage"
+class Administration(object):
+    # TODO
+    pass

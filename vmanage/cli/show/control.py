@@ -1,17 +1,20 @@
 import click
 import pprint
 import ipaddress
+from vmanage.api.device import Device
+from vmanage.api.monitor_network import MonitorNetwork
 
 @click.command()
 @click.argument('device', default=None, required=False)
 @click.option('--json/--no-json', default=False)
-@click.pass_context
+@click.pass_obj
 def connections(ctx, device, json):
     """
     Show control connections
     """
 
-    vmanage_session = ctx.obj
+    vmanage_device = Device(ctx.auth, ctx.host)
+    mn = MonitorNetwork(ctx.auth, ctx.host)
 
     if device:
         # Check to see if we were passed in a device IP address or a device name
@@ -19,12 +22,12 @@ def connections(ctx, device, json):
             ip = ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
-            device_dict = vmanage_session.get_device_status(device, key='host-name')
+            device_dict = vmanage_device.get_device_status(device, key='host-name')
             if 'system-ip' in device_dict:
                 system_ip = device_dict['system-ip'] 
         device_list = [system_ip]
     else:
-        control_device_dict = vmanage_session.get_device_config_dict(type='controllers', key_name='deviceIP')
+        control_device_dict = vmanage_device.get_device_config_dict(type='controllers', key_name='deviceIP')
         device_list = list(control_device_dict.keys())
 
     if not json:
@@ -34,7 +37,7 @@ def connections(ctx, device, json):
 
     for device in device_list:
         try:
-            control_connections = vmanage_session.get_device_data('control/connections', device)
+            control_connections = mn.get_control_connections(device)
             if json:
                 pp = pprint.PrettyPrinter(indent=2)
                 pp.pprint(control_connections)
@@ -47,20 +50,21 @@ def connections(ctx, device, json):
 @click.command('connections-history')
 @click.argument('device', required=True)
 @click.option('--json/--no-json', default=False)
-@click.pass_context
+@click.pass_obj
 def connections_history(ctx, device, json):
     """
     Show control connections history
     """
 
-    vmanage_session = ctx.obj
+    vmanage_device = Device(ctx.auth, ctx.host)
+    mn = MonitorNetwork(ctx.auth, ctx.host)
 
     # Check to see if we were passed in a device IP address or a device name
     try:
         ip = ipaddress.ip_address(device)
         system_ip = device
     except ValueError:
-        device_dict = vmanage_session.get_device_status(device, key='host-name')
+        device_dict = vmanage_device.get_device_status(device, key='host-name')
         if 'system-ip' in device_dict:
             system_ip = device_dict['system-ip'] 
 
@@ -69,7 +73,7 @@ def connections_history(ctx, device, json):
         click.echo("TYPE     PROTOCOL SYSTEM IP        ID    ID     PRIVATE IP       PORT    PUBLIC IP        PORT   LOCAL COLOR      STATE       ERROR   ERROR")
         click.echo("-------------------------------------------------------------------------------------------------------------------------------------------")  
     try:
-        control_connections_history = vmanage_session.get_device_data('control/connectionshistory', system_ip)
+        control_connections_history = mn.get_control_connections_history(system_ip)
         if json:
             pp = pprint.PrettyPrinter(indent=2)
             pp.pprint(control_connections_history)
@@ -80,7 +84,7 @@ def connections_history(ctx, device, json):
         pass
 
 @click.group()
-@click.pass_context
+@click.pass_obj
 def control(ctx):
     """
     Show control information

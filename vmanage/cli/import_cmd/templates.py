@@ -1,6 +1,7 @@
     
 import click
 import pprint
+from vmanage.api.files import Files
 
 @click.command()
 @click.argument('type', default='all')
@@ -13,16 +14,16 @@ import pprint
                help="Template type",
                type=click.Choice(['device', 'feature']),
                default=None)
-@click.pass_context
+@click.pass_obj
 def templates(ctx, file, update, check, diff, name, type):
     """
     Import templates from file
     """
-    vmanage_session = ctx.obj
+    vmanage_files = Files(ctx.auth, ctx.host)
     pp = pprint.PrettyPrinter(indent=2)
 
     click.echo(f'Importing templates from {file}')
-    result = vmanage_session.import_templates_from_file(file, update=update, check_mode=check, name_list = name, type = type)
+    result = vmanage_files.import_templates_from_file(file, update=update, check_mode=check, name_list = name, type = type)
     print(f"Feature Template Updates: {len(result['feature_template_updates'])}")
     if diff:
         for diff_item in result['feature_template_updates']:
