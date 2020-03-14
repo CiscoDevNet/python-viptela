@@ -1,26 +1,4 @@
 """Cisco vManage Device Templates API Methods.
-
-MIT License
-
-Copyright (c) 2019 Cisco Systems and/or its affiliates.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 """
 
 import json
@@ -124,20 +102,17 @@ class DeviceTemplates(object):
 
         Args:
             factory_default (bool): Include factory default
-            name_list (list of strings): A list of tempalte names to retreive.
+            name_list (list of strings): A list of template names to retreive.
 
         Returns:
             result (dict): All data associated with a response.
         """
-
-        api = "template/device"
-        url = self.base_url + api
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
+        device_templates = self.get_device_templates()
 
         return_list = []
         feature_template_dict = self.feature_templates.get_feature_template_dict(factory_default=True, key_name='templateId')
-        for device in result:
+
+        for device in device_templates:
             # If there is a list of template name, only return the ones asked for.
             # Otherwise, return them all
             if name_list and device['templateName'] not in name_list:

@@ -1,6 +1,6 @@
     
 import click
-from vmanage.api.files import Files
+from vmanage.apps.files import Files
 
 @click.command()
 @click.option('--file', '-f', help="Output file name", required=True)

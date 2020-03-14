@@ -1,7 +1,6 @@
-    
 import click
 import json
-from vmanage.api.files import Files
+from vmanage.apps.files import Files
 
 @click.command()
 @click.argument('type', default='all')
