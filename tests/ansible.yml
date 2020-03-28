@@ -1,0 +1,45 @@
+- hosts: localhost
+  gather_facts: no
+  tasks: 
+    - debug:
+        msg: "Running Ansible Module tests" 
+
+    - name: vManage Device Facts
+      vmanage_device_facts:
+
+    - name: vManage Feature Template Facts
+      vmanage_feature_template_facts:
+
+    - name: vManage Feature Template Facts
+      vmanage_device_template_facts:
+
+    - name: vManage Template Facts
+      vmanage_template_facts:
+
+    - name: vManage Import Templates
+      vmanage_template_import:
+        file: vmanage-templates.yml
+
+    - name: vManage Export Templates
+      vmanage_template_export:
+        file: "/tmp/vmanage-templates-test.yml"
+
+    - name: vManage Import Policies
+      vmanage_policy_import:
+        file: vmanage-policies.yml
+
+    - name: vManage Export Templates
+      vmanage_template_export:
+        file: "/tmp/vmanage-policies-test.yml"
+
+    - name: vManage Policy List Facts
+      vmanage_policy_list_facts:
+
+    - name: vManage Policy List Facts
+      vmanage_policy_definition_facts:
+
+    - name: vManage Policy List Facts
+      vmanage_central_policy_facts:
+
+    - name: vManage Policy List Facts
+      vmanage_local_policy_facts:

@@ -1,0 +1,22 @@
+- name: Making sure appropiate directories are there
+  file:
+    path: "{{item}}"
+    state: directory
+  run_once: True
+  with_items:
+    - "{{role_path}}/files/rendered_templates/"
+    - "{{role_path}}/files/rendered_templates/{{ folder }}"
+
+- name: Clean rendered templates
+  file:
+    path: "{{item}}"
+    state: absent
+    force: true
+  run_once: True
+  with_fileglob:
+    - "{{role_path}}/files/rendered_templates/{{ folder }}/*"
+
+- name: Render template
+  template: src={{ item.template | default(template) }} dest={{role_path}}/files/rendered_templates/{{ folder }}/{{ item.templateName }}.json
+  when: item.state  != "ignore" and item.state  != "absent"
+  with_items: "{{ template_list }}"

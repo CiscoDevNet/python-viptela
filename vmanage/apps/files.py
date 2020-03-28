@@ -90,7 +90,7 @@ class Files(object):
 
         # Read in the datafile
         if not os.path.exists(file):
-            raise Exception(msg='Cannot find file {0}'.format(file))
+            raise Exception(f"Cannot find file {file}")
         with open(file) as f:
             if file.endswith('.yaml') or file.endswith('.yml'):
                 template_data = yaml.safe_load(f)

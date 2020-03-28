@@ -1,0 +1,27 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"ntp",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":{
+   "server": {
+       "vipType": "constant",
+       "vipValue": [
+{% for server in  item["servers"]  %}
+       {
+          "name": {{ insertParameter(server,"name") }},
+          "key" : {{ insertParameter(server,"key") }},
+          "vpn": {{ insertParameter(server,"vpn") }},
+          "version" : {{ insertParameter(server,"version") }},
+          "source-interface": {{ insertParameter(server,"sourceInterface") }},
+          "prefer": {{ insertParameter(server,"prefer") }}
+       }{%- if not loop.last %},{% endif -%}
+{% endfor %}
+      ]
+      }
+}
+}

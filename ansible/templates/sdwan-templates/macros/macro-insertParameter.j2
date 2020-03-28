@@ -1,0 +1,16 @@
+{% macro insertParameter(item,parameter,vipObjectType="object") -%}
+{%- set return = {} %}
+{% set _ = return.__setitem__("vipObjectType", vipObjectType ) %}
+{%- if parameter in item %}
+{%- if 'variableName' in item[parameter] %}
+{% set _ = return.__setitem__("vipType","variableName") %}
+{% set _ = return.__setitem__("vipVariableName", item[parameter]["variableName"] ) %}
+{% else -%}
+{% set _ = return.__setitem__("vipType", "constant" ) %}
+{% set _ = return.__setitem__("vipValue", item[parameter]["globalValue"] ) %}
+{% endif -%}
+{% else -%}
+{% set _ = return.__setitem__("vipType", "ignore" ) %}
+{% endif -%}
+{{ return | tojson }}
+{%- endmacro %}

@@ -1,0 +1,13 @@
+- vmanage_feature_template:
+    user: "{{vmanage_user}}"
+    host: "{{vmanage_host}}"
+    password: "{{vmanage_password}}"
+    state: present
+    name: "{{ item.templateName }}"
+    description: "{{ item.templateDescription }}"
+    definition: "{{ item.templateDefinition }}"
+    template_type: "{{ item.templateType }}"
+    device_type: "{{ item.deviceType }}"
+    template_min_version:  "{{ item.templateMinVersion }}"
+    factory_default: "{{ item.factoryDefault }}"
+  loop: "{{present_template_list}}"

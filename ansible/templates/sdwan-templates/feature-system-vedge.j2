@@ -1,0 +1,59 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"system-vedge",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":
+   {
+           "clock": {
+               "timezone": {{ insertParameter(item,"timezone") }}
+           },
+           "gps-location": {
+               "latitude": {{ insertParameter(item,"latitude") }},
+               "longitude": {{ insertParameter(item,"longitude") }}
+           },
+           "timer": {
+               "dns-cache-timeout": {{ insertParameter(item,"dns-cache-timeout") }}
+           },
+           "location":  {{ insertParameter(item,"location") }},
+           "system-tunnel-mtu":  {{ insertParameter(item,"system-tunnel-mtu") }},
+           "track-transport":  {{ insertParameter(item,"track-transport") }},
+           "track-interface-tag":  {{ insertParameter(item,"track-interface-tag") }},
+           "port-offset":  {{ insertParameter(item,"port-offset") }},
+           "port-hop":  {{ insertParameter(item,"port-hop") }},
+           "control-session-pps":  {{ insertParameter(item,"control-session-pps") }},
+           "description":  {{ insertParameter(item,"description") }},
+           "device-groups":  {{ insertParameter(item,"device-groups") }},
+           "controller-group-list":  {{ insertParameter(item,"controller-group-list") }},
+           "eco-friendly-mode":  {{ insertParameter(item,"eco-friendly-mode") }},
+           "site-id":  {{ insertParameter(item,"site-id") }},
+           "overlay-id":  {{ insertParameter(item,"overlay-id") }},
+           "system-ip":  {{ insertParameter(item,"system-ip") }},
+           "host-name":  {{ insertParameter(item,"host-name") }},
+           "console-baud-rate":  {{ insertParameter(item,"console-baud-rate") }},
+           "max-omp-sessions":  {{ insertParameter(item,"max-omp-sessions") }},
+           "usb-controller":  {{ insertParameter(item,"usb-controller") }},
+           "track-default-gateway":  {{ insertParameter(item,"track-default-gateway") }},
+           "multicast-buffer-percent":  {{ insertParameter(item,"multicast-buffer-percent") }},
+           "host-policer-pps":  {{ insertParameter(item,"host-policer-pps") }},
+           "icmp-error-pps":  {{ insertParameter(item,"icmp-error-pps") }},
+           "allow-same-site-tunnels":  {{ insertParameter(item,"allow-same-site-tunnels") }},
+           "route-consistency-check":  {{ insertParameter(item,"route-consistency-check") }},
+           "idle-timeout":  {{ insertParameter(item,"idle-timeout") }},
+           "admin-tech-on-failure":  {{ insertParameter(item,"admin-tech-on-failure") }},
+           "tracker": {
+               "vipType": "ignore",
+               "vipValue": [],
+               "vipObjectType": "tree",
+               "vipPrimaryKey": [
+                   "name"
+               ]
+           }
+       }
+
+
+}

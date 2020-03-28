@@ -26,7 +26,7 @@ def templates(ctx, type, name, file):
     elif type == 'feature':
         if name:
             click.echo(f'Exporting feature template(s) {",".join(name)} to {file}')
-            vmanage_files.export_templates_to_file(file, name_list=name, type_list='feature')
+            vmanage_files.export_templates_to_file(file, name_list=name, type='feature')
         else:
             click.echo(f'Exporting feature templates to {file}')
             vmanage_files.export_templates_to_file(file, type='feature')        

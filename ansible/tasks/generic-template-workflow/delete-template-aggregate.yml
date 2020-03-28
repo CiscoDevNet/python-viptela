@@ -1,0 +1,8 @@
+- name: Interact with the vManage to delete templates
+  vmanage_feature_template:
+    user: "{{vmanage_user}}"
+    host: "{{vmanage_host}}"
+    password: "{{vmanage_password}}"
+    state: absent
+    aggregate: "{{absent_template_list}}"
+  when: absent_template_list

@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-aaa,feature-aaa:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-aaa'] }}"
+    template: sdwan-templates/feature-aaa.j2
+    folder: feature-aaa
+  when: FeatureTemplates['feature-aaa'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-aaa,feature-aaa:create,feature-aaa:delete,feature-aaa:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-aaa'] }}"
+    template: sdwan-templates/feature-aaa.j2
+    folder: feature-aaa
+  when: FeatureTemplates['feature-aaa'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-aaa,feature-aaa:create
+  vars:
+    folder: feature-aaa
+  when: FeatureTemplates['feature-aaa'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-aaa,feature-aaa:create
+  when: FeatureTemplates['feature-aaa'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-aaa:debug,never
+  when: FeatureTemplates['feature-aaa'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-aaa,feature-aaa:delete
+  when: FeatureTemplates['feature-aaa'] is defined

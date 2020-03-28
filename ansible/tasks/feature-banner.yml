@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-banner,feature-banner:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-banner'] }}"
+    template: sdwan-templates/feature-banner.j2
+    folder: feature-banner
+  when: FeatureTemplates['feature-banner'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-banner,feature-banner:create,feature-banner:delete,feature-banner:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-banner'] }}"
+    template: sdwan-templates/feature-banner.j2
+    folder: feature-banner
+  when: FeatureTemplates['feature-banner'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-banner,feature-banner:create
+  vars:
+    folder: feature-banner
+  when: FeatureTemplates['feature-banner'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-banner,feature-banner:create
+  when: FeatureTemplates['feature-banner'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-banner:debug,never
+  when: FeatureTemplates['feature-banner'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-banner,feature-banner:delete
+  when: FeatureTemplates['feature-banner'] is defined

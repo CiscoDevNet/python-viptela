@@ -1,0 +1,162 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"vpn-vedge",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":
+   {
+           "vpn-id": {{ insertParameter(item,"vpnID") }},
+           "name": {{ insertParameter(item,"name") }},
+           "ecmp-hash-key": {
+               "layer4": {{ insertParameter(item,"ecmpLayer4") }}
+           },
+           "tcp-optimization": {{ insertParameter(item,"tcpOptimization","node-only") }},
+           {% if "primaryDNS" in item %}
+           "dns": {
+               "vipType": "constant",
+               "vipValue": [
+                   {
+                       "role": {
+                           "vipType": "constant",
+                           "vipValue": "primary",
+                           "vipObjectType": "object"
+                       },
+                       "dns-addr": {{ insertParameter(item,"primaryDNS") }},
+                       "priority-order": [
+                           "dns-addr",
+                           "role"
+                       ]
+                   }{% if "secondaryDNS" in item %},
+                   {
+                       "role": {
+                           "vipType": "constant",
+                           "vipValue": "secondary",
+                           "vipObjectType": "object"
+                       },
+                       "dns-addr": {{ insertParameter(item,"secondaryDNS") }},
+                       "priority-order": [
+                           "dns-addr",
+                           "role"
+                       ]
+                   }{% endif %}
+               ],
+               "vipObjectType": "tree",
+               "vipPrimaryKey": [
+                   "dns-addr"
+               ]
+           },
+           {% endif %}
+           "host": {
+               "vipType": "ignore",
+               "vipValue": [],
+               "vipObjectType": "tree",
+               "vipPrimaryKey": [
+                   "hostname"
+               ]
+           },
+           "service": {
+               "vipType": "ignore",
+               "vipValue": [],
+               "vipObjectType": "tree",
+               "vipPrimaryKey": [
+                   "svc-type"
+               ]
+           },
+           "ip": {
+               "route": {
+ {% if "staticRoutes" in item %}
+                 "vipType":"constant",
+                 "vipValue":[
+{% for route in  item["staticRoutes"]  %}
+                {
+                  "prefix": {{ insertParameter(route,"prefix") }},
+                  "vipOptional":{{ route['optional'] | default(false) | to_json }},
+                  "next-hop":{
+                    "vipType":"constant",
+                    "vipValue":[
+{% for nextHop in  route['nextHops']  %}
+                    {
+                    "address": {{ insertParameter(nextHop,"address") }},
+                    "distance":{
+                       "vipObjectType":"object",
+                       "vipType":"ignore",
+                       "vipValue":1,
+                       "vipVariableName":"vpn_next_hop_ip_distance_{{loop.index}}"
+                    },
+                    "priority-order":[
+                       "address",
+                       "distance"
+                    ]
+                    }{% if not loop.last %},{% endif %}
+{% endfor %}
+                  ],
+                  "vipObjectType":"tree",
+                  "vipPrimaryKey":[
+                     "address"
+                  ]
+                  },
+                  "priority-order":[
+                     "prefix",
+                     "next-hop"
+                  ]
+                }{%- if not loop.last %},{% endif -%}
+{% endfor %}
+               ],
+               "vipObjectType":"tree",
+               "vipPrimaryKey":[
+                  "prefix"
+               ]
+{% endif %}
+
+               },
+               "gre-route": {},
+               "ipsec-route": {}
+           },
+           "ipv6": {},
+           "omp": {
+               "advertise": {
+                   {% if "ompAdvertise" in item %}
+                   "vipType": "constant",
+                   "vipValue": [
+                    {% for p in  item["ompAdvertise"]  %}
+                    {
+                        "priority-order": [
+                            "protocol",
+                            "protocol-sub-type"
+                        ],
+                        "protocol": {{ insertParameter(p,"protocol") }}{%- if "globalValue" in p.protocol and p.protocol.globalValue =="ospf" %},
+                        "protocol-sub-type": {
+                            "vipType": "constant",
+                            "vipValue": "external",
+                            "vipObjectType": "object"
+                        }
+                        {% endif -%}
+
+                    }{%- if not loop.last %},{% endif -%}
+                    {% endfor %}
+                   ],
+                   {% else %}
+                   "vipType": "ignore",
+                   "vipValue": [],
+                   {% endif %}
+                   "vipObjectType": "tree",
+                   "vipPrimaryKey": [
+                       "protocol"
+                   ]
+               },
+               "ipv6-advertise": {
+                   "vipType": "ignore",
+                   "vipValue": [],
+                   "vipObjectType": "tree",
+                   "vipPrimaryKey": [
+                       "protocol"
+                   ]
+               }
+           }
+}
+
+}

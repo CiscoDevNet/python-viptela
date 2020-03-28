@@ -1,0 +1,731 @@
+vmanage_central_policies:
+- '@rid': 295
+  createdBy: admin
+  createdOn: 1584209254300
+  isPolicyActivated: true
+  lastUpdatedBy: admin
+  lastUpdatedOn: 1584209254300
+  policyDefinition:
+    assembly:
+    - definitionName: guest_datapolicy
+      entries:
+      - direction: service
+        siteLists:
+        - all_sites
+        vpnLists:
+        - guest
+      type: data
+    - definitionName: corp_datapolicy
+      entries:
+      - direction: service
+        siteLists:
+        - all_sites
+        vpnLists:
+        - corp
+      type: data
+  policyDescription: central_policy
+  policyId: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  policyName: central_policy
+  policyType: feature
+  policyVersion: 03142020T180734300
+vmanage_local_policies: []
+vmanage_policy_definitions:
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  defaultAction:
+    type: accept
+  definitionId: f0f496d5-48e3-438d-963d-15197dda7e06
+  description: Central Guest Data Policy
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209252421
+  name: guest_datapolicy
+  owner: admin
+  referenceCount: 1
+  references:
+  - id: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  sequences:
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: blocked_prefixes
+        listType: dataPrefix
+    sequenceId: 1
+    sequenceIpType: ipv4
+    sequenceName: RTBH
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: sourceDataPrefixList
+        listName: blocked_prefixes
+        listType: dataPrefix
+    sequenceId: 11
+    sequenceIpType: ipv4
+    sequenceName: RTBH
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: colo_dataprefixes
+        listType: dataPrefix
+    sequenceId: 21
+    sequenceIpType: ipv4
+    sequenceName: Internal Services
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: cloud_dataprefixes
+        listType: dataPrefix
+    sequenceId: 31
+    sequenceIpType: ipv4
+    sequenceName: Internal Services
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: corp_dataprefixes
+        listType: dataPrefix
+    sequenceId: 41
+    sequenceIpType: ipv4
+    sequenceName: Internal Services
+    sequenceType: data
+  type: data
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  defaultAction:
+    type: accept
+  definitionId: 75252783-ab11-4dd9-a2ad-20917ce65f76
+  description: Corp Central Data Policy
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209252758
+  name: corp_datapolicy
+  owner: admin
+  referenceCount: 1
+  references:
+  - id: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  sequences:
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: blocked_prefixes
+        listType: dataPrefix
+    sequenceId: 1
+    sequenceIpType: ipv4
+    sequenceName: RTBH
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: sourceDataPrefixList
+        listName: blocked_prefixes
+        listType: dataPrefix
+    sequenceId: 11
+    sequenceIpType: ipv4
+    sequenceName: RTBH
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: guest_dataprefixes
+        listType: dataPrefix
+    sequenceId: 21
+    sequenceIpType: ipv4
+    sequenceName: To Guest
+    sequenceType: data
+  type: data
+- defaultAction:
+    type: accept
+  definitionId: 8610b681-a830-4dee-b18f-d75bcc1f9ad9
+  description: block_prefixes
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209252040
+  name: block_prefixes
+  owner: admin
+  referenceCount: 0
+  references: []
+  sequences:
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: sourceDataPrefixList
+        listName: blocked_prefixes
+        listType: dataPrefix
+    sequenceId: 1
+    sequenceIpType: ipv4
+    sequenceName: Custom
+    sequenceType: data
+  - actions: []
+    baseAction: drop
+    match:
+      entries:
+      - field: destinationDataPrefixList
+        listName: blocked_prefixes
+        listType: dataPrefix
+    sequenceId: 11
+    sequenceIpType: ipv4
+    sequenceName: Custom
+    sequenceType: data
+  type: data
+vmanage_policy_lists:
+- description: SaaS App List for Sugar CRM
+  entries:
+  - app: sugarcrm
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064625
+  listId: 93dcd933-bc53-46fc-9b27-637a515edcc4
+  name: sugar_crm_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: SaaS App List for Dropbox
+  entries:
+  - app: dropbox
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209065136
+  listId: ab9630d3-594e-4dc5-864f-d863a2763292
+  name: dropbox_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '2.0'
+- description: SaaS App List for Box Net
+  entries:
+  - app: box
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209065202
+  listId: 4d2e487c-0100-4e4f-8396-20558aeefad2
+  name: box_net_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '2.0'
+- description: SaaS App List for Office365
+  entries:
+  - app: ms-live-accounts
+  - app: ms-lync
+  - app: ms-lync-audio
+  - app: ms-lync-control
+  - app: ms-lync-video
+  - app: ms-office-365
+  - app: ms-office-web-apps
+  - app: ms-services
+  - app: ms-teams
+  - app: ms-teams-audio
+  - app: ms-teams-media
+  - app: ms-teams-video
+  - app: ms-update
+  - app: outlook-web-service
+  - app: share-point
+  - app: skydrive
+  - app: skype
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209063687
+  listId: 2fa480cd-e995-4350-b20a-107e5dddb3b5
+  name: office365_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: ACI Transactional Data SLA
+  entries:
+  - jitter: '100'
+    latency: '50'
+    loss: '5'
+  infoTag: aci
+  isActivatedByVsmart: false
+  lastUpdated: 1584209063830
+  listId: 7f34aea9-f86a-4d17-b842-1b06494425d1
+  name: Transactional-Data
+  owner: system
+  readOnly: false
+  referenceCount: 0
+  references: []
+  type: sla
+  version: '1.0'
+- description: SaaS App List for Gotomeeting
+  entries:
+  - app: citrix
+  - app: gotomeeting
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064109
+  listId: 156ad915-6338-4dc6-81a7-c85ae58ffedb
+  name: gotomeeting_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: SaaS App List for Oracle
+  entries:
+  - app: oracle
+  - app: oracle-bi
+  - app: oracle-ebsuite-unsecured
+  - app: oracle-sqlnet
+  - app: oraclenames
+  - app: oraclenet8cman
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064186
+  listId: 936f7a6e-2d72-4f65-9446-776f1adcfdcf
+  name: oracle_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.1'
+- description: Google Applications List
+  entries:
+  - app: android-updates
+  - app: blogger
+  - app: chrome_update
+  - app: gcs
+  - app: gmail
+  - app: gmail_basic
+  - app: gmail_chat
+  - app: gmail_drive
+  - app: gmail_mobile
+  - app: google-services
+  - app: google-services-audio
+  - app: google-services-media
+  - app: google-services-video
+  - app: google_accounts
+  - app: google_ads
+  - app: google_analytics
+  - app: google_appengine
+  - app: google_cache
+  - app: google_calendar
+  - app: google_code
+  - app: google_desktop
+  - app: google_docs
+  - app: google-docs
+  - app: google-downloads
+  - app: google_earth
+  - app: google-earth
+  - app: google_groups
+  - app: google_maps
+  - app: google_photos
+  - app: google_picasa
+  - app: picasa
+  - app: google-play
+  - app: google_plus
+  - app: google-plus
+  - app: google_safebrowsing
+  - app: google_skymap
+  - app: google_spaces
+  - app: google_tags
+  - app: google_toolbar
+  - app: google_translate
+  - app: google_trusted_store
+  - app: google_weblight
+  - app: googlebot
+  - app: gstatic
+  - app: gtalk
+  - app: gtalk-chat
+  - app: gtalk-ft
+  - app: gtalk-video
+  - app: gtalk-voip
+  - app: hangouts
+  - app: hangouts-audio
+  - app: hangouts-chat
+  - app: hangouts-file-transfer
+  - app: hangouts-media
+  - app: hangouts-video
+  - app: youtube
+  - app: youtube_hd
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064698
+  listId: e256a349-7821-462e-8213-5e694867bdd0
+  name: Google_Apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '4.2'
+- description: SaaS App List for Concur
+  entries:
+  - app: concur
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209063947
+  listId: 6d5e0a1e-c1d1-4818-8a15-cff12490e7b4
+  name: concur_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: SaaS App List for Intuit
+  entries:
+  - app: intuit
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064031
+  listId: f2a58ab7-e01f-4269-ae91-1678de76b06e
+  name: intuit_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: SaaS App List for Zoho CRM
+  entries:
+  - app: zoho-services
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064371
+  listId: 40d5f0b1-131c-40a5-93ea-6da4d9f1d362
+  name: zoho_crm_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: ACI Bulk Data SLA
+  entries:
+  - jitter: '100'
+    latency: '300'
+    loss: '10'
+  infoTag: aci
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064455
+  listId: 8fd9b393-6bc9-4977-90c5-ab63bdff4eba
+  name: Bulk-Data
+  owner: system
+  readOnly: false
+  referenceCount: 0
+  references: []
+  type: sla
+  version: '1.0'
+- description: SaaS App List for Salesforce
+  entries:
+  - app: salesforce
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064535
+  listId: a23cb22d-0e36-4cb0-9fbb-8ef44f8b576f
+  name: salesforce_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '2.0'
+- description: ACI Voice And Video SLA
+  entries:
+  - jitter: '100'
+    latency: '45'
+    loss: '2'
+  infoTag: aci
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064776
+  listId: 78685ab3-8234-493b-a671-75154111fe2f
+  name: Voice-And-Video
+  owner: system
+  readOnly: false
+  referenceCount: 0
+  references: []
+  type: sla
+  version: '1.0'
+- description: SaaS App List for Zendesk
+  entries:
+  - app: zendesk
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064845
+  listId: 0be8cb0b-e3cb-498c-b29c-52e709c2ac74
+  name: zendesk_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '2.0'
+- description: SaaS App List for Amazon AWS
+  entries:
+  - app: amazon
+  - app: amazon-web-services
+  - app: amazon-instant-video
+  - app: amazon-cloudfront
+  - app: amazon-ec2
+  - app: amazon-s3
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064919
+  listId: b70a98db-90bd-4d3d-b496-404aedbbbdeb
+  name: amazon_aws_apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '3.0'
+- description: ACI Default SLA
+  entries:
+  - jitter: '100'
+    latency: '300'
+    loss: '25'
+  infoTag: aci
+  isActivatedByVsmart: false
+  lastUpdated: 1584209064983
+  listId: b1d8df1a-e588-4fc8-80f3-44c5a5ba376f
+  name: Default
+  owner: system
+  readOnly: false
+  referenceCount: 0
+  references: []
+  type: sla
+  version: '1.0'
+- description: Microsoft Applications List
+  entries:
+  - app: bing
+  - app: hockeyapp
+  - app: live_hotmail
+  - app: lync
+  - app: lync_online
+  - app: ms-services
+  - app: ms_translator
+  - app: ms-office-365
+  - app: share-point
+  - app: skydrive
+  - app: skype
+  - app: windows_azure
+  - app: windows_update
+  - app: windows_marketplace
+  - app: windowslive
+  - app: windowslivespace
+  - app: windowsmedia
+  - app: xbox
+  - app: xbox_music
+  - app: xbox_video
+  - app: xboxlive
+  - app: xboxlive_marketplace
+  - app: word_online
+  - app: powerpoint_online
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209065062
+  listId: 05dc25ce-7dd9-481a-9bf3-b2b8b06c93a5
+  name: Microsoft_Apps
+  owner: system
+  readOnly: true
+  referenceCount: 0
+  references: []
+  type: app
+  version: '4.0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - ipPrefix: 10.0.1.0/24
+  - ipPrefix: 10.0.2.0/24
+  - ipPrefix: 10.0.3.0/24
+  - ipPrefix: 10.0.4.0/24
+  - ipPrefix: 10.0.5.0/24
+  - ipPrefix: 172.18.0.0/16
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209247616
+  listId: 2555b6c2-0967-4f52-afd3-391c9ed16768
+  name: blocked_prefixes
+  owner: admin
+  readOnly: false
+  referenceCount: 3
+  references:
+  - id: 75252783-ab11-4dd9-a2ad-20917ce65f76
+    type: data
+  - id: f0f496d5-48e3-438d-963d-15197dda7e06
+    type: data
+  - id: 8610b681-a830-4dee-b18f-d75bcc1f9ad9
+    type: data
+  type: dataPrefix
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - ipPrefix: 10.20.3.0/24
+  - ipPrefix: 10.21.3.0/24
+  - ipPrefix: 10.22.3.0/24
+  - ipPrefix: 10.23.3.0/24
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209247718
+  listId: 29cf309a-54cb-4ca9-90c6-4a2989490655
+  name: guest_dataprefixes
+  owner: admin
+  readOnly: false
+  referenceCount: 1
+  references:
+  - id: 75252783-ab11-4dd9-a2ad-20917ce65f76
+    type: data
+  type: dataPrefix
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - ipPrefix: 172.20.1.0/24
+  - ipPrefix: 172.21.1.0/24
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209247793
+  listId: 3cf94b05-c3a3-4348-8ec9-70f524875799
+  name: colo_dataprefixes
+  owner: admin
+  readOnly: false
+  referenceCount: 1
+  references:
+  - id: f0f496d5-48e3-438d-963d-15197dda7e06
+    type: data
+  type: dataPrefix
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - ipPrefix: 10.20.2.0/24
+  - ipPrefix: 10.20.4.0/24
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209247868
+  listId: 9d80dbdd-85b9-4a1a-8441-ed87e4e22053
+  name: cloud_dataprefixes
+  owner: admin
+  readOnly: false
+  referenceCount: 1
+  references:
+  - id: f0f496d5-48e3-438d-963d-15197dda7e06
+    type: data
+  type: dataPrefix
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - ipPrefix: 10.20.4.0/24
+  - ipPrefix: 10.21.4.0/24
+  - ipPrefix: 10.22.4.0/24
+  - ipPrefix: 10.23.4.0/24
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209247946
+  listId: 0c59a7a4-6b44-4d4a-a0bc-289920065ea9
+  name: corp_dataprefixes
+  owner: admin
+  readOnly: false
+  referenceCount: 1
+  references:
+  - id: f0f496d5-48e3-438d-963d-15197dda7e06
+    type: data
+  type: dataPrefix
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - siteId: 0-999
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209249130
+  listId: 291825ee-27c5-407c-90f6-0c0b66e7961b
+  name: all_sites
+  owner: admin
+  readOnly: false
+  referenceCount: 2
+  references:
+  - id: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+    type: ''
+  - id: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+    type: ''
+  type: site
+  version: '0'
+- description: Desc Not Required
+  entries:
+  - vpn: 0-999
+  infoTag: ''
+  isActivatedByVsmart: false
+  lastUpdated: 1584209250267
+  listId: e1f49368-5685-4d7c-9a5e-095c1784785f
+  name: all_vpns
+  owner: admin
+  readOnly: false
+  referenceCount: 0
+  references: []
+  type: vpn
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - vpn: '11'
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209250343
+  listId: 1e193762-2276-4973-9bdc-f8b8fcfbf649
+  name: corp
+  owner: admin
+  readOnly: false
+  referenceCount: 1
+  references:
+  - id: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+    type: ''
+  type: vpn
+  version: '0'
+- activatedId:
+  - 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+  description: Desc Not Required
+  entries:
+  - vpn: '10'
+  infoTag: ''
+  isActivatedByVsmart: true
+  lastUpdated: 1584209250413
+  listId: 8a9cfffa-f36b-48a2-a7c9-78f0ed90b163
+  name: guest
+  owner: admin
+  readOnly: false
+  referenceCount: 1
+  references:
+  - id: 98e8f9c0-c4ab-4f01-907f-0ef757b40269
+    type: ''
+  type: vpn
+  version: '0'

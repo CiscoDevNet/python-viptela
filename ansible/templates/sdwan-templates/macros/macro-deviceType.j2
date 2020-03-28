@@ -1,0 +1,66 @@
+{% macro deviceType() -%}
+{% set ControllerTypeList = [
+  "vmanage",
+  "vsmart"
+  ]
+%}
+{% set vEdgeTypeList = [
+    "vedge-5000",
+    "vedge-cloud",
+    "vedge-1000",
+    "vedge-2000",
+    "vedge-100",
+    "vedge-100-B",
+    "vedge-100-WM",
+    "vedge-100-M"
+    ]
+%}
+{% set cEdgeTypeList = [
+    "vedge-CSR-1000v",
+    "vedge-ISR-4331",
+    "vedge-ISR-4321",
+    "vedge-ISR-4351",
+    "vedge-ISR-4221",
+    "vedge-ISR-4221X",
+    "vedge-ISR-4431",
+    "vedge-ISR-4451-X",
+    "vedge-ASR-1001-HX",
+    "vedge-ASR-1002-X",
+    "vedge-ASR-1002-HX",
+    "vedge-C1111-8P",
+    "vedge-C1111X-8P",
+    "vedge-C1111-8PLTEEA",
+    "vedge-C1111-8PLTELA",
+    "vedge-C1117-4PLTEEA",
+    "vedge-C1117-4PLTELA",
+    "vedge-ISRv",
+    "vedge-ASR-1001-X",
+    "vedge-C1101-4P",
+    "vedge-C1101-4PLTEP",
+    "vedge-C1111-4P",
+    "vedge-C1111-8PW",
+    "vedge-C1111-8PLTEEAW",
+    "vedge-C1111-4PLTEEA",
+    "vedge-C1111-4PLTELA",
+    "vedge-C1116-4P",
+    "vedge-C1116-4PLTEEA",
+    "vedge-C1117-4P",
+    "vedge-C1117-4PM",
+    "vedge-C1117-4PMLTEEA"
+    ]
+%}
+{%- if 'deviceType' in item %}
+  {%- if 'vEdge' in item['deviceType'] %}
+    {% set deviceTypeList = vEdgeTypeList %}
+  {%- elif 'cEdge' in item['deviceType'] %}
+    {% set deviceTypeList = cEdgeTypeList %}
+  {%- elif 'controllers' in item['deviceType'] %}
+    {% set deviceTypeList = ControllerTypeList %}
+  {%- else %}
+    {% set deviceTypeList = item['deviceType'] %}
+  {% endif %}
+{%- else %}
+    {% set deviceTypeList = vEdgeTypeList+cEdgeTypeList %}
+{% endif %}
+"deviceType":{{ deviceTypeList |  tojson(indent=2) }}
+{%- endmacro %}

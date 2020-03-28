@@ -1,0 +1,14 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"banner",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":{
+      "login": {{ insertParameter(item,"login") }},
+      "motd": {{ insertParameter(item,"motd") }}
+      }
+}

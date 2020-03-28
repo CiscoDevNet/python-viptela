@@ -1,0 +1,75 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"omp-vedge",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":{
+        "graceful-restart": {{ insertParameter(item,"gracefulRestart") }},
+        "send-path-limit": {{ insertParameter(item,"sendPathLimit") }},
+        "overlay-as": {{ insertParameter(item,"overlayAs") }},
+        "ecmp-limit": {{ insertParameter(item,"ecmpLimit") }}
+        "shutdown": {{ insertParameter(item,"shutdown") }},
+        "timers": {
+            "advertisement-interval": {{ insertParameter(item,"advertisementInterval") }},
+            "graceful-restart-timer": {
+                "vipObjectType": "object",
+                "vipType": "ignore",
+                "vipValue": 43200,
+                "vipVariableName": "omp_graceful_restart_timer"
+            },
+            "holdtime": {
+                "vipObjectType": "object",
+                "vipType": "ignore",
+                "vipValue": 60,
+                "vipVariableName": "omp_holdtime"
+            },
+            "eor-timer": {
+                "vipObjectType": "object",
+                "vipType": "ignore",
+                "vipValue": 300,
+                "vipVariableName": "omp_eor_timer"
+            }
+        },
+        "advertise": {
+            "vipType": "ignore",
+            "vipValue": [],
+            "vipObjectType": "tree",
+            "vipPrimaryKey": [
+                "protocol"
+            ]
+        },
+        "ipv6-advertise": {
+            "vipType": "constant",
+            "vipValue": [
+                {
+                    "priority-order": [
+                        "protocol"
+                    ],
+                    "protocol": {
+                        "vipType": "constant",
+                        "vipValue": "connected",
+                        "vipObjectType": "object"
+                    }
+                },
+                {
+                    "priority-order": [
+                        "protocol"
+                    ],
+                    "protocol": {
+                        "vipType": "constant",
+                        "vipValue": "static",
+                        "vipObjectType": "object"
+                    }
+                }
+            ],
+            "vipObjectType": "tree",
+            "vipPrimaryKey": [
+                "protocol"
+            ]
+        }
+      }
+}

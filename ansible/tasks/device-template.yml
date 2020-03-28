@@ -1,0 +1,43 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: device-template,device-template:render,render
+  vars:
+    template_list: "{{ DeviceTemplate }}"
+    template: sdwan-templates/device-template.j2
+    folder: device-template
+  when: DeviceTemplate is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: device-template,device-template:create,device-template:delete,device-template:debug
+  vars:
+    template_list: "{{ DeviceTemplate }}"
+    template: sdwan-templates/device-template.j2
+    folder: device-template
+  when: DeviceTemplate is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: device-template,device-template:create
+  vars:
+    folder: device-template
+  when: DeviceTemplate is defined
+
+- name: Interact with the vManage to create templates
+  vmanage_device_template:
+    user: "{{vmanage_user}}"
+    host: "{{vmanage_host}}"
+    password: "{{vmanage_password}}"
+    state: present
+    aggregate: "{{present_template_list}}"
+  tags: device-template,device-template:create
+  when: present_template_list
+
+- name: Interact with the vManage to create templates
+  vmanage_device_template:
+    user: "{{vmanage_user}}"
+    host: "{{vmanage_host}}"
+    password: "{{vmanage_password}}"
+    state: absent
+    aggregate: "{{absent_template_list}}"
+  when: absent_template_list

@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-interface,feature-interface:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-interface'] }}"
+    template: sdwan-templates/feature-interface.j2
+    folder: feature-interface
+  when: FeatureTemplates['feature-interface'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-interface,feature-interface:create,feature-interface:delete,feature-interface:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-interface'] }}"
+    template: sdwan-templates/feature-interface.j2
+    folder: feature-interface
+  when: FeatureTemplates['feature-interface'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-interface,feature-interface:create
+  vars:
+    folder: feature-interface
+  when: FeatureTemplates['feature-interface'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-interface,feature-interface:create
+  when: FeatureTemplates['feature-interface'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-interface:debug,never
+  when: FeatureTemplates['feature-interface'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-interface,feature-interface:delete
+  when: FeatureTemplates['feature-interface'] is defined

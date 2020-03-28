@@ -1,0 +1,8 @@
+- name: Interact with the vManage to create templates
+  vmanage_feature_template:
+    user: "{{vmanage_user}}"
+    host: "{{vmanage_host}}"
+    password: "{{vmanage_password}}"
+    state: present
+    aggregate: "{{present_template_list}}"
+  when: present_template_list

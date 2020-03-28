@@ -1,0 +1,36 @@
+- include_tasks: get-cookie.yml
+  when: viptela_api_cookie is not defined
+
+- name: See if the vBond is already set
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/device"
+    method: GET
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+
+- set_fact:
+    current_vbond_ip: "{{ uri_results.json.data[0].domainIp | default('') }}"
+    current_vbond_port: "{{ uri_results.json.data[0].port | default('') }}"
+
+- name: Set vBond
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/device"
+    method: PUT
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    body_format: json
+    body:
+      domainIp: "{{ vbond_ip }}"
+      port: "{{ vbond_port | default('12346') }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  changed_when: true
+  when: current_vbond_ip != vbond_ip
+  delegate_to: localhost
+  retries: 60

@@ -1,0 +1,19 @@
+- include_tasks: get-cookie.yml
+  when: viptela_api_cookie is not defined
+
+- name: Install Certificate
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/certificate/install/signedCert"
+    method: POST
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    body_format: json
+    body:
+      "{{ device_cert }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+  delay: 10
+  until: uri_results is not failed

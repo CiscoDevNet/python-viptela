@@ -1,0 +1,273 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"vpn-vedge-interface",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":
+   {
+         "if-name": {{ insertParameter(item,"name") }},
+         "description": {{ insertParameter(item,"description") }},
+         "ip": {
+             {% if "dhcpClient"  not in item %}
+             "address": {{ insertParameter(item,"address") }},
+             {% else %}
+             "dhcp-client": {{ insertParameter(item,"dhcpClient") }},
+             {% endif %}
+             "dhcp-distance": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipValue": 1,
+                 "vipVariableName": "vpn_if_ipv4_dhcp_distance"
+             },
+             "secondary-address": {
+                 "vipType": "ignore",
+                 "vipValue": [],
+                 "vipObjectType": "tree",
+                 "vipPrimaryKey": [
+                     "address"
+                 ]
+             }
+         },
+         "dhcp-helper": {{ insertParameter(item,"dhcpHelper") }},
+         "flow-control": {{ insertParameter(item,"flowControl") }},
+         "clear-dont-fragment": {{ insertParameter(item,"clearDontFrag") }},
+         "pmtu": {{ insertParameter(item,"pmtu") }},
+         "mtu": {{ insertParameter(item,"mtu") }},
+         "static-ingress-qos": {{ insertParameter(item,"staticIngressQos") }},
+         "tcp-mss-adjust": {{ insertParameter(item,"tcpMssAdjust") }},
+         "mac-address": {{ insertParameter(item,"macAddress") }},
+         "speed": {{ insertParameter(item,"speed") }},
+         "duplex": {{ insertParameter(item,"duplex") }},
+         "shutdown": {{ insertParameter(item,"shutdown") }},
+         "arp-timeout": {{ insertParameter(item,"arpTimeout") }},
+         "autonegotiate": {{ insertParameter(item,"autonegotiate") }},
+         "shaping-rate": {{ insertParameter(item,"shapingRate") }},
+         "qos-map": {{ insertParameter(item,"qosMap") }},
+         "tracker": {
+             "vipObjectType": "list",
+             "vipType": "ignore",
+             "vipVariableName": "vpn_if_tracker"
+         },
+         "bandwidth-upstream": {{ insertParameter(item,"bandwidthUpstream") }},
+         "bandwidth-downstream": {{ insertParameter(item,"bandwidthDownstream") }},
+         "block-non-source-ip": {{ insertParameter(item,"blockNonSourceIP") }},
+         "rewrite-rule": {
+             "rule-name": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipVariableName": "rewrite_rule_name"
+             }
+         },
+         "tloc-extension": {{ insertParameter(item,"tlocExtension") }},
+         "icmp-redirect-disable": {{ insertParameter(item,"icmpRedirectDisable") }},
+         "tloc-extension-gre-from": {
+             "src-ip": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipVariableName": "vpn_if_tloc-ext_gre_from_src_ip"
+             },
+             "xconnect": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipVariableName": "vpn_if_tloc-ext_gre_from_xconnect"
+             }
+         },
+         "access-list": {
+             "vipType": "ignore",
+             "vipValue": [],
+             "vipObjectType": "tree",
+             "vipPrimaryKey": [
+                 "direction"
+             ]
+         },
+         "policer": {
+             "vipType": "ignore",
+             "vipValue": [],
+             "vipObjectType": "tree",
+             "vipPrimaryKey": [
+                 "policer-name",
+                 "direction"
+             ]
+         },
+         {% if "colorValue" in item %}
+         "tunnel-interface": {
+             "encapsulation": {
+                 "vipType": "constant",
+                 "vipValue": [
+                     {
+                         "preference": {{ insertParameter(item,"tunnelPreference") }},
+                         "weight": {{ insertParameter(item,"tunnelWeight") }},
+                         "encap": {{ insertParameter(item,"tunnelEncap") }},
+                         "priority-order": [
+                             "encap",
+                             "preference",
+                             "weight"
+                         ]
+                     }
+                 ],
+                 "vipObjectType": "tree",
+                 "vipPrimaryKey": [
+                     "encap"
+                 ]
+             },
+             "group": {
+                 "vipObjectType": "list",
+                 "vipType": "ignore",
+                 "vipVariableName": "vpn_if_tunnel_group"
+             },
+             "border": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipValue": "false",
+                 "vipVariableName": "vpn_if_tunnel_border"
+             },
+             "color": {
+                 "value": {{ insertParameter(item,"colorValue") }},
+                 "restrict": {{ insertParameter(item,"colorRestric","node-only") }}
+             },
+             "carrier": {{ insertParameter(item,"tunnelCarrier") }},
+             "bind": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipVariableName": "vpn_if_tunnel_bind"
+             },
+             "allow-service": {
+                 "dhcp": {{ insertParameter(item,"allowDHCP") }},
+                 "dns": {{ insertParameter(item,"allowDNS") }},
+                 "icmp": {{ insertParameter(item,"allowICMP") }},
+                 "sshd": {{ insertParameter(item,"allowSSHD") }},
+                 "ntp": {{ insertParameter(item,"allowNTP") }},
+                 "stun": {{ insertParameter(item,"allowSTUN") }},
+                 "all": {{ insertParameter(item,"allowALL") }},
+                 "bgp": {{ insertParameter(item,"allowBGP") }},
+                 "ospf": {{ insertParameter(item,"allowOSPF") }},
+                 "netconf": {{ insertParameter(item,"allowNETCONF") }},
+                 "https": {{ insertParameter(item,"allowHTTPS") }}
+             },
+             "max-control-connections": {{ insertParameter(item,"maxControlConnections") }},
+             "vbond-as-stun-server": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipValue": "false",
+                 "vipVariableName": "vpn_if_tunnel_vbond_as_stun_server"
+             },
+             "exclude-controller-group-list": {
+                 "vipObjectType": "list",
+                 "vipType": "ignore",
+                 "vipVariableName": "vpn_if_tunnel_exclude_controller_group_list"
+             },
+             "vmanage-connection-preference": {{ insertParameter(item,"vmanageConnectionPreference") }},
+             "port-hop": {{ insertParameter(item,"portHop") }},
+             "low-bandwidth-link": {{ insertParameter(item,"lowBandwidthLink") }},
+             "last-resort-circuit": {{ insertParameter(item,"lastResortCircuit") }},
+             "hold-time": {{ insertParameter(item,"holdTime") }},
+             "nat-refresh-interval": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipValue": 5,
+                 "vipVariableName": "vpn_if_tunnel_nat_refresh_interval"
+             },
+             "hello-interval": {{ insertParameter(item,"helloInterval") }},
+             "hello-tolerance": {{ insertParameter(item,"helloTolerance") }},
+             "tloc-extension-gre-to": {
+                 "dst-ip": {
+                     "vipObjectType": "object",
+                     "vipType": "ignore",
+                     "vipVariableName": "vpn_if_tunnel_tloc_ext_gre_to_dst_ip"
+                 }
+             },
+             "control-connections": {{ insertParameter(item,"controlConnections") }}
+         },
+         {% endif %}
+         "ipv6": {
+             "access-list": {
+                 "vipType": "ignore",
+                 "vipValue": [],
+                 "vipObjectType": "tree",
+                 "vipPrimaryKey": [
+                     "direction"
+                 ]
+             },
+             "address": {
+                 "vipObjectType": "object",
+                 "vipType": "ignore",
+                 "vipValue": "",
+                 "vipVariableName": "vpn_if_ipv6_ipv6_address"
+             },
+             "dhcp-helper-v6": {
+                 "vipType": "ignore",
+                 "vipValue": [],
+                 "vipObjectType": "tree",
+                 "vipPrimaryKey": [
+                     "address"
+                 ]
+             },
+             "secondary-address": {
+                 "vipType": "ignore",
+                 "vipValue": [],
+                 "vipObjectType": "tree",
+                 "vipPrimaryKey": [
+                     "address"
+                 ]
+             }
+         },
+         "nat": {{ insertParameter(item,"nat","node-only") }},
+         "arp": {
+             "ip": {
+                 "vipType": "ignore",
+                 "vipValue": [],
+                 "vipObjectType": "tree",
+                 "vipPrimaryKey": [
+                     "addr"
+                 ]
+             }
+         },
+         {% if "vrrp" in item %}
+         "vrrp": {
+             "vipType": "ignore",
+             "vipValue": [
+              {% for vip in  item["vrrp"]  %}
+                    {
+                    "grp-id": {{ insertParameter(vip,"grpID") }},
+                    "priority": {{ insertParameter(vip,"priority") }},
+                    "timer": {{ insertParameter(vip,"timer") }},
+                    "track-omp": {{ insertParameter(vip,"trackOMP","node-only") }},
+                    "track-prefix-list": {{ insertParameter(vip,"trackPrefixList") }},
+                    "ipv4": {
+                        "address": {{ insertParameter(vip,"address") }}
+                    },
+                    "vipOptional": {{ vip['optional'] | default(false) | to_json }},
+                    "priority-order": [
+                        "grp-id",
+                        "priority",
+                        "timer",
+                        "track-omp",
+                        "track-prefix-list",
+                        "ipv4"
+                    ]
+                }
+            {% endfor %}
+             ],
+             "vipObjectType": "tree",
+             "vipPrimaryKey": [
+                 "grp-id"
+             ]
+         },
+         {% endif %}
+         "ipv6-vrrp": {
+             "vipType": "ignore",
+             "vipValue": [],
+             "vipObjectType": "tree",
+             "vipPrimaryKey": [
+                 "grp-id"
+             ]
+         },
+         "dot1x": {{ insertParameter(item,"dot1x","node-only") }}
+    }
+
+
+}

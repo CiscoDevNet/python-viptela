@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-logging,feature-logging:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-logging'] }}"
+    template: sdwan-templates/feature-logging.j2
+    folder: feature-logging
+  when: FeatureTemplates['feature-logging'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-logging,feature-logging:create,feature-logging:delete,feature-logging:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-logging'] }}"
+    template: sdwan-templates/feature-logging.j2
+    folder: feature-logging
+  when: FeatureTemplates['feature-logging'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-logging,feature-logging:create
+  vars:
+    folder: feature-logging
+  when: FeatureTemplates['feature-logging'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-logging,feature-logging:create
+  when: FeatureTemplates['feature-logging'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-logging:debug,never
+  when: FeatureTemplates['feature-logging'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-logging,feature-logging:delete
+  when: FeatureTemplates['feature-logging'] is defined

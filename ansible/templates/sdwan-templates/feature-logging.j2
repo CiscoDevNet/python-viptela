@@ -1,0 +1,46 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"logging",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition": {
+           "disk": {
+               "enable": {{ insertParameter(item,"enableDisk") }} ,
+               "file": {
+                   "size": {{ insertParameter(item,"maximumFileSize") }},
+                   "rotate": {{ insertParameter(item,"rotation") }}
+               },
+               "priority": {{ insertParameter(item,"priority") }}
+           }{% if "servers" in item %},
+           "server": {
+               "vipType": "constant",
+               "vipValue": [
+{% for server in  item["servers"]  %}
+               {
+                  "name": {{ insertParameter(server,"name") }},
+                  "vpn": {{ insertParameter(server,"vpn") }},
+                  "source-interface": {{ insertParameter(server,"sourceInterface") }},
+                  "priority": {{ insertParameter(server,"priority") }},
+                  "vipOptional": {{ server['optional'] | default(false) | to_json }},
+                  "priority-order": [
+                    "name",
+                    "vpn",
+                    "source-interface",
+                    "priority"
+                ]
+               }{%- if not loop.last %},{% endif -%}
+{% endfor %}
+              ],
+               "vipObjectType": "tree",
+               "vipPrimaryKey": [
+                   "name"
+               ]
+           }
+{% endif %}
+       }
+
+}

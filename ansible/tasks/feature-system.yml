@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-system,feature-system:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-system'] }}"
+    template: sdwan-templates/feature-system-vedge.j2
+    folder: feature-system
+  when: FeatureTemplates['feature-system'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-system,feature-system:create,feature-system:delete,feature-system:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-system'] }}"
+    template: sdwan-templates/feature-system-vedge.j2
+    folder: feature-system
+  when: FeatureTemplates['feature-system'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-system,feature-system:create
+  vars:
+    folder: feature-system
+  when: FeatureTemplates['feature-system'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-system,feature-system:create
+  when: FeatureTemplates['feature-system'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-system:debug,never
+  when: FeatureTemplates['feature-system'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-system,feature-system:delete
+  when: FeatureTemplates['feature-system'] is defined
