@@ -89,7 +89,7 @@ def run_module():
             if not central_policy_dict[vmanage.params['name']]['isPolicyActivated']:
                 vmanage.result['changed'] = True
                 if not module.check_mode:
-                    action_id = vmanage_central_policy.activate_central_policy(vmanage.params['name'], entral_policy_dict[vmanage.params['name']]['policyId'])
+                    action_id = vmanage_central_policy.activate_central_policy(vmanage.params['name'], central_policy_dict[vmanage.params['name']]['policyId'])
                     if action_id:
                         if vmanage.params['wait']:
                             vmanage_central_policy.waitfor_action_completion(action_id)
