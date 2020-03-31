@@ -49,7 +49,7 @@ class LocalizedPolicy(object):
         result = ParseMethods.parse_status(response)
         return(result)
 
-    def delete_localized_policy(self, policyId):
+    def delete_localized_policy(self, policy_id):
         """Deletes the specified localized policy
 
         Args:
@@ -59,7 +59,7 @@ class LocalizedPolicy(object):
 
         """
 
-        api = f"template/policy/vedge/{policyId}"
+        api = f"template/policy/vedge/{policy_id}"
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)

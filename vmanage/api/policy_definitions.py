@@ -170,6 +170,51 @@ class PolicyDefinitions(object):
                 if 'entries' in assembly_item:
                     self.convert_list_name_to_id(assembly_item['entries'])
 
+    def delete_policy_definition(self, definition_type, definition_id):
+        """Delete a Policy Definition from vManage.
+
+        Args:
+            definition_type (str): The defintion type of the requested policy definition
+            definition_id (str): The defintion ID of the requested policy definition
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
+        response = HttpMethods(self.session, url).request('GET')
+
+    def add_policy_definition(self, policy_definition):
+        """Delete a Policy Definition from vManage.
+
+        Args:
+            definition_type (str): The defintion type of the requested policy definition
+            definition_id (str): The defintion ID of the requested policy definition
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}"
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(policy_definition))
+
+    def update_policy_definition(self, policy_definition, policy_definition_id):
+        """Update a Policy Definition from vManage.
+
+        Args:
+            definition_type (str): The defintion type of the requested policy definition
+            definition_id (str): The defintion ID of the requested policy definition
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}/{policy_definition_id}"
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
+
     def get_policy_definition(self, definition_type, definition_id):
         """Get a Policy Definition from vManage.
 
@@ -257,50 +302,52 @@ class PolicyDefinitions(object):
                         else:
                             raise Exception("Could not find list {0} of type {1}".format(entry['listName'], entry['listType']))
 
-    def import_policy_definition(self, definition, update=False, push=False, check_mode=False, force=False):
-        policy_definition_dict = self.get_policy_definition_dict(definition['type'], remove_key=False)
-        diff = []
-        payload = { 
-            "name": definition['name'],
-            "description": definition['description'],
-            "type": definition['type'],
-        }
-        if 'defaultAction' in definition:
-            payload.update({'defaultAction': definition['defaultAction']})           
-        if 'sequences' in definition:
-            payload.update({'sequences': definition['sequences']})        
-        if 'definition' in definition:
-            payload.update({'definition': definition['definition']})
+    def import_policy_definition_list(self, policy_definition_list, update=False, push=False, check_mode=False, force=False):
+        policy_definition_updates = []
+        for definition in policy_definition_list:
+            policy_definition_dict = self.get_policy_definition_dict(definition['type'], remove_key=False)
+            diff = []
+            payload = { 
+                "name": definition['name'],
+                "description": definition['description'],
+                "type": definition['type'],
+            }
+            if 'defaultAction' in definition:
+                payload.update({'defaultAction': definition['defaultAction']})           
+            if 'sequences' in definition:
+                payload.update({'sequences': definition['sequences']})        
+            if 'definition' in definition:
+                payload.update({'definition': definition['definition']})
 
-        if definition['name'] in policy_definition_dict:
-            existing_definition = policy_definition_dict[definition['name']]
-            if 'defaultAction' in payload:
-                diff.extend(list(dictdiffer.diff(existing_definition['defaultAction'], payload['defaultAction'])))           
-            if 'sequences' in payload:
-                diff.extend(list(dictdiffer.diff(existing_definition['sequences'], payload['sequences'])))        
-            if 'definition' in payload:
-                diff.extend(list(dictdiffer.diff(existing_definition['definition'], payload['definition'])))            
-            if len(diff):
+            if definition['name'] in policy_definition_dict:
+                existing_definition = policy_definition_dict[definition['name']]
+                if 'defaultAction' in payload:
+                    diff.extend(list(dictdiffer.diff(existing_definition['defaultAction'], payload['defaultAction'])))           
+                if 'sequences' in payload:
+                    diff.extend(list(dictdiffer.diff(existing_definition['sequences'], payload['sequences'])))        
+                if 'definition' in payload:
+                    diff.extend(list(dictdiffer.diff(existing_definition['definition'], payload['definition'])))            
+                if len(diff):
+                    if 'definition' in definition:
+                        self.convert_list_name_to_id(definition['definition'])
+                    if 'sequences' in definition:
+                        self.convert_sequences_to_id(definition['sequences'])
+                    if 'rules' in definition:
+                        self.convert_sequences_to_id(definition['rules'])                      
+                    if not check_mode and update:
+                        response = self.update_policy_definition(definition, policy_definition_dict[definition['name']]['definitionId'])
+                    policy_definition_updates.append({'name': definition['name'], 'diff': diff})
+            else:
+                diff = list(dictdiffer.diff({}, payload))
+                policy_definition_updates.append({'name': definition['name'], 'diff': diff})
+                # List does not exist
                 if 'definition' in definition:
                     self.convert_list_name_to_id(definition['definition'])
                 if 'sequences' in definition:
-                    self.convert_sequences_to_id(definition['sequences'])
+                    self.convert_list_name_to_id(definition['sequences']) 
                 if 'rules' in definition:
-                    self.convert_sequences_to_id(definition['rules'])                      
-                if not check_mode and update:
-                    url = f"{self.base_url}template/policy/definition/{definition['type'].lower()}/{policy_definition_dict[definition['name']]['definitionId']}"
-                    response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(payload))
-        else:
-            diff = list(dictdiffer.diff({}, payload))
-            # List does not exist
-            if 'definition' in definition:
-                self.convert_list_name_to_id(definition['definition'])
-            if 'sequences' in definition:
-                self.convert_list_name_to_id(definition['sequences']) 
-            if 'rules' in definition:
-                self.convert_list_name_to_id(definition['rules'])        
-            if not check_mode:
-                url = f"{self.base_url}template/policy/definition/{definition['type'].lower()}"
-                response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+                    self.convert_list_name_to_id(definition['rules'])        
+                if not check_mode:
+                    response = self.add_policy_definition(definition)
 
-        return diff
+        return policy_definition_updates

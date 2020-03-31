@@ -44,6 +44,50 @@ class LocalPolicy(object):
 
         return dict
 
+    def add_local_policy(self, policy):
+        """Delete a Central Policy from vManage.
+
+        Args:
+            policy: The Central Policy
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/vedge"
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(policy))
+
+    def update_local_policy(self, policy, policy_id):
+        """Update a Central from vManage.
+
+        Args:
+            policy: The Central Policy
+            policy_id: The ID of the Central Policy to update
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/vedge/{policy_id}"
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
+
+    def delete_localized_policy(self, policyId):
+        """Deletes the specified local policy
+
+        Args:
+            policyId (str): ID of the active local policy
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/vedge/{policy_id}"
+        response = HttpMethods(self.session, url).request('DELETE')
+        result = ParseMethods.parse_status(response)
+        return(result)
+
     def get_local_policy_list(self):
         """Get all Central Policies from vManage.
 
@@ -75,30 +119,30 @@ class LocalPolicy(object):
 
         return self.list_to_dict(local_policy_list, key_name, remove_key=remove_key)
 
-    def import_local_policy(self, local_policy, update=False, push=False, check_mode=False, force=False):
-        diff = []
-        changes = False
+    def import_local_policy_list(self, local_policy_list, update=False, push=False, check_mode=False, force=False):
         local_policy_dict = self.get_local_policy_dict(remove_key=False)
-        payload = {
-            'policyName': local_policy['policyName']
-        }
-        payload['policyDescription'] = local_policy['policyDescription']
-        payload['policyType'] = local_policy['policyType']
-        payload['policyDefinition'] = local_policy['policyDefinition']
-        if payload['policyName'] in local_policy_dict:
-            # A policy by that name already exists
-            existing_policy = local_policy_dict[payload['policyName']]
-            diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
-            if len(diff):
+        local_policy_updates = []
+        for local_policy in local_policy_list:
+            payload = {
+                'policyName': local_policy['policyName']
+            }
+            payload['policyDescription'] = local_policy['policyDescription']
+            payload['policyType'] = local_policy['policyType']
+            payload['policyDefinition'] = local_policy['policyDefinition']
+            if payload['policyName'] in local_policy_dict:
+                # A policy by that name already exists
+                existing_policy = local_policy_dict[payload['policyName']]
+                diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
+                if len(diff):
+                    if 'policyDefinition' in payload:
+                        self.convert_definition_name_to_id(payload['policyDefinition'])
+                    if not check_mode and update:
+                        self.update_local_policy(payload, existing_policy['policyId'])
+            else:
+                diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 if 'policyDefinition' in payload:
+                    # Convert list and definition names to template IDs
                     self.convert_definition_name_to_id(payload['policyDefinition'])
-                if not check_mode and update:
-                    self.request('/template/policy/vedge/{0}'.format(existing_policy['policyId']), method='PUT', payload=payload)
-        else:
-            diff = list(dictdiffer.diff({}, payload['policyDefinition']))
-            if 'policyDefinition' in payload:
-                # Convert list and definition names to template IDs
-                self.convert_definition_name_to_id(payload['policyDefinition'])
-            if not check_mode:
-                self.request('/template/policy/vedge', method='POST', payload=payload)        
-        return diff
+                if not check_mode:
+                    self.add_local_policy(payload)
+        return local_policy_updates

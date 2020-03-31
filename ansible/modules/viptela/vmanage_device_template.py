@@ -1,24 +1,26 @@
 #!/usr/bin/env python
 
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from vmanage.api.device_templates import DeviceTemplates
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community'
 }
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
-
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
-    argument_spec = viptela_argument_spec()
+    argument_spec = vmanage_argument_spec()
     argument_spec.update(state=dict(type='str', choices=['absent', 'present'], default='present'),
                          name = dict(type='str', alias='templateName'),
                          description = dict(type='str', alias='templateDescription'),
                          templates = dict(type='str', alias='generalTemplates'),
                          device_type = dict(type='list', alias='deviceType'),
                          config_type=dict(type='list', alias='configType'),
+                         update=dict(type='bool', defaut=True),
                          factory_default=dict(type='bool', alias='factoryDefault'),
                          aggregate=dict(type='list'),
     )
@@ -39,81 +41,52 @@ def run_module():
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True,
                            )
-    viptela = viptelaModule(module)
+    vmanage = Vmanage(module)
+    vmanage_device_templates = DeviceTemplates(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
-    if viptela.params['aggregate']:
-        device_template_list =  viptela.params['aggregate']
+    if vmanage.params['aggregate']:
+        device_template_list =  vmanage.params['aggregate']
     else:
-        if viptela.params['state'] == 'present':
+        if vmanage.params['state'] == 'present':
             device_template_list = [
                 {
-                    'templateName': viptela.params['name'],
-                    'templateDescription': viptela.params['description'],
-                    'deviceType': viptela.params['device_type'],
-                    'configType': viptela.params['config_type'],
-                    'factoryDefault': viptela.params['factory_default'],
-                    'generalTemplates': viptela.params['templates'],
+                    'templateName': vmanage.params['name'],
+                    'templateDescription': vmanage.params['description'],
+                    'deviceType': vmanage.params['device_type'],
+                    'configType': vmanage.params['config_type'],
+                    'factoryDefault': vmanage.params['factory_default'],
+                    'generalTemplates': vmanage.params['templates'],
                 }
             ]
         else:
             device_template_list = [
                 {
-                    'templateName': viptela.params['name'],
+                    'templateName': vmanage.params['name'],
                     'state': 'absent'
                 }
             ]
 
-    device_template_dict = viptela.get_device_template_dict(factory_default=True, remove_key=False)
-
-    compare_values = ['templateDescription', 'deviceType', 'configType', 'generalTemplates']
-    ignore_values = ["lastUpdatedOn", "lastUpdatedBy", "templateId", "createdOn", "createdBy"]
-
-    for device_template in device_template_list:
-        if viptela.params['state'] == 'present':
-            payload = {
-                'templateName': device_template['templateName'],
-                'templateDescription': device_template['templateDescription'],
-                'deviceType': device_template['deviceType'],
-                'factoryDefault': device_template['factoryDefault'],
-                'configType': device_template['configType'],
-            }
-            payload['policyId'] = ''
-            payload['featureTemplateUidRange'] = []
-            # If a template by that name is already there
-            if payload['templateName'] in device_template_dict:
-                viptela.result['changed'] = False
-                # changed_items = viptela.compare_payloads(payload, device_template_dict[payload['templateName']], compare_values=compare_values)
-                # if changed_items:
-                #     viptela.result['changed'] = True
-                #     viptela.result['what_changed'] = changed_items
-                #     viptela.result['old_payload'] = device_template_dict[payload['templateName']]
-                #     if not module.check_mode:
-                #         #
-                #         # Convert template names to template IDs
-                #         #
-                #         if payload['configType'] == 'template':
-                #             payload['generalTemplates'] = viptela.generalTemplates_to_id(device_template['generalTemplates'])
-                #         viptela.request('/dataservice/template/device/feature/{0}'.format(device_template_dict[payload['templateName']]['templateId']),
-                #                         method='PUT', payload=payload)
-            else:
-                if not module.check_mode:
-                    #
-                    # Convert template names to template IDs
-                    #
-                    if payload['configType'] == 'template':
-                        payload['generalTemplates'] = viptela.generalTemplates_to_id(device_template['generalTemplates'])
-                    viptela.request('/dataservice/template/device/feature', method='POST', payload=payload)
-                viptela.result['changed'] = True
-        else:
+    device_template_updates = []
+    if vmanage.params['state'] == 'present':
+        device_template_updates = vmanage_device_templates.import_device_template_list(
+                                device_template_list,
+                                check_mode = module.check_mode,
+                                update = vmanage.params['update']
+                            )
+        if device_template_updates:
+            vmanage.result['changed'] = True
+    else:
+        device_template_dict = vmanage_device_templates.get_device_template_dict(
+                                            factory_default=True, remove_key=False)
+        for device_template in device_template_list:
             if device_template['templateName'] in device_template_dict:
                 if not module.check_mode:
-                    viptela.request('/dataservice/template/device/{0}'.format(device_template_dict[device_template['templateName']]['templateId']),
-                                    method='DELETE')
-                viptela.result['changed'] = True
+                    vmanage_device_templates.delete_device_template(device_template_dict[device_template['templateName']]['templateId'])
+                vmanage.result['changed'] = True
 
-
-    viptela.exit_json(**viptela.result)
+    vmanage.result['updates'] = device_template_updates
+    vmanage.exit_json(**vmanage.result)
 
 def main():
     run_module()

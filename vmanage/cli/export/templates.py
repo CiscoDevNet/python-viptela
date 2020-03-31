@@ -1,4 +1,3 @@
-    
 import click
 from vmanage.apps.files import Files
 

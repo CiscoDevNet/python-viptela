@@ -119,4 +119,4 @@ class Device(object):
 
         device_list = self.get_device_config_list(type)
 
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key) 

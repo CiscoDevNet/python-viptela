@@ -79,8 +79,8 @@ class Files(object):
 
     def import_templates_from_file(self, file, update=False, check_mode=False, name_list = [], type = None):
 
-        device_templates = DeviceTemplates(self.session, self.host, self.port)
-        feature_templates = FeatureTemplates(self.session, self.host, self.port)
+        vmanage_device_templates = DeviceTemplates(self.session, self.host, self.port)
+        vmanage_feature_templates = FeatureTemplates(self.session, self.host, self.port)
 
         changed = False
         feature_template_updates = []
@@ -135,48 +135,18 @@ class Files(object):
             imported_feature_template_list = pruned_feature_template_list
 
         # Process the feature templates
-        feature_template_dict = feature_templates.get_feature_template_dict(factory_default=True, remove_key=False)
-        for feature_template in imported_feature_template_list:
-            if feature_template['templateName'] in feature_template_dict:
-                existing_template = feature_template_dict[feature_template['templateName']]
-                diff = list(dictdiffer.diff(existing_template['templateDefinition'], feature_template['templateDefinition']))
-                if len(diff):
-                    feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
-                    if not check_mode and update:
-                        if not check_mode:
-                            feature_templates.add_feature_template(feature_template)
-            else:
-                diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
-                feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
-                if not check_mode:
-                    feature_templates.add_feature_template(feature_template)                
+        feature_template_updates = vmanage_feature_templates.import_feature_template_list(
+                        imported_feature_template_list,
+                        check_mode = False,
+                        update = False
+                    )        
 
         # Process the device templates
-        device_template_dict = device_templates.get_device_template_dict()
-        for device_template in imported_device_template_list:
-            if device_template['templateName'] in device_template_dict:
-                existing_template = device_template_dict[device_template['templateName']]
-                if 'generalTemplates' in device_template:
-                    diff = list(dictdiffer.diff(existing_template['generalTemplates'], device_template['generalTemplates']))
-                elif 'templateConfiguration' in device_template:
-                    diff = list(dictdiffer.diff(existing_template['templateConfiguration'], device_template['templateConfiguration']))
-                else:
-                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
-                if len(diff):
-                    device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
-                    if not check_mode and update:
-                        if not check_mode:
-                            device_templates.add_device_template(device_template)
-            else:
-                if 'generalTemplates' in device_template:
-                    diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
-                elif 'templateConfiguration' in device_template:
-                    diff = list(dictdiffer.diff({}, device_template['templateConfiguration']))
-                else:
-                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
-                device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
-                if not check_mode:
-                    device_templates.add_device_template(device_template)
+        device_template_updates = vmanage_device_templates.import_device_template_list(
+                        imported_device_template_list,
+                        check_mode = False,
+                        update = False
+                    )           
 
         return {
                 'feature_template_updates': feature_template_updates,
@@ -255,22 +225,14 @@ class Files(object):
         else:
             local_policy_data = []
 
-        for policy_list in policy_list_data:
-            diff = vmanage_policy_lists.import_policy_list(policy_list, check_mode=check_mode, update=update, push=push)
-            if len(diff):
-                policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
+        policy_list_updates = vmanage_policy_lists.import_policy_list_list(policy_list_data, check_mode=check_mode, update=update, push=push)
 
         vmanage_policy_lists.clear_policy_list_cache()
 
-        for definition in policy_definition_data:
-            diff = vmanage_policy_definitions.import_policy_definition(definition, check_mode=check_mode, update=update, push=push)
-            if len(diff):
-                policy_definition_updates.append({'name': definition['name'], 'diff': diff})
-
-        for central_policy in central_policy_data:
-            diff = vmanage_central_policy.import_central_policy(central_policy, update=update, push=push, check_mode=check_mode)
-            if len(diff):
-                central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
+        policy_definition_updates = vmanage_policy_definitions.import_policy_definition_list(policy_definition_data, check_mode=check_mode, update=update, push=push)
+        central_policy_updates = vmanage_central_policy.import_central_policy_list(central_policy_data, check_mode=check_mode, update=update, push=push)
+        local_policy_updates = vmanage_local_policy.import_local_policy_list(local_policy_data, check_mode=check_mode, update=update, push=push)
+                
 
         for local_policy in local_policy_data:
             diff = vmanage_local_policy.import_local_policy(local_policy, check_mode=check_mode, update=update, push=push)

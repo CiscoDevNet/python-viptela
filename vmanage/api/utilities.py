@@ -50,4 +50,4 @@ class Utilities(object):
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         version = result[0]['version']
-        return(version)
+        return(version)   

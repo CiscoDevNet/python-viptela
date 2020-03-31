@@ -1,4 +1,6 @@
 import click
+from vmanage.cli.activate import activate
+from vmanage.cli.deactivate import deactivate
 from vmanage.cli.show import show
 from vmanage.cli.export import export
 from vmanage.cli.import_cmd import import_cmd
@@ -40,9 +42,12 @@ def main(ctx, host, username, password):
 
     ctx.obj = Viptela(host, username, password)
 
+main.add_command(activate)
+main.add_command(deactivate)
 main.add_command(show)
 main.add_command(export)
 main.add_command(import_cmd)
+
 
 if __name__ == '__main__':
     vmanage_cli()  # pragma: no cover

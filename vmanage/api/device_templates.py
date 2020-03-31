@@ -2,7 +2,7 @@
 """
 
 import json
-import requests
+import dictdiffer
 import re
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
@@ -144,7 +144,20 @@ class DeviceTemplates(object):
         return return_list
 
     def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list = []):
+        """Obtain a dictionary of all configured device templates.
+
+
+        Args:
+            factory_default (bool): Wheter to return factory default templates
+            key_name (string): The name of the attribute to use as the dictionary key
+            remove_key (boolean): remove the search key from the element
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """          
         device_template_list = self.get_device_template_list(factory_default=factory_default, name_list=name_list)
+
 
         return self.list_to_dict(device_template_list, key_name, remove_key)
 
@@ -258,6 +271,47 @@ class DeviceTemplates(object):
             url = self.base_url + api
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         return response
+
+    def import_device_template_list(self, device_template_list, check_mode = False, update = False):
+        """Add a list of feature templates to vManage.
+
+
+        Args:
+            check_mode (bool): Only check to see if changes would be made
+            update (bool): Update the template if it exists
+
+        Returns:
+            result (list): Returns the diffs of the updates.
+
+        """
+        device_template_updates = []
+        device_template_dict = self.get_device_template_dict()
+        for device_template in device_template_list:
+            if device_template['templateName'] in device_template_dict:
+                existing_template = device_template_dict[device_template['templateName']]
+                if 'generalTemplates' in device_template:
+                    diff = list(dictdiffer.diff(existing_template['generalTemplates'], device_template['generalTemplates']))
+                elif 'templateConfiguration' in device_template:
+                    diff = list(dictdiffer.diff(existing_template['templateConfiguration'], device_template['templateConfiguration']))
+                else:
+                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
+                if len(diff):
+                    device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
+                    if not check_mode and update:
+                        if not check_mode:
+                            self.add_device_template(device_template)
+            else:
+                if 'generalTemplates' in device_template:
+                    diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
+                elif 'templateConfiguration' in device_template:
+                    diff = list(dictdiffer.diff({}, device_template['templateConfiguration']))
+                else:
+                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
+                device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
+                if not check_mode:
+                    self.add_device_template(device_template)
+
+        return device_template_updates
 
     def generalTemplates_to_id(self, generalTemplates):
         converted_generalTemplates = []
