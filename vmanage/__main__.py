@@ -50,4 +50,4 @@ main.add_command(import_cmd)
 
 
 if __name__ == '__main__':
-    vmanage_cli()  # pragma: no cover
+    main(prog_name="vmanage")  # pragma: no cover
