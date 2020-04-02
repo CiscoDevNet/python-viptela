@@ -12,7 +12,7 @@ import os.path
 # from paramiko import SSHClient
 # from scp import SCPClient
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 
 
 def run_module():

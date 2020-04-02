@@ -8,7 +8,7 @@ ANSIBLE_METADATA = {
 
 import time
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 
 
 def run_module():

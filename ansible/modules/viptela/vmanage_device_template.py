@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.device_templates import DeviceTemplates
 
 ANSIBLE_METADATA = {

@@ -8,7 +8,7 @@ ANSIBLE_METADATA = {
 #### CAN WE DO THIS ????
 import os
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 from collections import OrderedDict
 
 def run_module():
