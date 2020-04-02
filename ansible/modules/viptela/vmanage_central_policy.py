@@ -16,15 +16,15 @@ def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
     argument_spec.update(state=dict(type='str', choices=['absent', 'present', 'activated', 'deactivated'], default='present'),
-                         name = dict(type='str', alias='policyName'),
-                         description = dict(type='str', alias='policyDescription'),
-                         definition = dict(type='str', alias='policyDefinition'),
-                         type = dict(type='list', alias='policyType'),
-                         wait = dict(type='bool', default=False),
+                         name=dict(type='str', alias='policyName'),
+                         description=dict(type='str', alias='policyDescription'),
+                         definition=dict(type='str', alias='policyDefinition'),
+                         type=dict(type='list', alias='policyType'),
+                         wait=dict(type='bool', default=False),
                          update=dict(type='bool', default=False),
                          push=dict(type='bool', default=False),
                          aggregate=dict(type='list'),
-    )
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -47,7 +47,7 @@ def run_module():
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
-        policy_list =  vmanage.params['aggregate']
+        policy_list = vmanage.params['aggregate']
     else:
         if vmanage.params['state'] == 'present':
             policy_list = [
@@ -66,14 +66,14 @@ def run_module():
                 }
             ]
 
-    central_policy_updates = []   
+    central_policy_updates = []
     if vmanage.params['state'] == 'present':
         central_policy_updates = vmanage_central_policy.import_central_policy_list(
-                                policy_list,
-                                check_mode = module.check_mode,
-                                update = vmanage.params['update'],
-                                push = vmanage.params['push']
-                            )
+            policy_list,
+            check_mode=module.check_mode,
+            update=vmanage.params['update'],
+            push=vmanage.params['push']
+        )
         if central_policy_updates:
             vmanage.result['changed'] = True
     elif vmanage.params['state'] == 'absent':
@@ -82,14 +82,15 @@ def run_module():
             if policy in central_policy_dict:
                 if not module.check_mode:
                     vmanage_central_policy.delete_central_policy(central_policy_dict[policy['policyName']]['policyId'])
-                vmanage.result['changed'] = True            
+                vmanage.result['changed'] = True
     elif vmanage.params['state'] == 'activated':
         central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=False)
         if vmanage.params['name'] in central_policy_dict:
             if not central_policy_dict[vmanage.params['name']]['isPolicyActivated']:
                 vmanage.result['changed'] = True
                 if not module.check_mode:
-                    action_id = vmanage_central_policy.activate_central_policy(vmanage.params['name'], central_policy_dict[vmanage.params['name']]['policyId'])
+                    action_id = vmanage_central_policy.activate_central_policy(vmanage.params['name'],
+                                                                               central_policy_dict[vmanage.params['name']]['policyId'])
                     if action_id:
                         if vmanage.params['wait']:
                             vmanage_central_policy.waitfor_action_completion(action_id)
@@ -97,6 +98,7 @@ def run_module():
                         vmanage.fail_json(msg='Did not get action ID after attaching device to template.')
 
         else:
+            # TODO: The reference to 'policy' in the following line is wrong. What should it be?
             vmanage.fail_json(msg="Cannot find central policy {0}".format(policy['policyName']))
     if vmanage.params['state'] in ['absent', 'deactivated']:
         central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=False)
@@ -116,8 +118,10 @@ def run_module():
     vmanage.params['updates'] = central_policy_updates
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

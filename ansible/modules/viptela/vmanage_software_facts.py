@@ -44,8 +44,10 @@ def run_module():
 
     viptela.exit_json(**viptela.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

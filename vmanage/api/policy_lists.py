@@ -48,7 +48,7 @@ class PolicyLists(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def get_data_prefix_list(self):
         """Get all Data Prefix Lists from vManage.
@@ -62,7 +62,7 @@ class PolicyLists(object):
         api = "template/policy/list/dataprefix"
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
-        return(response)
+        return response
 
     def get_policy_list_all(self):
         """Get all Policy Lists from vManage.
@@ -77,7 +77,7 @@ class PolicyLists(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def post_data_prefix_list(self, name, entries):
         """Add a new Data Prefix List to vManage.
@@ -100,7 +100,7 @@ class PolicyLists(object):
             'POST', payload=payload
         )
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def put_data_prefix_list(self, name, listid, entries):
         """Update an existing Data Prefix List on vManage.
@@ -124,7 +124,7 @@ class PolicyLists(object):
             'PUT', payload=payload
         )
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def delete_policy_list(self, listType, listId):
         """Deletes the specified policy list type
@@ -142,11 +142,11 @@ class PolicyLists(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
-#
-# Orig
-#
+    #
+    # Orig
+    #
     # Need to decide where this goes
     def list_to_dict(self, list, key_name, remove_key=True):
         dict = {}
@@ -214,7 +214,7 @@ class PolicyLists(object):
         policy_list_type = policy_list['type'].lower()
         url = f"{self.base_url}template/policy/list/{policy_list_type}"
         response = HttpMethods(self.session, url).request('POST',
-                                payload=json.dumps(policy_list))
+                                                          payload=json.dumps(policy_list))
         return ParseMethods.parse_status(response)
 
     def update_policy_list(self, policy_list):
@@ -232,7 +232,7 @@ class PolicyLists(object):
         policy_list_id = policy_list['listId']
         url = f"{self.base_url}template/policy/list/{policy_list_type}/{policy_list_id}"
         response = HttpMethods(self.session, url).request('PUT',
-                                payload=json.dumps(policy_list))
+                                                          payload=json.dumps(policy_list))
         status = ParseMethods.parse_status(response)
         return response
 

@@ -66,8 +66,8 @@ class ResetVmanage(object):
         data = self.inventory.get_device_list('vedges')
         for device in data:
             if (
-                ('deviceIP' in device) and
-                (device['configOperationMode'] == 'vmanage')
+                    ('deviceIP' in device) and
+                    (device['configOperationMode'] == 'vmanage')
             ):
                 deviceId = device['uuid']
                 deviceIP = device['deviceIP']
@@ -81,8 +81,8 @@ class ResetVmanage(object):
         data = self.inventory.get_device_list('controllers')
         for device in data:
             if (
-                ('deviceIP' in device) and
-                (device['configOperationMode'] == 'vmanage')
+                    ('deviceIP' in device) and
+                    (device['configOperationMode'] == 'vmanage')
             ):
                 deviceId = device['uuid']
                 deviceIP = device['deviceIP']
@@ -119,9 +119,9 @@ class ResetVmanage(object):
         self.active_count_delay()
 
         # Step 7 - Delete All Topology, Traffic, Cflowd Policies
-        definitionList = ['control','mesh','hubandspoke',
-            'vpnmembershipgroup','approute','data','cflowd'
-        ]
+        definitionList = ['control', 'mesh', 'hubandspoke',
+                          'vpnmembershipgroup', 'approute', 'data', 'cflowd'
+                          ]
         for definition in definitionList:
             data = self.cen_pol.get_policy_definition(definition)
             if data:
@@ -140,9 +140,9 @@ class ResetVmanage(object):
         self.active_count_delay()
 
         # Step 9 - Delete All Localized Specific Definitions
-        definitionList = ['qosmap','rewriterule','acl','aclv6',
-            'vedgeroute'
-        ]
+        definitionList = ['qosmap', 'rewriterule', 'acl', 'aclv6',
+                          'vedgeroute'
+                          ]
         for definition in definitionList:
             data = self.loc_pol.get_localized_definition(definition)
             if data:
@@ -166,9 +166,9 @@ class ResetVmanage(object):
         version = self.utilities.get_vmanage_version()
         definitionList = []
         if version >= '18.4.0':
-            definitionList = ['zonebasedfw','urlfiltering', 'dnssecurity',
-                'intrusionprevention','advancedMalwareProtection'
-            ]
+            definitionList = ['zonebasedfw', 'urlfiltering', 'dnssecurity',
+                              'intrusionprevention', 'advancedMalwareProtection'
+                              ]
         if '18.4.0' > version and version >= '18.2.0':
             definitionList = ['zonebasedfw']
 
@@ -196,4 +196,4 @@ class ResetVmanage(object):
                     listType, listId
                 )
 
-        return('Reset Complete')
+        return ('Reset Complete')

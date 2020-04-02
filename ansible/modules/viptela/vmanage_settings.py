@@ -10,6 +10,7 @@ from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 from collections import OrderedDict
 
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = viptela_argument_spec()
@@ -68,7 +69,7 @@ def run_module():
                 viptela.set_vmanage_root_cert(viptela.params['root_cert'])
 
     if viptela.result['what_changed']:
-        viptela.result['changed'] = True        
+        viptela.result['changed'] = True
 
     viptela.exit_json(**viptela.result)
 

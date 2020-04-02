@@ -9,6 +9,7 @@ ANSIBLE_METADATA = {
 from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = viptela_argument_spec()
@@ -76,7 +77,7 @@ def run_module():
         viptela.fail_json(msg="Could not find UUID with supplied arguments")
 
     if viptela.result['what_changed']:
-        viptela.result['changed'] = True        
+        viptela.result['changed'] = True
 
     viptela.exit_json(**viptela.result)
 

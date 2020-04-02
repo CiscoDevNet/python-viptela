@@ -10,6 +10,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community'
 }
 
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
@@ -76,15 +77,15 @@ def run_module():
             except:
                 module.fail_json(
                     msg='Required values: name'
-                )  
+                )
 
     feature_template_updates = []
     if vmanage.params['state'] == 'present':
         feature_template_updates = vmanage_feature_templates.import_feature_template_list(
-                                feature_template_list,
-                                check_mode = module.check_mode,
-                                update = vmanage.params['update']
-                            )
+            feature_template_list,
+            check_mode=module.check_mode,
+            update=vmanage.params['update']
+        )
         if feature_template_updates:
             vmanage.result['changed'] = True
 

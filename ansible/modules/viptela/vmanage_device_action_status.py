@@ -14,8 +14,8 @@ from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = viptela_argument_spec()
-    argument_spec.update(id = dict(type='str', required=True),
-    )
+    argument_spec.update(id=dict(type='str', required=True),
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -41,8 +41,10 @@ def run_module():
 
     viptela.exit_json(**viptela.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

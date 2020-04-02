@@ -7,7 +7,7 @@ import requests
 VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
 
 
-class ParseMethods():
+class ParseMethods:
     """Reset all configuratios on a vManage instance.
 
     Executes the necessary REST calls in specific order to remove
@@ -35,7 +35,7 @@ class ParseMethods():
             error = response['error']
             result = response['details']
             raise Exception(f'{error}: {result}')
-        return(result)
+        return result
 
     @staticmethod
     def parse_status(response):
@@ -55,4 +55,4 @@ class ParseMethods():
             status = response['status']
             result = response['status_code']
             raise Exception(f'{status}: {result}')
-        return(result)
+        return result

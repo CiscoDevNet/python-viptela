@@ -86,7 +86,7 @@ class LocalPolicy(object):
         url = f"{self.base_url}template/policy/vedge/{policy_id}"
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def get_local_policy_list(self):
         """Get all Central Policies from vManage.

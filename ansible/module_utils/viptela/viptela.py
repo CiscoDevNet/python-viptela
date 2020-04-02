@@ -12,14 +12,16 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
+
 def viptela_argument_spec():
     return dict(host=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_HOST'])),
-            port=dict(type='str', required=False, fallback=(env_fallback, ['VMANAGE_PORT'])),
-            user=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_USERNAME'])),
-            password=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_PASSWORD'])),
-            validate_certs=dict(type='bool', required=False, default=False),
-            timeout=dict(type='int', default=30)
-    )
+                port=dict(type='str', required=False, fallback=(env_fallback, ['VMANAGE_PORT'])),
+                user=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_USERNAME'])),
+                password=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_PASSWORD'])),
+                validate_certs=dict(type='bool', required=False, default=False),
+                timeout=dict(type='int', default=30)
+                )
+
 
 STANDARD_HTTP_TIMEOUT = 10
 STANDARD_JSON_HEADER = {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
@@ -28,6 +30,7 @@ POLICY_LIST_DICT = {
     'vpnLists': 'vpn',
 }
 VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
+
 
 class viptelaModule(object):
 
@@ -99,7 +102,6 @@ class viptelaModule(object):
                     payload_key_diff.append(key)
         return payload_key_diff
 
-
     def login(self):
         # self.session.headers.update({'Connection': 'keep-alive', 'Content-Type': 'application/json'})
 
@@ -127,7 +129,7 @@ class viptelaModule(object):
             pass
         else:
             self.fail_json(msg='Failed getting X-XSRF-TOKEN: {0}'.format(response.status_code))
-        
+
         return response
 
     def logout(self):
@@ -164,8 +166,8 @@ class viptelaModule(object):
                 pass
 
             if 'error' in decoded_response:
-                error='Unknown'
-                details='Unknown'
+                error = 'Unknown'
+                details = 'Unknown'
                 if 'details' in decoded_response['error']:
                     details = decoded_response['error']['details']
                 if 'message' in decoded_response['error']:
@@ -266,7 +268,8 @@ class viptelaModule(object):
                             if 'subTemplates' in old_template:
                                 subTemplates = []
                                 for sub_template in old_template['subTemplates']:
-                                    subTemplates.append({'templateName':feature_template_dict[sub_template['templateId']]['templateName'], 'templateType':sub_template['templateType']})
+                                    subTemplates.append({'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
+                                                         'templateType': sub_template['templateType']})
                                 new_template['subTemplates'] = subTemplates
 
                             generalTemplates.append(new_template)
@@ -344,7 +347,7 @@ class viptelaModule(object):
 
     def set_vmanage_org(self, org):
         payload = {'org': org}
-        response = self.request('/dataservice/settings/configuration/organization',method='POST', payload=payload)
+        response = self.request('/dataservice/settings/configuration/organization', method='POST', payload=payload)
 
         return response.json['data']
 
@@ -518,7 +521,6 @@ class viptelaModule(object):
         except:
             return {}
 
-
     def get_device_vedges(self, key_name='host-name', remove_key=True):
         response = self.request('/dataservice/system/device/vedges')
 
@@ -526,7 +528,6 @@ class viptelaModule(object):
             return self.list_to_dict(response.json['data'], key_name=key_name, remove_key=remove_key)
         else:
             return {}
-
 
     def get_device_controllers(self, key_name='host-name', remove_key=True):
         response = self.request('/dataservice/system/device/controllers')
@@ -544,7 +545,7 @@ class viptelaModule(object):
             "personality": personality,
             "generateCSR": "false"
         }
- 
+
         response = self.request('/dataservice/system/device', method='POST', payload=payload)
 
         if response.json:
@@ -593,7 +594,7 @@ class viptelaModule(object):
             'bootstrapConfig': bootstrap_config,
             'otp': otp,
             'uuid': uuid
-        }    
+        }
         return return_dict
 
     def get_template_input(self, template_id):
@@ -647,15 +648,14 @@ class viptelaModule(object):
 
                 for column in column_list:
                     if column['editable']:
-                        #match = regex.search(column['title'])
+                        # match = regex.search(column['title'])
                         match = regex.findall(column['title'])
                         if match:
-                            #variable = match.groups('variable')[0]
+                            # variable = match.groups('variable')[0]
                             variable = match[-1]
                             return_dict[variable] = column['property']
 
         return return_dict
-
 
     def get_template_optional_variables(self, template_id):
         payload = {
@@ -695,7 +695,7 @@ class viptelaModule(object):
                 # all the logging attributes once the logging has been marked optional
                 regexYangLoggingServerName = re.compile(r'///logging/server/.*/name')
                 regexYangLoggingSourceInt = re.compile(r'///logging/server/(?P<LoggServer>.*)/source-interface')
-                regexYangLoggingVPN  = re.compile(r'///logging/server/(?P<LoggServer>.*)/vpn')
+                regexYangLoggingVPN = re.compile(r'///logging/server/(?P<LoggServer>.*)/vpn')
                 regexYangLoggingPriority = re.compile(r'///logging/server/(?P<LoggServer>.*)/priority')
                 optionalLoggingVariales = []
                 # Until here
@@ -721,13 +721,12 @@ class viptelaModule(object):
                             variable = match[-1]
                             optionalStaticRoutesList.append(variable)
 
-
                     # If we find a next-hop we extrapolate the common name
                     # of the static route. If we have already found that
                     # common name and we know it is optional we will add
                     # this next-hop paramter to the return list since it
                     # will be optional as well
-                    
+
                     # ALL OF THIS IS BASED ON THE ASSUMPTION THAT STATIC ROUTES
                     # ARE LISTED BEFORE NEXT-HOP VALUES
                     nextHopStaticR = regex_yang_nexthop.findall(column['property'])
@@ -757,7 +756,6 @@ class viptelaModule(object):
                         if match:
                             variable = match[-1]
                             optionalVRRPvariales.append(variable)
-
 
                     # If we find a any vrrp attribute we extrapolate the common name
                     # If we have already found that
@@ -801,8 +799,8 @@ class viptelaModule(object):
                             match = regex.findall(column['title'])
                             if match:
                                 variable = match[-1]
-                                return_dict[variable] = column['property']                    
-                    # Until here
+                                return_dict[variable] = column['property']
+                                # Until here
 
                     # Same logic for logging optional variables
                     isLogging = regexYangLoggingServerName.match(column['property'])
@@ -843,11 +841,10 @@ class viptelaModule(object):
                             variable = match[-1]
                             return_dict[variable] = column['property']
 
-
         return return_dict
 
     def get_software_images_list(self):
-        #TODO undertand the difference with the URL: /dataservice/device/action/software/images used in devnetsandbox
+        # TODO undertand the difference with the URL: /dataservice/device/action/software/images used in devnetsandbox
         response = self.request('/dataservice/device/action/software', method='GET')
 
         if response.json:
@@ -855,7 +852,7 @@ class viptelaModule(object):
         else:
             return []
 
-    def get_installed_software(self,type):
+    def get_installed_software(self, type):
         response = self.request('/dataservice/device/action/install/devices/{0}?groupId=all'.format(type), method='GET')
 
         if response.json:
@@ -863,16 +860,16 @@ class viptelaModule(object):
         else:
             return []
 
-    def software_install(self,devices,deviceType,data,reboot):
+    def software_install(self, devices, deviceType, data, reboot):
 
-        payload= {
-            "action":"install",
-            "input":{
-                "vEdgeVPN":0,
-                "vSmartVPN":0,
+        payload = {
+            "action": "install",
+            "input": {
+                "vEdgeVPN": 0,
+                "vSmartVPN": 0,
                 "data": data,
-                "versionType":"vmanage",
-                "reboot":reboot,
+                "versionType": "vmanage",
+                "reboot": reboot,
                 "sync": True
             },
             "devices": devices,
@@ -889,10 +886,10 @@ class viptelaModule(object):
 
         return response.json['id']
 
-    def set_default_partition(self,devices,deviceType):
+    def set_default_partition(self, devices, deviceType):
 
-        payload= {
-            "action":"defaultpartition",
+        payload = {
+            "action": "defaultpartition",
             "devices": devices,
             "deviceType": deviceType
         }

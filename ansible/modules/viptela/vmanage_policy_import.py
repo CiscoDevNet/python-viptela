@@ -10,15 +10,16 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.apps.files import Files
 
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
-    argument_spec.update(file = dict(type='str', required=True),
-                        update = dict(type='bool', required=False, default=False),
-                        push = dict(type='bool', required=False, default=False),
-                        type = dict(type ='str', required = False, choices= ['feature', 'device'], default=None),
-                        name_list = dict(type ='list', required = False, default=[]),
-    )
+    argument_spec.update(file=dict(type='str', required=True),
+                         update=dict(type='bool', required=False, default=False),
+                         push=dict(type='bool', required=False, default=False),
+                         type=dict(type='str', required=False, choices=['feature', 'device'], default=None),
+                         name_list=dict(type='list', required=False, default=[]),
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -40,12 +41,15 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_files = Files(vmanage.auth, vmanage.host)
-    vmanage.result['imported'] = vmanage_files.import_policy_from_file(vmanage.params['file'], update=vmanage.params['update'], check_mode=module.check_mode, push=vmanage.params['push'])
+    vmanage.result['imported'] = vmanage_files.import_policy_from_file(vmanage.params['file'], update=vmanage.params['update'],
+                                                                       check_mode=module.check_mode, push=vmanage.params['push'])
 
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

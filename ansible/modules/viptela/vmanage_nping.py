@@ -13,16 +13,16 @@ from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = viptela_argument_spec()
-    argument_spec.update(vedge = dict(type='str', required=True),
+    argument_spec.update(vedge=dict(type='str', required=True),
                          dst_ip=dict(type='str', required=True, alias='host'),
                          vpn=dict(type='int', default=0, required=False),
                          src_interface=dict(type='str', required=False, alias='source'),
                          probe_type=dict(type='str', required=False, default='icmp', alias='probeType'),
                          count=dict(type='str', required=False),
                          size=dict(type='str', required=False),
-                         df = dict(type='str', required=False),
-                         rapid = dict(type='bool', required=False),
-    )
+                         df=dict(type='str', required=False),
+                         rapid=dict(type='bool', required=False),
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -70,14 +70,14 @@ def run_module():
 
     viptela.exit_json(**viptela.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()
 
-
-
 # https://192.133.178.190:8443/dataservice/device/tools/nping/10.255.210.1
 # {"host": "10.23.3.10", "vpn": "0", "source": "ge0/0", "probeType": "icmp"}
-#{"host":"10.22.3.10","vpn":"10","count":"5","size":"1500","probeType":"icmp","df":"true"}
+# {"host":"10.22.3.10","vpn":"10","count":"5","size":"1500","probeType":"icmp","df":"true"}

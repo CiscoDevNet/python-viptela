@@ -10,11 +10,12 @@ from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.local_policy import LocalPolicy
 
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
-    argument_spec.update(type = dict(type ='str', required = False, default='all'),
-    )
+    argument_spec.update(type=dict(type='str', required=False, default='all'),
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -41,8 +42,10 @@ def run_module():
 
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

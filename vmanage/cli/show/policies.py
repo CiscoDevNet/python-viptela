@@ -5,11 +5,12 @@ from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
 
+
 @click.command('list')
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all',
-               help="Policy list type")
+              help="Policy list type")
 @click.pass_obj
 def list_cmd(ctx, name, type, json):
     """
@@ -26,12 +27,13 @@ def list_cmd(ctx, name, type, json):
         policy_lists = policy_lists.get_policy_list_list(type=type)
         pp.pprint(policy_lists)
 
+
 @click.command()
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all',
-               help="Definition type",
-               type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
+              help="Definition type",
+              type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
 @click.pass_obj
 def definition(ctx, name, type, json):
     """
@@ -43,12 +45,14 @@ def definition(ctx, name, type, json):
     if name:
         policy_definition_dict = policy_definitions.get_policy_definition_dict(type)
         if name in policy_definition_dict:
-            policy_definition = policy_definitions.get_policy_definition(policy_definition_dict[name]['type'].lower(), policy_definition_dict[name]['definitionId'])
+            policy_definition = policy_definitions.get_policy_definition(policy_definition_dict[name]['type'].lower(),
+                                                                         policy_definition_dict[name]['definitionId'])
             # list_keys(policy_definition['definition'])
             pp.pprint(policy_definition)
     else:
         policy_definition_list = policy_definitions.get_policy_definition_list('all')
-        pp.pprint(policy_definition_list) 
+        pp.pprint(policy_definition_list)
+
 
 @click.command()
 @click.argument('name', required=False, default=None)
@@ -71,7 +75,8 @@ def central(ctx, name, json):
                 pp.pprint(preview)
     else:
         central_policy_list = central_policy.get_central_policy_list()
-        pp.pprint(central_policy_list) 
+        pp.pprint(central_policy_list)
+
 
 @click.command()
 @click.argument('name', required=False, default=None)
@@ -90,7 +95,8 @@ def local(ctx, name, json):
             pp.pprint(policy_list_dict[name])
     else:
         local_policy_list = local_policy.get_local_policy_list()
-        pp.pprint(local_policy_list) 
+        pp.pprint(local_policy_list)
+
 
 @click.group()
 @click.pass_context
@@ -98,6 +104,7 @@ def policies(ctx):
     """
     Show policy information
     """
+
 
 policies.add_command(list_cmd)
 policies.add_command(definition)

@@ -47,7 +47,7 @@ class LocalizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def delete_localized_policy(self, policy_id):
         """Deletes the specified localized policy
@@ -63,7 +63,7 @@ class LocalizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def get_localized_definition(self, definition):
         """Obtain a list of various policy definitions which include:
@@ -81,7 +81,7 @@ class LocalizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_localized_policy(self):
         """Obtain a list of all configured localized policies
@@ -95,4 +95,4 @@ class LocalizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result

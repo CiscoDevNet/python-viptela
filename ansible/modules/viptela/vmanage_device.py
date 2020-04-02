@@ -10,6 +10,7 @@ from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 from collections import OrderedDict
 
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = viptela_argument_spec()
@@ -60,14 +61,14 @@ def run_module():
     if viptela.params['state'] == 'present':
         if device:
             # Can't really change anything
-            pass      
+            pass
         else:
             viptela.result['what_changed'].append('new')
             if not viptela.params['device_username'] or not viptela.params['device_password']:
                 viptela.fail_json(msg="device_username and device_password must be specified when add a new device")
             if not module.check_mode:
                 response = viptela.create_controller(viptela.params['transport_ip'], viptela.params['personality'],
-                    viptela.params['device_username'], viptela.params['device_password'])
+                                                     viptela.params['device_username'], viptela.params['device_password'])
                 viptela.result['response'] = response
     else:
         if device and device_type == 'controllers':
@@ -81,7 +82,7 @@ def run_module():
                     viptela.decommision_device(device['uuid'])
 
     if viptela.result['what_changed']:
-        viptela.result['changed'] = True        
+        viptela.result['changed'] = True
 
     viptela.exit_json(**viptela.result)
 

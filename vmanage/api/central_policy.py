@@ -133,7 +133,7 @@ class CentralPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return (result)
 
     def get_central_policy_list(self):
         """Get all Central Policies from vManage.
@@ -159,7 +159,6 @@ class CentralPolicy(object):
                 pass
             self.policy_definitions.convert_definition_id_to_name(policy['policyDefinition'])
         return central_policy_list
-
 
     def get_central_policy_dict(self, key_name='policyName', remove_key=False):
 
@@ -196,7 +195,7 @@ class CentralPolicy(object):
                     # Convert list and definition names to template IDs
                     if 'policyDefinition' in payload:
                         self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
-                    self.add_central_policy(payload) 
+                    self.add_central_policy(payload)
         return central_policy_updates
 
     # Might want to move this later
@@ -229,4 +228,4 @@ class CentralPolicy(object):
             'action_status': action_status,
             'action_activity': action_activity,
             'action_config': action_config
-        }            
+        }

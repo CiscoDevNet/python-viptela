@@ -62,7 +62,7 @@ class DeviceTemplates(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return (result)
 
     def get_device_templates(self):
         """Obtain a list of all configured device templates.
@@ -76,11 +76,11 @@ class DeviceTemplates(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return (result)
 
-#
-# Templates
-#
+    #
+    # Templates
+    #
     def get_device_template_object(self, template_id):
         """Obtain a device template object.
 
@@ -97,7 +97,7 @@ class DeviceTemplates(object):
         else:
             return {}
 
-    def get_device_template_list(self, factory_default=False, name_list = []):
+    def get_device_template_list(self, factory_default=False, name_list=[]):
         """Get the list of device templates.
 
         Args:
@@ -130,7 +130,8 @@ class DeviceTemplates(object):
                         if 'subTemplates' in old_template:
                             subTemplates = []
                             for sub_template in old_template['subTemplates']:
-                                subTemplates.append({'templateName':feature_template_dict[sub_template['templateId']]['templateName'], 'templateType':sub_template['templateType']})
+                                subTemplates.append({'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
+                                                     'templateType': sub_template['templateType']})
                             new_template['subTemplates'] = subTemplates
                         generalTemplates.append(new_template)
                     object['generalTemplates'] = generalTemplates
@@ -143,7 +144,7 @@ class DeviceTemplates(object):
 
         return return_list
 
-    def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list = []):
+    def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=[]):
         """Obtain a dictionary of all configured device templates.
 
 
@@ -155,9 +156,8 @@ class DeviceTemplates(object):
         Returns:
             result (dict): All data associated with a response.
 
-        """          
+        """
         device_template_list = self.get_device_template_list(factory_default=factory_default, name_list=name_list)
-
 
         return self.list_to_dict(device_template_list, key_name, remove_key)
 
@@ -182,7 +182,7 @@ class DeviceTemplates(object):
         for device in result:
             attached_devices.append(device[key])
 
-        return attached_devices      
+        return attached_devices
 
     def get_template_input(self, template_id):
         """Get the input associated with a device attachment.
@@ -194,7 +194,7 @@ class DeviceTemplates(object):
         Returns:
             result (dict): All data associated with a response.
 
-        """        
+        """
         payload = {
             "deviceIds": [],
             "isEdited": False,
@@ -228,7 +228,7 @@ class DeviceTemplates(object):
                                  'variable': variable}
                         return_dict['columns'].append(entry)
 
-        return return_dict     
+        return return_dict
 
     def add_device_template(self, device_template):
         """Add a device template to Vmanage.
@@ -272,7 +272,7 @@ class DeviceTemplates(object):
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         return response
 
-    def import_device_template_list(self, device_template_list, check_mode = False, update = False):
+    def import_device_template_list(self, device_template_list, check_mode=False, update=False):
         """Add a list of feature templates to vManage.
 
 
@@ -340,4 +340,4 @@ class DeviceTemplates(object):
             else:
                 self.fail_json(msg="There is no existing feature template named {0}".format(template['templateName']))
 
-        return converted_generalTemplates   
+        return converted_generalTemplates

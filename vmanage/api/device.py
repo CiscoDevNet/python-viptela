@@ -44,9 +44,9 @@ class Device(object):
 
         return dict
 
-#
-# Devices
-#
+    #
+    # Devices
+    #
     def get_device_status_list(self):
         """Obtain a list of specified device type
 
@@ -60,7 +60,7 @@ class Device(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_device_status_dict(self, key_name='host-name', remove_key=False):
         """Obtain a dict of specified device type
@@ -91,7 +91,7 @@ class Device(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_device_dict(self, key_name='host-name', remove_key=False):
 
@@ -113,10 +113,10 @@ class Device(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_device_config_dict(self, type, key_name='host-name', remove_key=False):
 
         device_list = self.get_device_config_list(type)
 
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key) 
+        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)

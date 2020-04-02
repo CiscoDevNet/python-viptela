@@ -4,6 +4,7 @@ import ipaddress
 from vmanage.api.device import Device
 from vmanage.api.monitor_network import MonitorNetwork
 
+
 @click.command()
 @click.argument('device', required=True)
 @click.option('--json/--no-json', default=False)
@@ -16,7 +17,6 @@ def peers(ctx, device, json):
     vmanage_device = Device(ctx.auth, ctx.host)
     mn = MonitorNetwork(ctx.auth, ctx.host)
 
-
     # Check to see if we were passed in a device IP address or a device name
     try:
         ip = ipaddress.ip_address(device)
@@ -24,7 +24,7 @@ def peers(ctx, device, json):
     except ValueError:
         device_dict = vmanage_device.get_device_status(device, key='host-name')
         if 'system-ip' in device_dict:
-            system_ip = device_dict['system-ip'] 
+            system_ip = device_dict['system-ip']
         else:
             system_ip = None
 
@@ -43,6 +43,7 @@ def peers(ctx, device, json):
     # except:
     #    pass
 
+
 @click.group()
 @click.pass_obj
 def omp(ctx):
@@ -50,5 +51,5 @@ def omp(ctx):
     Show OMP information
     """
 
-omp.add_command(peers)
 
+omp.add_command(peers)

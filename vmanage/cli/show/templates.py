@@ -1,18 +1,18 @@
-    
 import click
 import pprint
 import dictdiffer
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
 
+
 @click.command()
 @click.option('--type', '-t',
-               help="Template type",
-               type=click.Choice(['device', 'feature']),
-               default=None)
+              help="Template type",
+              type=click.Choice(['device', 'feature']),
+              default=None)
 @click.option('--diff', help="Diff with template of specified name", default=None)
 @click.option('--default/--no-default', help="Print system default templates", default=False)
-@click.option('--name', '-n')          
+@click.option('--name', '-n')
 @click.option('--json/--no-json', help="JSON Output")
 @click.pass_obj
 def templates(ctx, type, name, diff, default, json):
@@ -31,7 +31,7 @@ def templates(ctx, type, name, diff, default, json):
         else:
             raise click.ClickException("Must specify template type with name")
         template = template_list[0] if template_list else None
-        
+
         if template:
             if diff:
                 diff_template = {}
@@ -56,7 +56,7 @@ def templates(ctx, type, name, diff, default, json):
             else:
                 pp.pprint(template)
         else:
-            click.secho(f"Cannot find template named {name}", fg="red")   
+            click.secho(f"Cannot find template named {name}", fg="red")
     else:
         if type in ['device', None]:
             device_template_list = device_templates.get_device_template_list(factory_default=default)
@@ -79,4 +79,3 @@ def templates(ctx, type, name, diff, default, json):
                     click.echo(f"{template['templateName'][:30]:30} {template['templateType'][:20]:20} {template['attachedMastersCount']:<10} {template['devicesAttached']:<9} {','.join(template['deviceType'])[:16]:16}")
             else:
                 pp.pprint(feature_template_list)
-

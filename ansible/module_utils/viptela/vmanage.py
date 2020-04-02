@@ -1,14 +1,16 @@
 from ansible.module_utils.basic import AnsibleModule, json, env_fallback
 from vmanage.api.authentication import Authentication
 
+
 def vmanage_argument_spec():
     return dict(host=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_HOST'])),
-            port=dict(type='str', required=False, fallback=(env_fallback, ['VMANAGE_PORT'])),
-            user=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_USERNAME'])),
-            password=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_PASSWORD'])),
-            validate_certs=dict(type='bool', required=False, default=False),
-            timeout=dict(type='int', default=30)
-    )
+                port=dict(type='str', required=False, fallback=(env_fallback, ['VMANAGE_PORT'])),
+                user=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_USERNAME'])),
+                password=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_PASSWORD'])),
+                validate_certs=dict(type='bool', required=False, default=False),
+                timeout=dict(type='int', default=30)
+                )
+
 
 class Vmanage(object):
 
@@ -25,7 +27,7 @@ class Vmanage(object):
 
         self.__auth = None
 
-    @property 
+    @property
     def auth(self):
         if self.__auth is None:
             self.__auth = Authentication(host=self.host, user=self.username, password=self.password).login()
@@ -43,4 +45,4 @@ class Vmanage(object):
         """Custom written method to return info on failure."""
 
         self.result.update(**kwargs)
-        self.module.fail_json(msg=msg, **self.result)        
+        self.module.fail_json(msg=msg, **self.result)
