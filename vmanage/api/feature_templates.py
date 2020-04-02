@@ -102,7 +102,7 @@ class FeatureTemplates(object):
         url = self.base_url + api
         return HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
-    def get_feature_template_list(self, factory_default=False, name_list=[]):
+    def get_feature_template_list(self, factory_default=False, name_list=None):
         """Obtain a list of all configured feature templates.
 
 
@@ -114,6 +114,8 @@ class FeatureTemplates(object):
             result (dict): All data associated with a response.
 
         """
+        if name_list is None:
+            name_list = []
         feature_templates = self.get_feature_templates()
 
         return_list = []
@@ -128,7 +130,7 @@ class FeatureTemplates(object):
 
         return return_list
 
-    def get_feature_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=[]):
+    def get_feature_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=None):
         """Obtain a dictionary of all configured feature templates.
 
 
@@ -141,6 +143,8 @@ class FeatureTemplates(object):
             result (dict): All data associated with a response.
 
         """
+        if name_list is None:
+            name_list = []
         feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
         return self.list_to_dict(feature_template_list, key_name, remove_key)

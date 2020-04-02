@@ -92,7 +92,9 @@ class viptelaModule(object):
         return dict
 
     @staticmethod
-    def compare_payloads(new_payload, old_payload, compare_values=[]):
+    def compare_payloads(new_payload, old_payload, compare_values=None):
+        if compare_values is None:
+            compare_values = []
         payload_key_diff = []
         for key, value in new_payload.items():
             if key in compare_values:
@@ -136,9 +138,11 @@ class viptelaModule(object):
         self.request('/dataservice/settings/clientSessionTimeout')
         self.request('/logout')
 
-    def request(self, url_path, method='GET', data=None, files=None, headers=None, payload=None, status_codes=VALID_STATUS_CODES):
+    def request(self, url_path, method='GET', data=None, files=None, headers=None, payload=None, status_codes=None):
         """Generic HTTP method for viptela requests."""
 
+        if status_codes is None:
+            status_codes = VALID_STATUS_CODES
         self.method = method
         self.url = 'https://{0}{1}'.format(self.host, url_path)
         self.result['url'] = self.url

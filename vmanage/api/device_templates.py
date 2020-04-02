@@ -62,7 +62,7 @@ class DeviceTemplates(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return (result)
+        return result
 
     def get_device_templates(self):
         """Obtain a list of all configured device templates.
@@ -76,7 +76,7 @@ class DeviceTemplates(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return (result)
+        return result
 
     #
     # Templates
@@ -97,7 +97,7 @@ class DeviceTemplates(object):
         else:
             return {}
 
-    def get_device_template_list(self, factory_default=False, name_list=[]):
+    def get_device_template_list(self, factory_default=False, name_list=None):
         """Get the list of device templates.
 
         Args:
@@ -107,6 +107,8 @@ class DeviceTemplates(object):
         Returns:
             result (dict): All data associated with a response.
         """
+        if name_list is None:
+            name_list = []
         device_templates = self.get_device_templates()
 
         return_list = []
@@ -144,7 +146,7 @@ class DeviceTemplates(object):
 
         return return_list
 
-    def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=[]):
+    def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=None):
         """Obtain a dictionary of all configured device templates.
 
 
@@ -157,6 +159,8 @@ class DeviceTemplates(object):
             result (dict): All data associated with a response.
 
         """
+        if name_list is None:
+            name_list = []
         device_template_list = self.get_device_template_list(factory_default=factory_default, name_list=name_list)
 
         return self.list_to_dict(device_template_list, key_name, remove_key)

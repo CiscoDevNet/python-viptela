@@ -133,7 +133,7 @@ class CentralPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return (result)
+        return result
 
     def get_central_policy_list(self):
         """Get all Central Policies from vManage.
