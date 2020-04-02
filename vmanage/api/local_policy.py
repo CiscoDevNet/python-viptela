@@ -73,7 +73,7 @@ class LocalPolicy(object):
         url = f"{self.base_url}template/policy/vedge/{policy_id}"
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
 
-    def delete_localized_policy(self, policyId):
+    def delete_localized_policy(self, policy_id):
         """Deletes the specified local policy
 
         Args:
