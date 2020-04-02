@@ -147,7 +147,7 @@ class viptelaModule(object):
         self.url = 'https://{0}{1}'.format(self.host, url_path)
         self.result['url'] = self.url
         self.result['headers'] = self.session.headers.__dict__
-        if files == None:
+        if files is None:
             self.session.headers['Content-Type'] = 'application/json'
 
         # {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
