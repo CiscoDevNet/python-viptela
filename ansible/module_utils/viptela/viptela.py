@@ -234,7 +234,7 @@ class viptelaModule(object):
         return sequence_list
 
     def get_device_status(self, value, key='system-ip'):
-        result = self.request('/dataservice/device?{0}={1}'.format(key, value))
+        response = self.request('/dataservice/device?{0}={1}'.format(key, value))
 
         try:
             return response.json['data'][0]
