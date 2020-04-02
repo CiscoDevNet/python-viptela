@@ -5,8 +5,9 @@ with open("README.md", "r") as fh:
 
 includes = [
     "vmanage.*",
-    "ansible.modules.*",
-    "ansible.module_utils.*",
+    "ansible.modules.viptela",
+    "ansible.module_utils.viptela",
+    "ansible.plugins.httpapi",
 ]
 
 setup(
