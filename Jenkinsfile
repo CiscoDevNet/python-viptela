@@ -1,7 +1,7 @@
 pipeline {
   stages {
     steps {
-      sh 'uptime'
+      sh 'hostname'
     }
   }
 }
