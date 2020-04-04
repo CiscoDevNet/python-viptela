@@ -44,7 +44,7 @@ class MonitorNetwork(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_control_connections_history(self, system_ip):
         """Provides control connections history for device.
@@ -60,7 +60,7 @@ class MonitorNetwork(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_device_status(self, system_ip):
         """Provides status for device.
@@ -76,7 +76,7 @@ class MonitorNetwork(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_omp_peers(self, system_ip):
         """Provides OMP peers for device.
@@ -92,4 +92,4 @@ class MonitorNetwork(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result

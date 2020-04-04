@@ -44,7 +44,7 @@ class DeviceInventory(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def post_device_cli_mode(self, deviceId, deviceIP, deviceType):
         """Update a device to CLI mode
@@ -62,6 +62,6 @@ class DeviceInventory(object):
         payload = f"{{'deviceType':'{deviceType}','devices':[{devices}]}}"
         response = HttpMethods(self.session, url).request(
             'POST', payload=payload
-            )
+        )
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result

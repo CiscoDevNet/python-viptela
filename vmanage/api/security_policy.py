@@ -50,7 +50,7 @@ class SecurityPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def delete_security_policy(self, policyId):
         """Deletes the specified security policy
@@ -66,7 +66,7 @@ class SecurityPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def get_security_definition(self, definition):
         """Obtain a list of various security definitions which include:
@@ -85,7 +85,7 @@ class SecurityPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_security_policy(self):
         """Obtain a list of all configured security policies
@@ -99,4 +99,4 @@ class SecurityPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result

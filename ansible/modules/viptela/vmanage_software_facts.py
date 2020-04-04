@@ -8,7 +8,7 @@ ANSIBLE_METADATA = {
 
 import requests
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 
 
 def run_module():
@@ -44,8 +44,10 @@ def run_module():
 
     viptela.exit_json(**viptela.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

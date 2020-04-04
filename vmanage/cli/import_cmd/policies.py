@@ -1,7 +1,7 @@
-    
 import click
 import pprint
 from vmanage.apps.files import Files
+
 
 @click.command()
 @click.argument('type', default='all')

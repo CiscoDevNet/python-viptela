@@ -1,13 +1,14 @@
 import click
 from vmanage.apps.files import Files
 
+
 @click.command()
 @click.option('--file', '-f', help="Output file name", required=True)
 @click.option('--name', '-n', multiple=True)
 @click.option('--type', '-t',
-               help="Template type",
-               type=click.Choice(['device', 'feature']),
-               default=None)
+              help="Template type",
+              type=click.Choice(['device', 'feature']),
+              default=None)
 @click.pass_obj
 def templates(ctx, type, name, file):
     """
@@ -28,7 +29,7 @@ def templates(ctx, type, name, file):
             vmanage_files.export_templates_to_file(file, name_list=name, type='feature')
         else:
             click.echo(f'Exporting feature templates to {file}')
-            vmanage_files.export_templates_to_file(file, type='feature')        
+            vmanage_files.export_templates_to_file(file, type='feature')
     else:
         if name:
             raise click.ClickException("Must specify template type with name")

@@ -26,8 +26,8 @@ class Authentication(object):
     """
 
     def __init__(
-        self, host=None, user=None, password=None, port=443,
-        validate_certs=False, timeout=10
+            self, host=None, user=None, password=None, port=443,
+            validate_certs=False, timeout=10
     ):
         """Initialize Authentication object with session parameters.
 
@@ -78,14 +78,14 @@ class Authentication(object):
             )
 
             if (
-                response.status_code != 200 or
-                response.text.startswith('<html>')
+                    response.status_code != 200 or
+                    response.text.startswith('<html>')
             ):
                 raise Exception('Login failed, check user credentials.')
 
             version = Utilities(self.session, self.host).get_vmanage_version()
 
-            if (version >= '19.2.0'):
+            if version >= '19.2.0':
                 api = 'client/token'
                 url = f'{self.base_url}{api}'
                 response = self.session.get(
@@ -97,4 +97,4 @@ class Authentication(object):
         except requests.exceptions.RequestException as e:
             raise Exception(f'Could not connect to {self.host}: {e}')
 
-        return(self.session)
+        return self.session

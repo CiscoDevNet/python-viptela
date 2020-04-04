@@ -60,7 +60,7 @@ class FeatureTemplates(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def get_feature_templates(self):
         """Obtain a list of all configured feature templates.
@@ -74,7 +74,7 @@ class FeatureTemplates(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def add_feature_template(self, feature_template):
         """Add a feature template to Vmanage.
@@ -86,7 +86,7 @@ class FeatureTemplates(object):
         Returns:
             result (list): Response from Vmanage
 
-        """        
+        """
         payload = {
             'templateName': feature_template['templateName'],
             'templateDescription': feature_template['templateDescription'],
@@ -102,7 +102,7 @@ class FeatureTemplates(object):
         url = self.base_url + api
         return HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
-    def get_feature_template_list(self, factory_default=False, name_list = []):
+    def get_feature_template_list(self, factory_default=False, name_list=None):
         """Obtain a list of all configured feature templates.
 
 
@@ -114,6 +114,8 @@ class FeatureTemplates(object):
             result (dict): All data associated with a response.
 
         """
+        if name_list is None:
+            name_list = []
         feature_templates = self.get_feature_templates()
 
         return_list = []
@@ -128,7 +130,7 @@ class FeatureTemplates(object):
 
         return return_list
 
-    def get_feature_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list = []):
+    def get_feature_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=None):
         """Obtain a dictionary of all configured feature templates.
 
 
@@ -140,12 +142,14 @@ class FeatureTemplates(object):
         Returns:
             result (dict): All data associated with a response.
 
-        """        
+        """
+        if name_list is None:
+            name_list = []
         feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
         return self.list_to_dict(feature_template_list, key_name, remove_key)
 
-    def import_feature_template_list(self, feature_template_list, check_mode = False, update = False):
+    def import_feature_template_list(self, feature_template_list, check_mode=False, update=False):
         """Add a list of feature templates to vManage.
 
 
@@ -173,7 +177,6 @@ class FeatureTemplates(object):
                 diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
                 feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                 if not check_mode:
-                    self.add_feature_template(feature_template)        
+                    self.add_feature_template(feature_template)
 
         return feature_template_updates
-

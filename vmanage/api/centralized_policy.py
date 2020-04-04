@@ -44,7 +44,7 @@ class CentralizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('POST')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def delete_centralized_policy(self, policyId):
         """Deletes the specified centralized policy
@@ -60,7 +60,7 @@ class CentralizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def delete_policy_definition(self, definition, definitionId):
         """Deletes the specified policy definition which include:
@@ -80,7 +80,7 @@ class CentralizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
-        return(result)
+        return result
 
     def get_centralized_policy(self):
         """Obtain a list of all configured centralized policies
@@ -94,7 +94,7 @@ class CentralizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_policy_definition(self, definition):
         """Obtain a list of various policy definitions which include:
@@ -113,4 +113,4 @@ class CentralizedPolicy(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result

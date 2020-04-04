@@ -7,14 +7,15 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.apps.files import Files
+
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
-    argument_spec.update(file = dict(type='str', required=True),
-    )
+    argument_spec.update(file=dict(type='str', required=True),
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -40,8 +41,10 @@ def run_module():
 
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

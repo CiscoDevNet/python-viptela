@@ -1,6 +1,7 @@
 import click
 from vmanage.api.central_policy import CentralPolicy
 
+
 @click.command('central-policy')
 @click.option('--name', '-n', help="Name of policy to activate.")
 @click.pass_obj

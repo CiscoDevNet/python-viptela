@@ -55,7 +55,7 @@ class HttpMethods(object):
         self.url = url
 
     def request(
-        self, method, headers=STANDARD_HEADERS, payload=None, files=None
+            self, method, headers=None, payload=None, files=None
     ):
         """Performs HTTP REST API Call.
 
@@ -82,6 +82,8 @@ class HttpMethods(object):
 
         """
 
+        if headers is None:
+            headers = STANDARD_HEADERS
         result = {}
         data = None
         error = None
@@ -134,4 +136,4 @@ class HttpMethods(object):
         except requests.exceptions.RequestException as e:
             raise Exception(f'There was an ambiguous exception: {e}')
 
-        return(result)
+        return result

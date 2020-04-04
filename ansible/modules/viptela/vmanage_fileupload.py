@@ -12,7 +12,7 @@ import os.path
 # from paramiko import SSHClient
 # from scp import SCPClient
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 
 
 def run_module():
@@ -44,7 +44,7 @@ def run_module():
     if not module.check_mode:
         response = viptela.request('/dataservice/system/device/fileupload', method='POST',
                                    files={'file': open(module.params['file'], 'rb')},
-                                   data={'validity':'valid', 'upload':'true'},
+                                   data={'validity': 'valid', 'upload': 'true'},
                                    headers=None)
 
         viptela.result['msg'] = response.json['vedgeListUploadStatus']
@@ -53,8 +53,10 @@ def run_module():
 
     viptela.exit_json()
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

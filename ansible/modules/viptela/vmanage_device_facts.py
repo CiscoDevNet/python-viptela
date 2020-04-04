@@ -7,8 +7,9 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.device import Device
+
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
@@ -40,8 +41,10 @@ def run_module():
 
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

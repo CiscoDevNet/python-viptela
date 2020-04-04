@@ -7,8 +7,9 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 from collections import OrderedDict
+
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
@@ -49,7 +50,7 @@ def run_module():
     version = module.params['version']
     data = [
         {
-            "family":"vedge-x86",
+            "family": "vedge-x86",
             "version": version
         }
     ]
@@ -65,12 +66,12 @@ def run_module():
 
     # If we have found the software we can move on and perform the operation
     if software_present_on_vManage:
-        viptela.software_install(devices,deviceType,data,reboot)
+        viptela.software_install(devices, deviceType, data, reboot)
 
         if set_default:
             for device in devices:
                 device.update({'version': version})
-            viptela.set_default_partition(devices,deviceType)
+            viptela.set_default_partition(devices, deviceType)
 
     # If not, we fail
     else:

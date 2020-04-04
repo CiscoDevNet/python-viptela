@@ -7,17 +7,18 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.apps.files import Files
+
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
-    argument_spec.update(file = dict(type='str', required=True),
-                        update = dict(type='bool', required=False, default=False),
-                        type = dict(type ='str', required = False, choices= ['feature', 'device'], default=None),
-                        name_list = dict(type ='list', required = False, default=[]),
-    )
+    argument_spec.update(file=dict(type='str', required=True),
+                         update=dict(type='bool', required=False, default=False),
+                         type=dict(type='str', required=False, choices=['feature', 'device'], default=None),
+                         name_list=dict(type='list', required=False, default=[]),
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -39,12 +40,14 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_files = Files(vmanage.auth, vmanage.host)
-    vmanage_files.export_templates_to_file(vmanage.params['file'], name_list = vmanage.params['name_list'], type = vmanage.params['type'])
+    vmanage_files.export_templates_to_file(vmanage.params['file'], name_list=vmanage.params['name_list'], type=vmanage.params['type'])
 
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

@@ -40,7 +40,7 @@ class Files(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    def export_templates_to_file(self, export_file, name_list = [], type = None):
+    def export_templates_to_file(self, export_file, name_list=[], type=None):
 
         device_templates = DeviceTemplates(self.session, self.host, self.port)
         feature_templates = FeatureTemplates(self.session, self.host, self.port)
@@ -67,7 +67,6 @@ class Files(object):
         feature_template_list = feature_templates.get_feature_template_list(name_list=name_list)
         template_export.update({'vmanage_feature_templates': feature_template_list})
 
-
         if export_file.endswith('.json'):
             with open(export_file, 'w') as outfile:
                 json.dump(template_export, outfile, indent=4, sort_keys=False)
@@ -75,9 +74,9 @@ class Files(object):
             with open(export_file, 'w') as outfile:
                 yaml.dump(template_export, outfile, indent=4, sort_keys=False)
         else:
-            raise Exception("File format not supported")    
+            raise Exception("File format not supported")
 
-    def import_templates_from_file(self, file, update=False, check_mode=False, name_list = [], type = None):
+    def import_templates_from_file(self, file, update=False, check_mode=False, name_list=[], type=None):
 
         vmanage_device_templates = DeviceTemplates(self.session, self.host, self.port)
         vmanage_feature_templates = FeatureTemplates(self.session, self.host, self.port)
@@ -136,26 +135,26 @@ class Files(object):
 
         # Process the feature templates
         feature_template_updates = vmanage_feature_templates.import_feature_template_list(
-                        imported_feature_template_list,
-                        check_mode = False,
-                        update = False
-                    )        
+            imported_feature_template_list,
+            check_mode=False,
+            update=False
+        )
 
         # Process the device templates
         device_template_updates = vmanage_device_templates.import_device_template_list(
-                        imported_device_template_list,
-                        check_mode = False,
-                        update = False
-                    )           
+            imported_device_template_list,
+            check_mode=False,
+            update=False
+        )
 
         return {
-                'feature_template_updates': feature_template_updates,
-                'device_template_updates': device_template_updates,
-                }   
+            'feature_template_updates': feature_template_updates,
+            'device_template_updates': device_template_updates,
+        }
 
-#
-# Policy
-#
+    #
+    # Policy
+    #
     def export_policy_to_file(self, export_file):
 
         policy_lists = PolicyLists(self.session, self.host, self.port)
@@ -167,7 +166,7 @@ class Files(object):
         policy_definitions_list = policy_definitions.get_policy_definition_list()
         central_policies_list = central_policy.get_central_policy_list()
         local_policies_list = local_policy.get_local_policy_list()
-        
+
         policy_export = {
             'vmanage_policy_lists': policy_lists_list,
             'vmanage_policy_definitions': policy_definitions_list,
@@ -182,7 +181,7 @@ class Files(object):
             with open(export_file, 'w') as outfile:
                 yaml.dump(policy_export, outfile, default_flow_style=False)
         else:
-            raise Exception("File format not supported")    
+            raise Exception("File format not supported")
 
     def import_policy_from_file(self, file, update=False, check_mode=False, push=False):
 
@@ -190,7 +189,6 @@ class Files(object):
         vmanage_policy_definitions = PolicyDefinitions(self.session, self.host, self.port)
         vmanage_central_policy = CentralPolicy(self.session, self.host, self.port)
         vmanage_local_policy = LocalPolicy(self.session, self.host, self.port)
-        
 
         changed = False
         policy_list_updates = []
@@ -225,14 +223,17 @@ class Files(object):
         else:
             local_policy_data = []
 
-        policy_list_updates = vmanage_policy_lists.import_policy_list_list(policy_list_data, check_mode=check_mode, update=update, push=push)
+        policy_list_updates = vmanage_policy_lists.import_policy_list_list(policy_list_data, check_mode=check_mode, update=update,
+                                                                           push=push)
 
         vmanage_policy_lists.clear_policy_list_cache()
 
-        policy_definition_updates = vmanage_policy_definitions.import_policy_definition_list(policy_definition_data, check_mode=check_mode, update=update, push=push)
-        central_policy_updates = vmanage_central_policy.import_central_policy_list(central_policy_data, check_mode=check_mode, update=update, push=push)
-        local_policy_updates = vmanage_local_policy.import_local_policy_list(local_policy_data, check_mode=check_mode, update=update, push=push)
-                
+        policy_definition_updates = vmanage_policy_definitions.import_policy_definition_list(policy_definition_data, check_mode=check_mode,
+                                                                                             update=update, push=push)
+        central_policy_updates = vmanage_central_policy.import_central_policy_list(central_policy_data, check_mode=check_mode,
+                                                                                   update=update, push=push)
+        local_policy_updates = vmanage_local_policy.import_local_policy_list(local_policy_data, check_mode=check_mode, update=update,
+                                                                             push=push)
 
         for local_policy in local_policy_data:
             diff = vmanage_local_policy.import_local_policy(local_policy, check_mode=check_mode, update=update, push=push)

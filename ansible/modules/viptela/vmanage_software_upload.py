@@ -8,8 +8,9 @@ ANSIBLE_METADATA = {
 #### CAN WE DO THIS ????
 import os
 from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela import viptelaModule, viptela_argument_spec
+from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
 from collections import OrderedDict
+
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
@@ -37,7 +38,6 @@ def run_module():
                            )
     viptela = viptelaModule(module)
 
-
     if viptela.params['aggregate']:
         upload_software_list = viptela.params['aggregate']
     else:
@@ -46,7 +46,6 @@ def run_module():
                 'file': module.params['file']
             }
         ]
-
 
     # THIS MODULE IS DESIGNED TO UPLOAD UPGRADE IMAGES TO THE VMANAGE
     # Software in SD-WAN varies depending on what you want to upgrade.
@@ -80,11 +79,10 @@ def run_module():
                     if filename_software_to_be_uploaded in availabe_files_list:
                         present = True
 
-
                 if not module.check_mode and not present:
                     response = viptela.request('/dataservice/device/action/software/package', method='POST',
                                                files={'file': open(path_software_to_be_uploaded, 'rb')},
-                                               data={'validity':'valid', 'upload':'true'},
+                                               data={'validity': 'valid', 'upload': 'true'},
                                                headers=None)
 
                     viptela.result['changed'] = True

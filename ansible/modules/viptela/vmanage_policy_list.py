@@ -7,7 +7,7 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.policy_lists import PolicyLists
 
 
@@ -17,15 +17,16 @@ def run_module():
     argument_spec.update(state=dict(type='str', choices=['absent', 'present'], default='present'),
                          aggregate=dict(type='list'),
                          name=dict(type='str'),
-                         description = dict(type = 'str'),
-                         type = dict(type ='str', required = False, choices= ['all', 'color', 'vpn', 'site', 'app',
-                            'dataprefix', 'prefix', 'aspath', 'class', 'community', 'extcommunity', 'mirror', 'tloc',
-                            'sla', 'policer', 'ipprefixall', 'dataprefixall'], default='all'),
-                         entries = dict(type ='list'),
+                         description=dict(type='str'),
+                         type=dict(type='str', required=False, choices=['all', 'color', 'vpn', 'site', 'app',
+                                                                        'dataprefix', 'prefix', 'aspath', 'class', 'community',
+                                                                        'extcommunity', 'mirror', 'tloc',
+                                                                        'sla', 'policer', 'ipprefixall', 'dataprefixall'], default='all'),
+                         entries=dict(type='list'),
                          update=dict(type='bool', default=False),
                          push=dict(type='bool', default=False),
                          force=dict(type='bool', default=False)
-    )
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -48,7 +49,7 @@ def run_module():
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
-        policy_list_list =  vmanage.params['aggregate']
+        policy_list_list = vmanage.params['aggregate']
     else:
         policy_list_list = [
             {
@@ -63,11 +64,11 @@ def run_module():
     policy_list_updates = []
     if vmanage.params['state'] == 'present':
         policy_list_updates = vmanage_policy_lists.import_policy_list_list(
-                                policy_list_list,
-                                check_mode = module.check_mode,
-                                update = vmanage.params['update'],
-                                push = vmanage.params['push']
-                            )
+            policy_list_list,
+            check_mode=module.check_mode,
+            update=vmanage.params['update'],
+            push=vmanage.params['push']
+        )
         if policy_list_updates:
             vmanage.result['changed'] = True
     else:

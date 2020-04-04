@@ -7,7 +7,7 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.feature_templates import FeatureTemplates
 
 
@@ -42,8 +42,10 @@ def run_module():
 
     vmanage.exit_json(**vmanage.result)
 
+
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

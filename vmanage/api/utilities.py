@@ -42,7 +42,7 @@ class Utilities(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return(result)
+        return result
 
     def get_vmanage_version(self):
         api = 'system/device/controllers?model=vmanage&&&&'
@@ -50,4 +50,4 @@ class Utilities(object):
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         version = result[0]['version']
-        return(version)   
+        return version

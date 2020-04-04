@@ -1,25 +1,19 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-py_files = [
-    "ansible/module_utils/viptela",
-]
-files = [
-    "vmanage/cli",
-    "vmanage/api",
-    "vmanage/apps",
-    "vmanage/data",
-    "ansible/modules/viptela",
+includes = [
+    "vmanage.*",
+    "ansible.modules.viptela",
+    "ansible.module_utils.viptela",
+    "ansible.plugins.httpapi",
 ]
 
 setup(
     name="viptela",
     version='0.1.7',
-    packages=find_packages(),
-    # packages=files,
-    py_modules=py_files,
+    packages=find_namespace_packages(include=includes),
     description="Cisco DevNet Viptela vManage CLI/SDK",
     install_requires=[
         'Click',
@@ -29,6 +23,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        vmanage=vmanage.cli.vmanage:main     
+        vmanage=vmanage.__main__:main     
     ''',
 )

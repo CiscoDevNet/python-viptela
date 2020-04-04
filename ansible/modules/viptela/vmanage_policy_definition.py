@@ -7,7 +7,7 @@ ANSIBLE_METADATA = {
 }
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.vmanage import Vmanage, vmanage_argument_spec
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.policy_definitions import PolicyDefinitions
 
 
@@ -18,13 +18,13 @@ def run_module():
     argument_spec.update(state=dict(type='str', choices=['absent', 'present'], default='present'),
                          aggregate=dict(type='list'),
                          name=dict(type='str'),
-                         description = dict(type = 'str'),
-                         type = dict(type ='str', required = False, choices= ['data']),
-                         sequences = dict(type ='list'),
-                         default_action = dict(type ='dict', alias='defaultAction'),
+                         description=dict(type='str'),
+                         type=dict(type='str', required=False, choices=['data']),
+                         sequences=dict(type='list'),
+                         default_action=dict(type='dict', alias='defaultAction'),
                          update=dict(type='bool', default=False),
                          push=dict(type='bool', default=False),
-    )
+                         )
 
     # seed the result dict in the object
     # we primarily care about changed and state
@@ -63,11 +63,11 @@ def run_module():
     policy_definition_updates = []
     if vmanage.params['state'] == 'present':
         policy_list_updates = vmanage_policy_definitions.import_policy_definition_list(
-                                policy_definition_list,
-                                check_mode = module.check_mode,
-                                update = vmanage.params['update'],
-                                push = vmanage.params['push']
-                            )
+            policy_definition_list,
+            check_mode=module.check_mode,
+            update=vmanage.params['update'],
+            push=vmanage.params['push']
+        )
         if policy_list_updates:
             vmanage.result['changed'] = True
     else:
