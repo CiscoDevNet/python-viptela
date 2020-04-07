@@ -1,6 +1,6 @@
 # Cisco Viptela vManage Python CLI/SDK
 
-This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for exercising that SDK
+This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for exercising that SDK.  The previous stable release can be found at https://github.com/CiscoDevNet/python-viptela/tree/0.0.1.  The `master` branch is under active development and may not offer a stable interface.
 
 ## Requirements
 * Python 3.6+
