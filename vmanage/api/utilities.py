@@ -2,7 +2,7 @@
 """
 
 import json
-import requests
+import time
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 
@@ -51,3 +51,32 @@ class Utilities(object):
         result = ParseMethods.parse_data(response)
         version = result[0]['version']
         return version
+
+    def waitfor_action_completion(self, action_id):
+        status = 'in_progress'
+        response = {}
+        while status == "in_progress":
+            url = f"{self.base_url}device/action/status/{action_id}"
+            response = HttpMethods(self.session, url).request('GET')
+            result = ParseMethods.parse_data(response)
+
+            if 'json' in response:
+                status = response['json']['summary']['status']
+                if 'data' in response['json'] and response['json']['data']:
+                    action_status = response['json']['data'][0]['statusId']
+                    action_activity = response['json']['data'][0]['activity']
+                    if 'actionConfig' in response['json']['data'][0]:
+                        action_config = response['json']['data'][0]['actionConfig']
+                    else:
+                        action_config = None
+            else:
+                raise Exception(msg="Unable to get action status: No response")
+            time.sleep(10)
+
+        return {
+            'action_response': response['json'],
+            'action_id': action_id,
+            'action_status': action_status,
+            'action_activity': action_activity,
+            'action_config': action_config
+        }

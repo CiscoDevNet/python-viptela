@@ -21,3 +21,5 @@ vmanage import policies --file tests/vmanage-policies.yml
 vmanage export templates --file /tmp/vmanage-templates-cli.yml
 
 vmanage export policies --file /tmp/vmanage-policies-cli.yml
+
+vmanage certificate push

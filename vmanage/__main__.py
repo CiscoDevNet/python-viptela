@@ -4,6 +4,7 @@ from vmanage.cli.deactivate import deactivate
 from vmanage.cli.show import show
 from vmanage.cli.export import export
 from vmanage.cli.import_cmd import import_cmd
+from vmanage.cli.certificate import certificate
 from vmanage.api.authentication import Authentication
 
 
@@ -52,6 +53,7 @@ main.add_command(deactivate)
 main.add_command(show)
 main.add_command(export)
 main.add_command(import_cmd)
+main.add_command(certificate)
 
 if __name__ == '__main__':
     main(prog_name="vmanage")  # pragma: no cover

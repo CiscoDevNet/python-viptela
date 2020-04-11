@@ -6,7 +6,7 @@ from vmanage.cli.activate.central_policy import central_policy
 @click.pass_context
 def activate(ctx):
     """
-    Show commands
+    Activate commands
     """
 
 
