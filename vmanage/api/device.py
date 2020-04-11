@@ -120,3 +120,19 @@ class Device(object):
         device_list = self.get_device_config_list(type)
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+
+    def get_device_data(self, path, device_ip):
+        """Get the data from a device
+
+        Args:
+            path (str): The path of the data
+            device_ip (str): The IP address of the device
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/{path}?deviceId={device_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
