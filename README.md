@@ -50,14 +50,17 @@ Usage: vmanage [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --host TEXT      vManage Host (env: VMANAGE_HOST)  [required]
-  --username TEXT      vManage Username (env: VMANAGE_USERNAME)  [required]
+  --username TEXT  vManage Username (env: VMANAGE_USERNAME)  [required]
   --password TEXT  vManage Password (env: VMANAGE_PASSWORD)  [required]
   --help           Show this message and exit.
 
 Commands:
-  export  Export commands
-  import  Import commands
-  show    Show commands
+  activate     Activate commands
+  certificate  Certficate commands
+  deactivate   Deactivate commands
+  export       Export commands
+  import       Import commands
+  show         Show commands
 ```
 
 vManage host and credentials can be also specified via command line options.  The
@@ -146,27 +149,6 @@ vmanage export policies --file vmanage-policies.json
 ```bash
 vmanage import policies --file vmanage-policies.json
 ```
-
-### Show Information
-
-#### The following show commands are available
-
-* control - Show control information
-  * connections
-  * connections-history
-* device - Show device information
-  * config
-  * status
-* omp - Show OMP information
-  * peers
-* policy - Show policy information
-  * central
-  * local
-  * definition
-  * list
-* template - Show template information
-
-#### Examples
 
 ##### Diff two templates
 
