@@ -23,7 +23,7 @@ pip install viptela
 ### Installation from github 
 
 ```bash
-pip install git+https://github.com/CiscoDevNet/python-viptela.git@specific_template
+pip install git+https://github.com/CiscoDevNet/python-viptela.git@specific_branch
 ```
 
 ### Installation from within repo
