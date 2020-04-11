@@ -4,6 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 includes = [
+    "vmanage",
     "vmanage.*",
     "ansible.modules.viptela",
     "ansible.module_utils.viptela",
