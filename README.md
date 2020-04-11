@@ -1,6 +1,10 @@
-# Cisco Viptela vManage Python CLI/SDK
+# Cisco Viptela vManage Python SDK/CLI/Ansible
 
-This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for exercising that SDK
+This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI and Ansible
+modules that leverage the SDK
+
+* [CLI](#vmanage-command-line-interface)
+* [Ansible Modules](ansible/README.md)
 
 ## Requirements
 * Python 3.6+

@@ -1,7 +1,6 @@
 # ansible-viptela
 
-An Ansible Role for automating a Viptela Overlay Network.  This is a hybrid role that provided both role tasks and
-modules.
+An set of Ansible modules for automating a Viptela Overlay Network.  
 
 This role can perform the following functions:
 - Add Controllers
@@ -24,9 +23,9 @@ This role can perform the following functions:
 
 
 #### Common Attributes
-* `host`: IP address or FQDN of vManage
-* `user`: Username used to log in to vManage
-* `password`: Password used to log into vManage
+* `host`: IP address or FQDN of vManage (env: VMANAGE_HOST)  [required]
+* `user`: Username used to log in to vManage (env: VMANAGE_USERNAME)  [required]
+* `password`: Password used to log into vManage vManage Password (env: VMANAGE_PASSWORD)  [required]
 
 ### Set vManage Setting
 
