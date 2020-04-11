@@ -13,7 +13,7 @@ includes = [
 
 setup(
     name="viptela",
-    version='0.1.7',
+    version='0.1.9',
     packages=find_namespace_packages(include=includes),
     description="Cisco DevNet Viptela vManage CLI/SDK",
     install_requires=[
