@@ -35,11 +35,11 @@
     - name: vManage Policy List Facts
       vmanage_policy_list_facts:
 
-    - name: vManage Policy List Facts
+    - name: vManage Policy Definition Facts
       vmanage_policy_definition_facts:
 
-    - name: vManage Policy List Facts
+    - name: vManage Central Policy Facts
       vmanage_central_policy_facts:
 
-    - name: vManage Policy List Facts
+    - name: vManage Local Policy Facts
       vmanage_local_policy_facts:
