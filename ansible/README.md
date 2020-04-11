@@ -1,4 +1,4 @@
-# ansible-viptela
+# Viptela Ansible Modules
 
 An set of Ansible modules for automating a Viptela Overlay Network.  
 
