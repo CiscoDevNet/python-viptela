@@ -1,0 +1,60 @@
+- include_tasks: get-cookie.yml
+  when: viptela_api_cookie is not defined
+
+- debug: var=viptela_api_cookie
+
+- block:
+    - name: Get Tenant Status
+      uri:
+        url: "https://{{ vmanage_ip }}/dataservice/system/device"
+        method: GET
+        headers:
+          Cookie: "{{ viptela_api_cookie }}"
+        validate_certs: "{{ validate_certs }}"
+        return_content: yes
+      register: tenantstatus_results
+      delegate_to: localhost
+      retries: 60
+      delay: 10
+      until: tenantstatus_results is not failed
+
+    - debug: var=tenantstatus_results
+#
+#     - set_fact:
+#         tower_api_host_map: "{{ tower_api_host_map|default({}) | combine( { tower_api_host_name: post_result.json.id } ) }}"
+#
+#   when: tower_api_host_map[tower_api_host_name] is not defined
+#
+# - name: Update host {{ tower_api_host_name }}
+#   uri:
+#     url: "https://{{ tower_api_endpoint }}/api/v2/hosts/{{ tower_api_host_map[tower_api_host_name] }}/"
+#     method: PUT
+#     headers:
+#       Authorization: "Token {{ tower_api_token }}"
+#     body:
+#       enabled: "{{ 'true' if (tower_api_cloud_state == 'present') else 'false' }}"
+#       name: "{{ tower_api_host_name }}"
+#       variables: "{{ tower_api_host_vars | to_json }}"
+#     body_format: json
+#     validate_certs: "{{ validate_certs }}"
+#     return_content: yes
+#     status_code: 200,204
+#   register: post_result
+#   when: tower_api_host_map[tower_api_host_name] is defined
+#
+# - name: Add host {{ tower_api_host_name }} to groups {{ tower_api_host_groups | join(',')}}
+#   uri:
+#     url: "https://{{ tower_api_endpoint }}/api/v2/groups/{{ tower_api_group_map[group_item] }}/hosts/"
+#     method: POST
+#     headers:
+#       Authorization: "Token {{ tower_api_token }}"
+#     body:
+#       name: "{{ tower_api_host_name }}"
+#     body_format: json
+#     validate_certs: "{{ validate_certs }}"
+#     return_content: yes
+#     status_code: 201,204
+#   register: post_result
+#   with_items: "{{ tower_api_host_groups }}"
+#   loop_control:
+#     loop_var: group_item

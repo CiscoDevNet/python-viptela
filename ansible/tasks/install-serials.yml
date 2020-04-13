@@ -1,0 +1,33 @@
+#- include_tasks: get-cookie.yml
+#  when: viptela_api_cookie is not defined
+
+- name: Check for the serial number file
+  stat:
+    path: "{{ serial_number_file }}"
+  register: stat_result
+  delegate_to: localhost
+
+# Ansible URI module does not support multi-part at the time this was tested
+#- name: Upload Serial File
+#  uri:
+#    url: "https://{{ hostvars['vmanage1'].ansible_host }}/dataservice/system/device/fileupload"
+#    method: POST
+#    headers:
+#      Cookie: "{{ viptela_api_cookie }}"
+#      Content-Type: application/octet-stream
+#    src: "{{ viptela_serial_file }}"
+#    validate_certs: "{{ validate_certs }}"
+#  register: uri_results
+#  delegate_to: localhost
+#
+#- debug: var=uri_results
+
+- name: Install Serial File
+  shell: curl --insecure -F "file=@{{ serial_number_file }}" -F "validity=valid" -F "upload=true" --cookie "{{ viptela_api_cookie }}"  https://{{ vmanage_ip }}/dataservice/system/device/fileupload
+  args:
+    warn: false
+  when: stat_result.stat.exists
+  register: command_results
+  delegate_to: localhost
+
+#- debug: var=command_results

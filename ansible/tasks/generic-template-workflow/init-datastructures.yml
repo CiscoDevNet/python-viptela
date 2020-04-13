@@ -1,0 +1,21 @@
+- name: Loading templates from filesystem
+  set_fact:
+    generic_template: "{{lookup('file', '{{item}}') }}"
+  with_fileglob:
+     - "{{role_path}}/files/rendered_templates/{{ folder }}/*.json"
+  register: generic_template_registered_list
+
+- name: Creating a list of templates
+  set_fact:
+    present_template_list: "{{ generic_template_registered_list.results | map(attribute = 'ansible_facts.generic_template') | list }}"
+
+- name: Creating an empty list of templates to be removed
+  set_fact:
+    absent_template_list: []
+  no_log: True
+
+- name: Creating a list of templates to be removed
+  set_fact:
+    absent_template_list: "{{ absent_template_list|default([]) + [ {'templateName': item.templateName } ] }}"
+  when: item.state  == "absent"
+  with_items: "{{ template_list }}"

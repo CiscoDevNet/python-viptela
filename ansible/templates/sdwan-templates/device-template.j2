@@ -1,0 +1,63 @@
+{
+  "templateName": "{{ item["templateName"] }}",
+  "templateDescription": "{{ item["templateDescription"] }}",
+  "deviceType": "{{ item["deviceType"] }}",
+  "configType": "template",
+  "factoryDefault": false,
+  "policyId": "",
+  "featureTemplateUidRange": [],
+  "connectionPreferenceRequired": true,
+  "connectionPreference": true,
+  "generalTemplates": [
+    {
+      "templateName": "{{item["aaa"]}}",
+      "templateType": "aaa"
+    },
+    {
+      "templateName": "{{item["bfd-vedge"]}}",
+      "templateType": "bfd-vedge"
+    },
+    {
+      "templateName": "{{item["omp-vedge"]}}",
+      "templateType": "omp-vedge"
+    },
+    {
+      "templateName": "{{item["security-vedge"]}}",
+      "templateType": "security-vedge"
+    },
+    {
+      "templateName": "{{item["system-vedge"]}}",
+      "templateType": "system-vedge",
+      "subTemplates": [
+        {
+          "templateName": "{{item["logging"]}}",
+          "templateType": "logging"
+        }
+      ]
+    },
+{% for VPN_Section in  item["vpn-vedge"]  %}
+{% for VPN_Name,Interface_Lists in  VPN_Section.items()  %}
+{# This second for loop is only used to unpack dict in a key/value pair#}
+{% set subTemplates = [] %}
+{% for interface in Interface_Lists %}
+{{ subTemplates.append({'templateName': interface ,'templateType':'vpn-vedge-interface'}) }}
+{% endfor %}
+{% set vpnsection = {'templateName': VPN_Name,
+                     "templateType": "vpn-vedge",
+                     "subTemplates": subTemplates
+                     }
+%}
+{{vpnsection |  tojson(indent=2) }},
+{% endfor %}
+{% endfor %}
+    {
+      "templateName": "{{item["banner"]}}",
+      "templateType": "banner"
+    }{%- if 'snmp' in item %},
+    {
+      "templateName": "{{item["snmp"]}}",
+      "templateType": "snmp"
+    }
+    {% endif -%}
+  ]
+}

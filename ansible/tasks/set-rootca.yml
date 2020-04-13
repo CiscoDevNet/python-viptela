@@ -1,0 +1,82 @@
+- include_tasks: get-cookie.yml
+  when: viptela_api_cookie is not defined
+
+# - name: See if the vBond is already set
+#   uri:
+#     url: "https://{{ hostvars['vmanage1'].ansible_host }}/dataservice/settings/configuration/device"
+#     method: GET
+#     headers:
+#       Cookie: "{{ viptela_api_cookie }}"
+#     validate_certs: "{{ validate_certs }}"
+#     return_content: yes
+#   register: uri_results
+#   delegate_to: localhost
+#
+# - set_fact:
+#     current_vbond_ip: "{{ uri_results.json.data[0].domainIp }}"
+#     current_vbond_port: "{{ uri_results.json.data[0].port }}"
+#   when: uri_results.json.data[0] is defined
+
+- name: Get CA Type
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/certificate"
+    method: GET
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+  delay: 10
+  until: uri_results is not failed
+
+- name: Set CA Type
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/certificate"
+    method: POST
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    body_format: json
+    body:
+      certificateSigning: enterprise
+      challengeAvailable: false
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+  delay: 10
+  until: uri_results is not failed
+
+- name: Get CA Cert
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/certificate/rootcertificate"
+    method: GET
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+  delay: 10
+  until: uri_results is not failed
+
+- name: Set CA Cert
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/certificate/enterpriserootca"
+    method: PUT
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    body_format: json
+    body:
+      enterpriseRootCA: "{{ root_cert }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+  delay: 10
+  until: uri_results is not failed
+

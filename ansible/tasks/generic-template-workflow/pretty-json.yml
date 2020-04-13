@@ -1,0 +1,6 @@
+- name: Pretty json
+  copy:
+    content: "{{ lookup('file',item) | from_json | to_nice_json }}"
+    dest:  "{{item}}"
+  with_fileglob:
+    - "{{role_path}}/files/rendered_templates/{{ folder }}/*.json"

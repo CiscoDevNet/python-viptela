@@ -1,0 +1,36 @@
+{% from "macros/macro-deviceType.j2" import deviceType with context %}
+{% from "macros/macro-insertParameter.j2" import insertParameter with context %}
+{
+   "templateName":"{{ item["templateName"] }}",
+   "templateDescription": "{{ item["templateDescription"] }}",
+   "templateType":"bfd-vedge",
+   {{ deviceType() }},
+   "factoryDefault":false,
+   "templateMinVersion":"15.0.0",
+   "templateDefinition":
+   {
+         "app-route": {
+             "multiplier": {{ insertParameter(item,"multiplier") }},
+             "poll-interval": {{ insertParameter(item,"pollInterval") }}
+         }{% if "colors" in item %},
+         "color": {
+             "vipType": "constant",
+             "vipValue": [
+{% for color in  item["colors"]  %}
+              {
+                 "color": {{ insertParameter(color,"color") }},
+                 "hello-interval": {{ insertParameter(color,"helloInterval") }},
+                 "multiplier": {{ insertParameter(color,"multiplier") }},
+                 "pmtu-discovery": {{ insertParameter(color,"pathMTU") }}
+              }{%- if not loop.last %},{% endif -%}
+{% endfor %}
+             ],
+             "vipObjectType": "tree",
+             "vipPrimaryKey": [
+                 "color"
+             ]
+         }
+         {% endif %}
+
+    }
+}

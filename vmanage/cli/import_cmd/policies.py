@@ -1,6 +1,7 @@
-    
 import click
 import pprint
+from vmanage.apps.files import Files
+
 
 @click.command()
 @click.argument('type', default='all')
@@ -12,16 +13,16 @@ import pprint
 # @click.option('--type',
 #               help="Device type [vedges, controllers]",
 #               type=click.Choice(['vedges', 'controllers']))
-@click.pass_context
+@click.pass_obj
 def policies(ctx, type, file, update, check, diff, push):
     """
     Import policies from file
     """
-    vmanage_session = ctx.obj
+    vmanage_files = Files(ctx.auth, ctx.host)
     pp = pprint.PrettyPrinter(indent=2)
 
     click.echo(f"{'Checking' if check else 'Importing'} policies from {file}")
-    result = vmanage_session.import_policy_from_file(file, update=update, check_mode=check, push=push)
+    result = vmanage_files.import_policy_from_file(file, update=update, check_mode=check, push=push)
     print(f"Policy List Updates: {len(result['policy_list_updates'])}")
     if diff:
         for diff_item in result['policy_list_updates']:

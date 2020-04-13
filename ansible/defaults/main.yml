@@ -1,0 +1,4 @@
+---
+viptela_api_cookie_file: viptela_api_cookie
+serial_number_file: 'licenses/serialFile.viptela'
+validate_certs: no

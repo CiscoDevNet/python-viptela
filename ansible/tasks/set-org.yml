@@ -1,0 +1,38 @@
+- include_tasks: get-cookie.yml
+  when: viptela_api_cookie is not defined
+
+- name: Get current Organization
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/organization"
+    method: GET
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  retries: 60
+  delay: 10
+  until: uri_results is not failed
+
+- set_fact:
+    current_org_name: "{{ uri_results.json.data[0].org | default('') }}"
+
+- name: Set Organization
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/configuration/organization"
+    method: PUT
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    body_format: json
+    body:
+      org: "{{ org_name }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  changed_when: true
+  when: current_org_name != org_name
+  retries: 60
+  delay: 10
+  until: uri_results is not failed

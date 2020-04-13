@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-vpn,feature-vpn:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-vpn'] }}"
+    template: sdwan-templates/feature-vpn.j2
+    folder: feature-vpn
+  when: FeatureTemplates['feature-vpn'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-vpn,feature-vpn:create,feature-vpn:delete,feature-vpn:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-vpn'] }}"
+    template: sdwan-templates/feature-vpn.j2
+    folder: feature-vpn
+  when: FeatureTemplates['feature-vpn'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-vpn,feature-vpn:create
+  vars:
+    folder: feature-vpn
+  when: FeatureTemplates['feature-vpn'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-vpn,feature-vpn:create
+  when: FeatureTemplates['feature-vpn'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-vpn:debug,never
+  when: FeatureTemplates['feature-vpn'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-vpn,feature-vpn:delete
+  when: FeatureTemplates['feature-vpn'] is defined

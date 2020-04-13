@@ -1,0 +1,18 @@
+all:
+  hosts:
+    targetVmanage:
+  vars:
+    Feature_Templates:
+      Banner_Templates:
+        - templateName: 'CICD_TEST_BannerTemplate1'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate2'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate3'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate4'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate5'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate6'
+          state: 'present'

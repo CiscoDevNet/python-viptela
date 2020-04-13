@@ -1,0 +1,39 @@
+- import_tasks: generic-template-workflow/render.yml
+  run_once: True
+  tags: feature-bfd,feature-bfd:render,render
+  vars:
+    template_list: "{{ FeatureTemplates['feature-bfd'] }}"
+    template: sdwan-templates/feature-bfd.j2
+    folder: feature-bfd
+  when: FeatureTemplates['feature-bfd'] is defined
+
+- import_tasks: generic-template-workflow/init-datastructures.yml
+  run_once: True
+  tags: feature-bfd,feature-bfd:create,feature-bfd:delete,feature-bfd:debug
+  vars:
+    template_list: "{{ FeatureTemplates['feature-bfd'] }}"
+    template: sdwan-templates/feature-bfd.j2
+    folder: feature-bfd
+  when: FeatureTemplates['feature-bfd'] is defined
+
+- import_tasks: generic-template-workflow/pretty-json.yml
+  run_once: True
+  tags: feature-bfd,feature-bfd:create
+  vars:
+    folder: feature-bfd
+  when: FeatureTemplates['feature-bfd'] is defined
+
+- import_tasks: generic-template-workflow/create-template-aggregate.yml
+  run_once: True
+  tags: feature-bfd,feature-bfd:create
+  when: FeatureTemplates['feature-bfd'] is defined
+
+- import_tasks: generic-template-workflow/create-template-single.yml
+  run_once: True
+  tags: feature-bfd:debug,never
+  when: FeatureTemplates['feature-bfd'] is defined
+
+- import_tasks: generic-template-workflow/delete-template-aggregate.yml
+  run_once: True
+  tags: feature-bfd,feature-bfd:delete
+  when: FeatureTemplates['feature-bfd'] is defined

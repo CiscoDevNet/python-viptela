@@ -1,0 +1,43 @@
+- include_tasks: get-cookie.yml
+  when: viptela_api_cookie is not defined
+
+- name: See if {{ device_personality }}, {{ device_ip }} exists
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/system/device/controllers"
+    method: GET
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: uri_results
+  delegate_to: localhost
+  until: uri_results.msg.find("OK") != -1
+  retries: 60
+  delay: 10
+
+- set_fact:
+    controller_deviceIP_list: "{{ uri_results.json.data | map(attribute='deviceIP') | list }}"
+    controller_hostname_list: "{{ uri_results.json.data | selectattr('host-name', 'defined') | map(attribute='host-name') | list }}"
+
+- name: Add {{ device_personality }}, {{ device_ip }}
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/system/device"
+    method: POST
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    body_format: json
+    body:
+      deviceIP: "{{ device_ip }}"
+      username: "{{ viptela_api_username }}"
+      password: "{{ viptela_api_password }}"
+      personality: "{{ device_personality }}"
+      generateCSR: "{{ device_generateCSR | default('false') }}"
+    validate_certs: "{{ validate_certs }}"
+    return_content: yes
+  register: controller_results
+  changed_when: true
+  delegate_to: localhost
+  when: (device_ip not in controller_deviceIP_list) and (device_hostname not in controller_hostname_list)
+  retries: 60
+  delay: 10
+  until: controller_results is not failed

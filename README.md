@@ -1,6 +1,10 @@
-# Cisco Viptela vManage Python CLI/SDK
+# Cisco Viptela vManage Python SDK/CLI/Ansible
 
-This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI for exercising that SDK.  The previous stable release can be found at https://github.com/CiscoDevNet/python-viptela/tree/0.0.1.  The `master` branch is under active development and may not offer a stable interface.
+This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI and Ansible modules that leverage the SDK.
+The previous stable release can be found at https://github.com/CiscoDevNet/python-viptela/tree/0.0.1.  The `master` branch is under active development and may not offer a stable interface.
+
+* [CLI](#vmanage-command-line-interface)
+* [Ansible Modules](ansible/README.md)
 
 ## Requirements
 * Python 3.6+
@@ -23,7 +27,7 @@ pip install viptela
 ### Installation from github 
 
 ```bash
-pip install git+https://github.com/CiscoDevNet/python-viptela.git@specific_template
+pip install git+https://github.com/CiscoDevNet/python-viptela.git@specific_branch
 ```
 
 ### Installation from within repo
@@ -50,14 +54,17 @@ Usage: vmanage [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --host TEXT      vManage Host (env: VMANAGE_HOST)  [required]
-  --username TEXT      vManage Username (env: VMANAGE_USERNAME)  [required]
+  --username TEXT  vManage Username (env: VMANAGE_USERNAME)  [required]
   --password TEXT  vManage Password (env: VMANAGE_PASSWORD)  [required]
   --help           Show this message and exit.
 
 Commands:
-  export  Export commands
-  import  Import commands
-  show    Show commands
+  activate     Activate commands
+  certificate  Certficate commands
+  deactivate   Deactivate commands
+  export       Export commands
+  import       Import commands
+  show         Show commands
 ```
 
 vManage host and credentials can be also specified via command line options.  The
@@ -147,27 +154,6 @@ vmanage export policies --file vmanage-policies.json
 vmanage import policies --file vmanage-policies.json
 ```
 
-### Show Information
-
-#### The following show commands are available
-
-* control - Show control information
-  * connections
-  * connections-history
-* device - Show device information
-  * config
-  * status
-* omp - Show OMP information
-  * peers
-* policy - Show policy information
-  * central
-  * local
-  * definition
-  * list
-* template - Show template information
-
-#### Examples
-
 ##### Diff two templates
 
 ```
@@ -197,4 +183,8 @@ vmanage show template g0/0/0-R1 --diff g0/0/0-R2
 
 ## License
 
+<<<<<<< HEAD
+GPLv3
+=======
 CISCO SAMPLE CODE LICENSE
+>>>>>>> master

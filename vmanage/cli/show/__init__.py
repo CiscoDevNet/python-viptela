@@ -14,6 +14,7 @@ def show(ctx):
     Show commands
     """
 
+
 show.add_command(device)
 show.add_command(templates)
 show.add_command(policies)

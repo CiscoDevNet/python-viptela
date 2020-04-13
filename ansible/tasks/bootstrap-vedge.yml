@@ -1,0 +1,37 @@
+- name: Get bootstrap info
+  vmanage_device_bootstrap:
+    host: "{{ vmanage_ip }}"
+    user: admin
+    password: admin
+    name: "{{ inventory_hostname }}"
+    model: 'vedge-cloud'
+  delegate_to: localhost  
+  register: result
+  retries: 10
+  delay: 10
+  until: result is not failed 
+
+- block:
+  - name: Copy Root CA
+    copy:
+      src: "{{ root_ca_file }}"
+      dest: /home/admin
+    register: copy_results
+
+  - name: Install RootCA
+    cli_command:
+      command: "request root-cert-chain install /home/admin/myCA.pem"
+    register: command_result
+    connection: network_cli
+    failed_when: "'Failed' in command_result.stdout"
+    changed_when: true
+    when: copy_results.changed
+
+  - debug: msg="UUID - {{ result.bootstrap.uuid }}, TOKEN - {{ result.bootstrap.otp }}"
+
+  - cli_command:
+      command: "request vedge-cloud activate chassis-number {{ result.bootstrap.uuid }} token {{ result.bootstrap.otp }}"
+    connection: network_cli
+    register: command_results
+
+  when: result.changed

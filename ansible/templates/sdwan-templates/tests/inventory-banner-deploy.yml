@@ -1,0 +1,28 @@
+all:
+  hosts:
+    targetVmanage:
+  vars:
+    Feature_Templates:
+      Banner_Templates:
+        - templateName: 'CICD_TEST_BannerTemplate1'
+          templateDescription: 'This is created from Ansible'
+          login:
+            globalValue: 'Hello'
+          motd:
+            globalValue: 'World'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate2'
+          templateDescription: 'This is created from Ansible'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate3'
+          templateDescription: 'This is created from Ansible'
+          login:
+            variableName: 'loginVariable'
+          motd:
+            globalValue: 'World'
+          state: 'present'
+        - templateName: 'CICD_TEST_BannerTemplate4'
+          templateDescription: 'This is created from Ansible'
+          motd:
+            variableName: 'motdVariable'
+          state: 'present'

@@ -1,0 +1,55 @@
+- name: Check for a cookie file
+  stat:
+    path: "{{ viptela_api_cookie_file }}"
+  register: stat_result
+  delegate_to: localhost
+
+- set_fact:
+    viptela_api_cookie: "{{ lookup('file', '{{ viptela_api_cookie_file }}') }}"
+  when: stat_result.stat.exists
+
+- name: Check Cookie
+  uri:
+    url: "https://{{ vmanage_ip }}/dataservice/settings/clientSessionTimeout"
+    method: GET
+    headers:
+      Cookie: "{{ viptela_api_cookie }}"
+    return_content: yes
+    validate_certs: "{{ validate_certs }}"
+  no_log: false  # Don't show output as your password will be on the URI string
+  register: login_results
+  failed_when: false
+  delegate_to: localhost
+  when: viptela_api_cookie is defined
+  retries: 60
+  delay: 10
+  until: login_results is not failed
+
+- name: Get Cookie
+  uri:
+    url: "https://{{ vmanage_ip }}/j_security_check"
+    method: POST
+    body:
+      j_username: "{{ viptela_api_username }}"
+      j_password: "{{ viptela_api_password }}"
+    body_format: form-urlencoded
+    return_content: yes
+    validate_certs: "{{ validate_certs }}"
+  no_log: false  # Don't show output as your password will be on the URI string
+  register: login_results
+  delegate_to: localhost
+  until: login_results.set_cookie is defined
+  when: (viptela_api_cookie is not defined) or (login_results.msg is not search('OK'))
+  retries: 60
+  delay: 10
+  until: login_results is not failed
+
+- set_fact:
+    viptela_api_cookie: "{{ login_results.set_cookie }}"
+  when: login_results.set_cookie is defined
+
+- copy:
+    content: "{{ viptela_api_cookie }}"
+    dest: "{{ viptela_api_cookie_file }}"
+  delegate_to: localhost
+  when: login_results.set_cookie is defined
