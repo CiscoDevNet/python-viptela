@@ -12,15 +12,18 @@ def central_policy(ctx, name, id):
     """
 
     vmanage_central_policy = CentralPolicy(ctx.auth, ctx.host)
-    central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=True)
+    central_policy_dict = vmanage_central_policy.get_central_policy_dict(
+        remove_key=True)
     if id:
         vmanage_central_policy.deactivate_central_policy(id)
     elif name:
         if name in central_policy_dict:
             click.echo(f'Deactivating Central Policy {name}')
-            action_id = vmanage_central_policy.deactivate_central_policy(central_policy_dict[name]['policyId'])
+            action_id = vmanage_central_policy.deactivate_central_policy(
+                central_policy_dict[name]['policyId'])
             vmanage_central_policy.waitfor_action_completion(action_id)
         else:
             click.secho(f'Cannot find Central Policy {name}', fg="red")
     else:
-        click.secho('Must specify either policy name of id to deactivate', fg="red")
+        click.secho('Must specify either policy name of id to deactivate',
+                    fg="red")

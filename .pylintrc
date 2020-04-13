@@ -1,0 +1,109 @@
+# The format of this file isn't really documented; just use --generate-rcfile
+
+[messages control]
+# abstract-class-little-used: abstract classes are often useful as interface descriptions
+# abstract-class-not-used   : No, you just missed it.
+# broad-except              : seriously, sometimes you need to catch all exceptions
+# cyclic-import             : detection of this doesn't work well
+# duplicate-code            : detection of this doesn't work well, mostly catches imports anyway
+# fixme                     : why are you throwing warnings about todos
+# incomplete-protocol       : this check is just broken.
+# interface-not-implemented : No, you just missed it.
+# invalid-name              : too difficult to configure sanely
+# locally-disabled          : stupid
+# locally-enabled           : stupid
+# maybe-no-member           : if type inference fails, don't warn.
+# missing-docstring         : docstrings on everything?
+# no-self-use               : if it were supposed to have been a method, it would be
+# star-args                 : seriously, does no one write wrapper functions
+# useless-else-on-loop      : detection is broken, doesn't notice "return" statements
+#
+# Temporarily disabled ones:
+# line-too-long
+#
+# Django generated code:
+# bad-continuation
+# bad-whitespace
+# trailing-whitespace
+# old-style-class
+# no-init
+
+disable=
+    abstract-class-little-used,
+    abstract-class-not-used,
+    broad-except,
+    cyclic-import,
+    duplicate-code,
+    fixme,
+    incomplete-protocol,
+    interface-not-implemented,
+    invalid-name,
+    locally-disabled,
+    locally-enabled,
+    maybe-no-member,
+    missing-docstring,
+    missing-module-docstring,
+    no-self-use,
+    star-args,
+    useless-else-on-loop,
+    line-too-long,
+    invalid-name,
+    bad-continuation,
+    bad-whitespace,
+    trailing-whitespace,
+    old-style-class,
+    no-init,
+    len-as-condition,
+    superfluous-parens
+
+[basic]
+bad-functions=apply,input
+
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+const-rgx=(([A-Z_][A-Za-z0-9_]*)|(__.*__))$
+class-rgx=[A-Za-z_][a-zA-Z0-9_]+$
+function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,45}$
+method-rgx=[a-z_][a-zA-Z0-9_]{1,80}$
+attr-rgx=[A-Za-z_][A-Za-z0-9_]{1,30}$
+argument-rgx=[a-z_][a-z0-9_]{0,30}$
+variable-rgx=[a-z_][a-z0-9_]{0,30}$
+class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{1,50}|(__.*__))$
+inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
+
+good-names=i,j,k,ex,Run,_,urlpatterns,application,Input,_Input,HOSTS
+bad-names=foo,bar,baz,toto,tutu,tata
+
+[classes]
+defining-attr-methods=__init__,__new__,setUp,initialize
+
+[design]
+# too-many-* and too-few-* warnings are pretty useless, so make them all
+# arbitrarily high
+max-args=1000
+max-locals=1000
+max-returns=1000
+max-branches=1000
+max-statements=1000
+max-parents=1000
+max-attributes=1000
+max-public-methods=1000
+min-public-methods=0
+
+[format]
+max-line-length=120
+max-module-lines=100000
+
+[imports]
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
+
+[reports]
+output-format=text
+reports=no
+
+[typecheck]
+ignored-classes=sha1, md5, Popen, Request, SplitResult, execute, API
+generated-members=REQUEST,acl_users,aq_parent,^depends$
+
+[variables]
+additional-builtins=_
+dummy-variables-rgx=_|dummy

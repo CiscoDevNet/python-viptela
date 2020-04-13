@@ -14,7 +14,6 @@ class SecurityPolicy(object):
     Security Policy.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Security Policy object with session parameters.
 

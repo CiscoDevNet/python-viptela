@@ -13,7 +13,6 @@ class Device(object):
     Device Inventory.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Device Inventory object with session parameters.
 
@@ -74,7 +73,9 @@ class Device(object):
 
         result = self.get_device_status_list()
 
-        return self.list_to_dict(result.json, key_name=key_name, remove_key=remove_key)
+        return self.list_to_dict(result.json,
+                                 key_name=key_name,
+                                 remove_key=remove_key)
 
     def get_device_status(self, value, key='system-ip'):
         """Get the status of a specific device
@@ -97,7 +98,9 @@ class Device(object):
 
         device_list = self.get_device_list()
 
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+        return self.list_to_dict(device_list,
+                                 key_name=key_name,
+                                 remove_key=remove_key)
 
     def get_device_config_list(self, type):
         """Get the config status of a list of devices
@@ -115,11 +118,16 @@ class Device(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_device_config_dict(self, type, key_name='host-name', remove_key=False):
+    def get_device_config_dict(self,
+                               type,
+                               key_name='host-name',
+                               remove_key=False):
 
         device_list = self.get_device_config_list(type)
 
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+        return self.list_to_dict(device_list,
+                                 key_name=key_name,
+                                 remove_key=remove_key)
 
     def get_device_data(self, path, device_ip):
         """Get the data from a device

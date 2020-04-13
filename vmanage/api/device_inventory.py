@@ -14,7 +14,6 @@ class DeviceInventory(object):
     Device Inventory.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Device Inventory object with session parameters.
 
@@ -60,8 +59,7 @@ class DeviceInventory(object):
         url = self.base_url + api
         devices = f"{{'deviceId':'{deviceId}','deviceIP':'{deviceIP}'}}"
         payload = f"{{'deviceType':'{deviceType}','devices':[{devices}]}}"
-        response = HttpMethods(self.session, url).request(
-            'POST', payload=payload
-        )
+        response = HttpMethods(self.session, url).request('POST',
+                                                          payload=payload)
         result = ParseMethods.parse_status(response)
         return result

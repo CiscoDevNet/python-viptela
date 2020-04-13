@@ -1,6 +1,7 @@
 import click
 from vmanage.api.certificate import Certificate
 
+
 @click.command()
 @click.pass_obj
 def push(ctx):
@@ -19,5 +20,6 @@ def certificate(ctx):
     """
     Certficate commands
     """
+
 
 certificate.add_command(push)

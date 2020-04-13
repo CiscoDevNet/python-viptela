@@ -14,7 +14,6 @@ class Certificate(object):
     Certificates.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Device Inventory object with session parameters.
 
@@ -32,7 +31,9 @@ class Certificate(object):
 
     def generate_csr(self, device_ip):
         payload = {"deviceIP": device_ip}
-        response = self.request('/dataservice/certificate/generate/csr', method='POST', payload=payload)
+        response = self.request('/dataservice/certificate/generate/csr',
+                                method='POST',
+                                payload=payload)
 
         if response.json:
             try:
@@ -43,11 +44,15 @@ class Certificate(object):
             return None
 
     def install_device_cert(self, cert):
-        response = self.request('/dataservice/certificate/install/signedCert', method='POST', data=cert)
+        response = self.request('/dataservice/certificate/install/signedCert',
+                                method='POST',
+                                data=cert)
         if response.json and 'id' in response.json:
             self.waitfor_action_completion(response.json['id'])
         else:
-            self.fail_json(msg='Did not get action ID after attaching device to template.')
+            self.fail_json(
+                msg='Did not get action ID after attaching device to template.'
+            )
         return response.json['id']
 
     def push_certificates(self):
@@ -64,5 +69,6 @@ class Certificate(object):
         if 'json' in response and 'id' in response['json']:
             utilities.waitfor_action_completion(response['json']['id'])
         else:
-            raise Exception('Did not get action ID after pushing certificates.')
+            raise Exception(
+                'Did not get action ID after pushing certificates.')
         return response['json']['id']

@@ -1,11 +1,7 @@
 """Cisco vManage Authentication API Methods.
 """
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function
-)
+from __future__ import (absolute_import, division, print_function)
 
 import json
 import requests
@@ -24,11 +20,13 @@ class Authentication(object):
     HTTP(S) Request session object will be returned.
 
     """
-
-    def __init__(
-            self, host=None, user=None, password=None, port=443,
-            validate_certs=False, timeout=10
-    ):
+    def __init__(self,
+                 host=None,
+                 user=None,
+                 password=None,
+                 port=443,
+                 validate_certs=False,
+                 timeout=10):
         """Initialize Authentication object with session parameters.
 
         Args:
@@ -71,16 +69,15 @@ class Authentication(object):
         try:
             api = 'j_security_check'
             url = f'{self.base_url}{api}'
-            response = self.session.post(
-                url=url,
-                data={'j_username': self.user, 'j_password': self.password},
-                timeout=self.timeout
-            )
+            response = self.session.post(url=url,
+                                         data={
+                                             'j_username': self.user,
+                                             'j_password': self.password
+                                         },
+                                         timeout=self.timeout)
 
-            if (
-                    response.status_code != 200 or
-                    response.text.startswith('<html>')
-            ):
+            if (response.status_code != 200
+                    or response.text.startswith('<html>')):
                 raise Exception('Login failed, check user credentials.')
 
             version = Utilities(self.session, self.host).get_vmanage_version()
@@ -88,10 +85,7 @@ class Authentication(object):
             if version >= '19.2.0':
                 api = 'client/token'
                 url = f'{self.base_url}{api}'
-                response = self.session.get(
-                    url=url,
-                    timeout=self.timeout
-                )
+                response = self.session.get(url=url, timeout=self.timeout)
                 self.session.headers['X-XSRF-TOKEN'] = response.content
 
         except requests.exceptions.RequestException as e:
