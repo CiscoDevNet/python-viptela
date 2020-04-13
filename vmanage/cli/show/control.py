@@ -1,6 +1,7 @@
-import click
-import pprint
 import ipaddress
+import pprint
+
+import click
 from vmanage.api.device import Device
 from vmanage.api.monitor_network import MonitorNetwork
 
@@ -20,7 +21,7 @@ def connections(ctx, device, json):
     if device:
         # Check to see if we were passed in a device IP address or a device name
         try:
-            ip = ipaddress.ip_address(device)
+            ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
             device_dict = vmanage_device.get_device_status(device, key='host-name')
@@ -28,7 +29,7 @@ def connections(ctx, device, json):
                 system_ip = device_dict['system-ip']
         device_list = [system_ip]
     else:
-        control_device_dict = vmanage_device.get_device_config_dict(type='controllers', key_name='deviceIP')
+        control_device_dict = vmanage_device.get_device_config_dict(device_type='controllers', key_name='deviceIP')
         device_list = list(control_device_dict.keys())
 
     if not json:
@@ -40,18 +41,19 @@ def connections(ctx, device, json):
             "-------------------------------------------------------------------------------------------------------------------"
         )
 
-    for device in device_list:
+    for dev in device_list:
         try:
-            control_connections = mn.get_control_connections(device)
+            control_connections = mn.get_control_connections(dev)
             if json:
                 pp = pprint.PrettyPrinter(indent=2)
                 pp.pprint(control_connections)
             else:
                 for connection in control_connections:
                     click.echo(
-                        f"{device:15} {connection['peer-type']:7} {connection['protocol']:4} {connection['system-ip']:15} {connection['site-id']:6} {connection['domain-id']:6} {connection['private-ip']:15} {connection['public-ip']:15} {connection['local-color']:15}  {connection['state']:11} {connection['uptime']:11}"
+                        f"{dev:15} {connection['peer-type']:7} {connection['protocol']:4} {connection['system-ip']:15} {connection['site-id']:6} {connection['domain-id']:6} {connection['private-ip']:15} {connection['public-ip']:15} {connection['local-color']:15}  {connection['state']:11} {connection['uptime']:11}"
                     )
-        except:
+        # TODO: figure out correct exception type to catch
+        except Exception:
             pass
 
 
@@ -69,7 +71,7 @@ def connections_history(ctx, device, json):
 
     # Check to see if we were passed in a device IP address or a device name
     try:
-        ip = ipaddress.ip_address(device)
+        ipaddress.ip_address(device)
         system_ip = device
     except ValueError:
         device_dict = vmanage_device.get_device_status(device, key='host-name')
@@ -96,13 +98,12 @@ def connections_history(ctx, device, json):
                 click.echo(
                     f"{connection['peer-type']:8} {connection['protocol']:8} {connection['system-ip']:16} {connection['site-id']:5} {connection['domain-id']:6} {connection['private-ip']:15} {connection['private-port']:8} {connection['private-ip']:15} {connection['private-port']:7} {connection['local-color']:15}  {connection['state']:11} {connection['local_enum']:7} {connection['local_enum-desc']}"
                 )
-    except:
+    except Exception:
         pass
 
 
 @click.group()
-@click.pass_obj
-def control(ctx):
+def control():
     """
     Show control information
     """

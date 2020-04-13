@@ -1,12 +1,13 @@
 """Cisco vManage Centralized Policy API Methods.
 """
-
 import json
-import dictdiffer
 import time
+
+import dictdiffer
 from vmanage.api.http_methods import HttpMethods
-from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.policy_definitions import PolicyDefinitions
+from vmanage.data.parse_methods import ParseMethods
+from vmanage.utils import list_to_dict
 
 
 class CentralPolicy(object):
@@ -32,20 +33,6 @@ class CentralPolicy(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.policy_definitions = PolicyDefinitions(self.session, self.host)
 
-    # Need to decide where this goes
-    def list_to_dict(self, list, key_name, remove_key=True):
-        dict = {}
-        for item in list:
-            if key_name in item:
-                if remove_key:
-                    key = item.pop(key_name)
-                else:
-                    key = item[key_name]
-
-                dict[key] = item
-
-        return dict
-
     def activate_central_policy(self, policy_name, policy_id):
         """Activates the current active centralized policy
 
@@ -63,10 +50,10 @@ class CentralPolicy(object):
         # result = ParseMethods.parse_status(response)
         if 'json' in response and 'id' in response['json']:
             return response['json']['id']
-        else:
-            error = response['error']
-            result = response['details']
-            raise Exception(f'{error}: {result}')
+
+        error = response['error']
+        result = response['details']
+        raise Exception(f'{error}: {result}')
 
     def deactivate_central_policy(self, policy_id):
         """Deactivates the current active centralized policy
@@ -81,11 +68,11 @@ class CentralPolicy(object):
 
         url = f"{self.base_url}template/policy/vsmart/deactivate/{policy_id}?confirm=true"
         response = HttpMethods(self.session, url).request('POST')
-        result = ParseMethods.parse_status(response)
+        ParseMethods.parse_status(response)
         if 'json' in response and 'id' in response['json']:
             return response['json']['id']
-        else:
-            return None
+
+        return None
 
     def add_central_policy(self, policy):
         """Delete a Central Policy from vManage.
@@ -99,7 +86,7 @@ class CentralPolicy(object):
         """
 
         url = f"{self.base_url}template/policy/vsmart"
-        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(policy))
+        HttpMethods(self.session, url).request('POST', payload=json.dumps(policy))
 
     def update_central_policy(self, policy, policy_id):
         """Update a Central from vManage.
@@ -114,7 +101,7 @@ class CentralPolicy(object):
         """
 
         url = f"{self.base_url}template/policy/vsmart/{policy_id}"
-        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
+        HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
 
     def delete_central_policy(self, policyId):
         """Deletes the specified centralized policy
@@ -152,7 +139,7 @@ class CentralPolicy(object):
             try:
                 json_policy = json.loads(policy['policyDefinition'])
                 policy['policyDefinition'] = json_policy
-            except:
+            except Exception:  # TODO: figuring out better exception type to catch
                 pass
             self.policy_definitions.convert_definition_id_to_name(policy['policyDefinition'])
         return central_policy_list
@@ -161,8 +148,9 @@ class CentralPolicy(object):
 
         central_policy_list = self.get_central_policy_list()
 
-        return self.list_to_dict(central_policy_list, key_name, remove_key=remove_key)
+        return list_to_dict(central_policy_list, key_name, remove_key=remove_key)
 
+    #pylint: disable=unused-argument
     def import_central_policy_list(self, central_policy_list, update=False, push=False, check_mode=False, force=False):
         central_policy_dict = self.get_central_policy_dict(remove_key=True)
         central_policy_updates = []
@@ -200,7 +188,7 @@ class CentralPolicy(object):
         while status == "in_progress":
             url = f"{self.base_url}device/action/status/{action_id}"
             response = HttpMethods(self.session, url).request('GET')
-            result = ParseMethods.parse_data(response)
+            ParseMethods.parse_data(response)
 
             if 'json' in response:
                 status = response['json']['summary']['status']

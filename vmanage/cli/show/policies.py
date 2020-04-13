@@ -1,5 +1,6 @@
-import click
 import pprint
+
+import click
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.api.local_policy import LocalPolicy
@@ -11,7 +12,7 @@ from vmanage.api.central_policy import CentralPolicy
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all', help="Policy list type")
 @click.pass_obj
-def list_cmd(ctx, name, type, json):
+def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argument
     """
     Show policy list information
     """
@@ -19,11 +20,11 @@ def list_cmd(ctx, name, type, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
-        policy_list_dict = policy_lists.get_policy_list_dict(type=type)
+        policy_list_dict = policy_lists.get_policy_list_dict(policy_list_type=policy_list_type)
         if name in policy_list_dict:
             pp.pprint(policy_list_dict[name])
     else:
-        policy_lists = policy_lists.get_policy_list_list(type=type)
+        policy_lists = policy_lists.get_policy_list_list(policy_list_type=policy_list_type)
         pp.pprint(policy_lists)
 
 
@@ -32,7 +33,7 @@ def list_cmd(ctx, name, type, json):
 @click.option('--json/--no-json', default=False)
 @click.option('--type', default='all', help="Definition type", type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
 @click.pass_obj
-def definition(ctx, name, type, json):
+def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """
     Show policy definition information
     """
@@ -40,7 +41,7 @@ def definition(ctx, name, type, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
-        policy_definition_dict = policy_definitions.get_policy_definition_dict(type)
+        policy_definition_dict = policy_definitions.get_policy_definition_dict(definition_type)
         if name in policy_definition_dict:
             policy_definition = policy_definitions.get_policy_definition(policy_definition_dict[name]['type'].lower(),
                                                                          policy_definition_dict[name]['definitionId'])
@@ -55,7 +56,7 @@ def definition(ctx, name, type, json):
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
 @click.pass_obj
-def central(ctx, name, json):
+def central(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show central policy information
     """
@@ -79,7 +80,7 @@ def central(ctx, name, json):
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
 @click.pass_obj
-def local(ctx, name, json):
+def local(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show local policy information
     """
@@ -96,8 +97,7 @@ def local(ctx, name, json):
 
 
 @click.group()
-@click.pass_context
-def policies(ctx):
+def policies():
     """
     Show policy information
     """

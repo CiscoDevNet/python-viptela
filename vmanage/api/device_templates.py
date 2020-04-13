@@ -2,11 +2,13 @@
 """
 
 import json
-import dictdiffer
 import re
+
+import dictdiffer
+from vmanage.api.feature_templates import FeatureTemplates
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
-from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.utils import list_to_dict
 
 
 class DeviceTemplates(object):
@@ -31,20 +33,6 @@ class DeviceTemplates(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.feature_templates = FeatureTemplates(self.session, self.host, self.port)
-
-    # Need to decide where this goes
-    def list_to_dict(self, list, key_name, remove_key=True):
-        dict = {}
-        for item in list:
-            if key_name in item:
-                if remove_key:
-                    key = item.pop(key_name)
-                else:
-                    key = item[key_name]
-
-                dict[key] = item
-
-        return dict
 
     def delete_device_template(self, templateId):
         """Obtain a list of all configured device templates.
@@ -93,8 +81,8 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('GET')
         if 'json' in response:
             return response['json']
-        else:
-            return {}
+
+        return {}
 
     def get_device_template_list(self, factory_default=False, name_list=None):
         """Get the list of device templates.
@@ -114,18 +102,19 @@ class DeviceTemplates(object):
         feature_template_dict = self.feature_templates.get_feature_template_dict(factory_default=True,
                                                                                  key_name='templateId')
 
+        #pylint: disable=too-many-nested-blocks
         for device in device_templates:
             # If there is a list of template name, only return the ones asked for.
             # Otherwise, return them all
             if name_list and device['templateName'] not in name_list:
                 continue
-            object = self.get_device_template_object(device['templateId'])
-            if object:
-                if not factory_default and object['factoryDefault']:
+            obj = self.get_device_template_object(device['templateId'])
+            if obj:
+                if not factory_default and obj['factoryDefault']:
                     continue
-                if 'generalTemplates' in object:
+                if 'generalTemplates' in obj:
                     generalTemplates = []
-                    for old_template in object.pop('generalTemplates'):
+                    for old_template in obj.pop('generalTemplates'):
                         new_template = {
                             'templateName': feature_template_dict[old_template['templateId']]['templateName'],
                             'templateType': old_template['templateType']
@@ -141,13 +130,13 @@ class DeviceTemplates(object):
                                 })
                             new_template['subTemplates'] = subTemplates
                         generalTemplates.append(new_template)
-                    object['generalTemplates'] = generalTemplates
+                    obj['generalTemplates'] = generalTemplates
 
-                    object['templateId'] = device['templateId']
-                    object['attached_devices'] = self.get_template_attachments(device['templateId'])
-                    object['input'] = self.get_template_input(device['templateId'])
-                    object.pop('templateId')
-                    return_list.append(object)
+                    obj['templateId'] = device['templateId']
+                    obj['attached_devices'] = self.get_template_attachments(device['templateId'])
+                    obj['input'] = self.get_template_input(device['templateId'])
+                    obj.pop('templateId')
+                    return_list.append(obj)
 
         return return_list
 
@@ -168,7 +157,7 @@ class DeviceTemplates(object):
             name_list = []
         device_template_list = self.get_device_template_list(factory_default=factory_default, name_list=name_list)
 
-        return self.list_to_dict(device_template_list, key_name, remove_key)
+        return list_to_dict(device_template_list, key_name, remove_key)
 
     def get_template_attachments(self, template_id, key='host-name'):
         """Get the devices that a template is attached to.

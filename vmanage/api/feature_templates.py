@@ -2,10 +2,11 @@
 """
 
 import json
-import requests
+
 import dictdiffer
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
+from vmanage.utils import list_to_dict
 
 
 class FeatureTemplates(object):
@@ -29,20 +30,6 @@ class FeatureTemplates(object):
         self.host = host
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
-
-    # Need to decide where this goes
-    def list_to_dict(self, list, key_name, remove_key=True):
-        dict = {}
-        for item in list:
-            if key_name in item:
-                if remove_key:
-                    key = item.pop(key_name)
-                else:
-                    key = item[key_name]
-
-                dict[key] = item
-
-        return dict
 
     def delete_feature_template(self, templateId):
         """Obtain a list of all configured feature templates.
@@ -150,7 +137,7 @@ class FeatureTemplates(object):
             name_list = []
         feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
-        return self.list_to_dict(feature_template_list, key_name, remove_key)
+        return list_to_dict(feature_template_list, key_name, remove_key)
 
     def import_feature_template_list(self, feature_template_list, check_mode=False, update=False):
         """Add a list of feature templates to vManage.

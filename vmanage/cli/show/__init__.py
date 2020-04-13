@@ -9,8 +9,7 @@ from vmanage.cli.show.route import route
 
 
 @click.group()
-@click.pass_context
-def show(ctx):
+def show():
     """
     Show commands
     """

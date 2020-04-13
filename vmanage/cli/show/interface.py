@@ -1,14 +1,15 @@
-import click
-import pprint
 import ipaddress
+import pprint
+
+import click
 from vmanage.api.device import Device
 
 
-@click.command()
+@click.command(name='list')
 @click.argument('device', required=True)
 @click.option('--json/--no-json', default=False)
 @click.pass_obj
-def list(ctx, device, json):
+def list_interface(ctx, device, json):
     """
     Show Interfaces
     """
@@ -17,7 +18,7 @@ def list(ctx, device, json):
     if device:
         # Check to see if we were passed in a device IP address or a device name
         try:
-            ip = ipaddress.ip_address(device)
+            ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
             device_dict = vmanage_device.get_device_status(device, key='host-name')
@@ -31,30 +32,29 @@ def list(ctx, device, json):
             "----------------------------------------------------------------------------------------------------------------------"
         )
 
-    for device in device_list:
-        interfaces = vmanage_device.get_device_data('interface', device)
-        for interface in interfaces:
+    for dev in device_list:
+        interfaces = vmanage_device.get_device_data('interface', dev)
+        for iface in interfaces:
             if json:
                 pp = pprint.PrettyPrinter(indent=2)
-                pp.pprint(interface)
+                pp.pprint(iface)
             else:
-                if 'hwaddr' not in interface:
-                    interface['hwaddr'] = ''
-                if 'desc' not in interface:
-                    interface['desc'] = ''
-                if 'ip-address' not in interface:
-                    interface['ip-address'] = ''
+                if 'hwaddr' not in iface:
+                    iface['hwaddr'] = ''
+                if 'desc' not in iface:
+                    iface['desc'] = ''
+                if 'ip-address' not in iface:
+                    iface['ip-address'] = ''
                 click.echo(
-                    f"{interface['ifname']:17} {interface['vpn-id']:6} {interface['ip-address']:16} {interface['hwaddr']:25} {interface['if-oper-status']:17} {interface['desc']:17}"
+                    f"{iface['ifname']:17} {iface['vpn-id']:6} {iface['ip-address']:16} {iface['hwaddr']:25} {iface['if-oper-status']:17} {iface['desc']:17}"
                 )
 
 
 @click.group()
-@click.pass_context
-def interface(ctx):
+def interface():
     """
     Show real-time information
     """
 
 
-interface.add_command(list)
+interface.add_command(list_interface)

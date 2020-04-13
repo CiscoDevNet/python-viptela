@@ -15,8 +15,7 @@ def push(ctx):
 
 
 @click.group()
-@click.pass_obj
-def certificate(ctx):
+def certificate():
     """
     Certficate commands
     """

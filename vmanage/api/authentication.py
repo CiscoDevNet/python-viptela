@@ -3,7 +3,6 @@
 
 from __future__ import (absolute_import, division, print_function)
 
-import json
 import requests
 import urllib3
 from vmanage.api.utilities import Utilities

@@ -4,8 +4,7 @@ from vmanage.cli.import_cmd.policies import policies
 
 
 @click.group('import')
-@click.pass_context
-def import_cmd(ctx):
+def import_cmd():
     """
     Import commands
     """

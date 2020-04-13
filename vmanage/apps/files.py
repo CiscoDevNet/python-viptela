@@ -2,12 +2,8 @@
 """
 
 import json
-import requests
 import os
-import dictdiffer
 import yaml
-from vmanage.api.http_methods import HttpMethods
-from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
 from vmanage.api.policy_lists import PolicyLists
@@ -39,13 +35,14 @@ class Files(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    def export_templates_to_file(self, export_file, name_list=[], type=None):
+    def export_templates_to_file(self, export_file, name_list=None, template_type=None):
 
         device_templates = DeviceTemplates(self.session, self.host, self.port)
         feature_templates = FeatureTemplates(self.session, self.host, self.port)
 
         template_export = {}
-        if type != 'feature':
+        #pylint: disable=too-many-nested-blocks
+        if template_type != 'feature':
             # Export the device templates and associated feature templates
             device_template_list = device_templates.get_device_template_list(name_list=name_list)
             template_export.update({'vmanage_device_templates': device_template_list})
@@ -75,16 +72,15 @@ class Files(object):
         else:
             raise Exception("File format not supported")
 
-    def import_templates_from_file(self, file, update=False, check_mode=False, name_list=[], type=None):
+    #pylint: disable=unused-argument
+    def import_templates_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
 
         vmanage_device_templates = DeviceTemplates(self.session, self.host, self.port)
         vmanage_feature_templates = FeatureTemplates(self.session, self.host, self.port)
 
-        changed = False
         feature_template_updates = []
         device_template_updates = []
         template_data = {}
-        feature_template_data = {}
 
         # Read in the datafile
         if not os.path.exists(file):
@@ -102,7 +98,8 @@ class Files(object):
 
         imported_device_template_list = []
 
-        if type != 'feature':
+        #pylint: disable=too-many-nested-blocks
+        if template_type != 'feature':
             # Import the device templates and associated feature templates
             if 'vmanage_device_templates' in template_data:
                 imported_device_template_list = template_data['vmanage_device_templates']
@@ -186,7 +183,6 @@ class Files(object):
         vmanage_central_policy = CentralPolicy(self.session, self.host, self.port)
         vmanage_local_policy = LocalPolicy(self.session, self.host, self.port)
 
-        changed = False
         policy_list_updates = []
         policy_definition_updates = []
         central_policy_updates = []

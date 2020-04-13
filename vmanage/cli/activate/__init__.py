@@ -3,8 +3,7 @@ from vmanage.cli.activate.central_policy import central_policy
 
 
 @click.group()
-@click.pass_context
-def activate(ctx):
+def activate():
     """
     Activate commands
     """

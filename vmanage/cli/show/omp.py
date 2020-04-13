@@ -1,6 +1,7 @@
-import click
-import pprint
 import ipaddress
+import pprint
+
+import click
 from vmanage.api.device import Device
 from vmanage.api.monitor_network import MonitorNetwork
 
@@ -47,8 +48,7 @@ def peers(ctx, device, json):
 
 
 @click.group()
-@click.pass_obj
-def omp(ctx):
+def omp():
     """
     Show OMP information
     """

@@ -1,9 +1,6 @@
 """Parse Methods for Data Returned by Cisco vManage.
 """
 
-import json
-import requests
-
 VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
 
 

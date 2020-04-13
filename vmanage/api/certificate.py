@@ -1,9 +1,7 @@
 """Cisco vManage Certificate API Methods.
 """
 
-import json
 from vmanage.api.http_methods import HttpMethods
-from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.utilities import Utilities
 
 
@@ -36,7 +34,7 @@ class Certificate(object):
         if response.json:
             try:
                 return response.json['data'][0]['deviceCSR']
-            except:
+            except Exception:  # TODO: figure out correct type to catch
                 return None
         else:
             return None
