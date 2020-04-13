@@ -1,0 +1,4 @@
+Click
+dictdiffer
+PyYAML
+requests
