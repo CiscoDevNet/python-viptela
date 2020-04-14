@@ -65,8 +65,7 @@ class Utilities(object):
                     action_status = response['json']['data'][0]['statusId']
                     action_activity = response['json']['data'][0]['activity']
                     if 'actionConfig' in response['json']['data'][0]:
-                        action_config = response['json']['data'][0][
-                            'actionConfig']
+                        action_config = response['json']['data'][0]['actionConfig']
                     else:
                         action_config = None
             else:

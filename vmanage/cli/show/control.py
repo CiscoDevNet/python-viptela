@@ -23,20 +23,16 @@ def connections(ctx, device, json):
             ip = ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
-            device_dict = vmanage_device.get_device_status(device,
-                                                           key='host-name')
+            device_dict = vmanage_device.get_device_status(device, key='host-name')
             if 'system-ip' in device_dict:
                 system_ip = device_dict['system-ip']
         device_list = [system_ip]
     else:
-        control_device_dict = vmanage_device.get_device_config_dict(
-            type='controllers', key_name='deviceIP')
+        control_device_dict = vmanage_device.get_device_config_dict(type='controllers', key_name='deviceIP')
         device_list = list(control_device_dict.keys())
 
     if not json:
-        click.echo(
-            "LOCAL           PEER    PEER PEER            SITE   DOMAIN PEER            PEER            "
-        )
+        click.echo("LOCAL           PEER    PEER PEER            SITE   DOMAIN PEER            PEER            ")
         click.echo(
             "SYSTEM IP       TYPE    PROT SYSTEM IP       ID     ID     PRIVATE IP      PUBLIC IP       LOCAL COLOR      PROXY STATE UPTIME"
         )
@@ -91,8 +87,7 @@ def connections_history(ctx, device, json):
             "-------------------------------------------------------------------------------------------------------------------------------------------"
         )
     try:
-        control_connections_history = mn.get_control_connections_history(
-            system_ip)
+        control_connections_history = mn.get_control_connections_history(system_ip)
         if json:
             pp = pprint.PrettyPrinter(indent=2)
             pp.pprint(control_connections_history)

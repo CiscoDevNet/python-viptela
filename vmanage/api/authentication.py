@@ -20,13 +20,7 @@ class Authentication(object):
     HTTP(S) Request session object will be returned.
 
     """
-    def __init__(self,
-                 host=None,
-                 user=None,
-                 password=None,
-                 port=443,
-                 validate_certs=False,
-                 timeout=10):
+    def __init__(self, host=None, user=None, password=None, port=443, validate_certs=False, timeout=10):
         """Initialize Authentication object with session parameters.
 
         Args:
@@ -76,8 +70,7 @@ class Authentication(object):
                                          },
                                          timeout=self.timeout)
 
-            if (response.status_code != 200
-                    or response.text.startswith('<html>')):
+            if (response.status_code != 200 or response.text.startswith('<html>')):
                 raise Exception('Login failed, check user credentials.')
 
             version = Utilities(self.session, self.host).get_vmanage_version()

@@ -20,16 +20,13 @@ def list(ctx, device, json):
             ip = ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
-            device_dict = vmanage_device.get_device_status(device,
-                                                           key='host-name')
+            device_dict = vmanage_device.get_device_status(device, key='host-name')
             if 'system-ip' in device_dict:
                 system_ip = device_dict['system-ip']
         device_list = [system_ip]
 
     if not json:
-        click.echo(
-            "IFNAME            VPNID  IP ADDR          MAC ADDR                  OPER STATE            DESC"
-        )
+        click.echo("IFNAME            VPNID  IP ADDR          MAC ADDR                  OPER STATE            DESC")
         click.echo(
             "----------------------------------------------------------------------------------------------------------------------"
         )
