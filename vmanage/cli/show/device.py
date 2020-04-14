@@ -29,8 +29,7 @@ def status(ctx, device, type, json):
             ip = ipaddress.ip_address(device)
             device_dict = vmanage_device.get_device_status(device)
         except ValueError:
-            device_dict = vmanage_device.get_device_status(device,
-                                                           key='host-name')
+            device_dict = vmanage_device.get_device_status(device, key='host-name')
             if 'system-ip' in device_dict:
                 system_ip = device_dict['system-ip']
         pp.pprint(device_dict)
@@ -84,16 +83,14 @@ def config(ctx, device, type, json):
             ip = ipaddress.ip_address(device)
             device_dict = vmanage_device.get_device_status(device)
         except ValueError:
-            device_dict = vmanage_device.get_device_status(device,
-                                                           key='host-name')
+            device_dict = vmanage_device.get_device_status(device, key='host-name')
 
         if device_dict['device-type'] in ['vmanage', 'vbond', 'vsmart']:
             type = 'controllers'
         else:
             type = 'vedges'
 
-        device_config = vmanage_device.get_device_config(
-            type, device_dict['system-ip'])
+        device_config = vmanage_device.get_device_config(type, device_dict['system-ip'])
         pp.pprint(device_config)
 
     else:
@@ -112,18 +109,14 @@ def config(ctx, device, type, json):
                     else:
                         template = ''
 
-                    device_name = device[
-                        'host-name'] if 'host-name' in device else 'Unknown'
-                    reachability = device[
-                        'reachability'] if 'reachability' in device else 'Unknown'
-                    site_id = device[
-                        'site-id'] if 'site-id' in device else 'Unknown'
+                    device_name = device['host-name'] if 'host-name' in device else 'Unknown'
+                    reachability = device['reachability'] if 'reachability' in device else 'Unknown'
+                    site_id = device['site-id'] if 'site-id' in device else 'Unknown'
                     config_status_message = device[
                         'configStatusMessage'] if 'configStatusMessage' in device else 'Unknown'
                     vmanage_connection_state = device[
                         'vmanageConnectionState'] if 'vmanageConnectionState' in device else 'Unknown'
-                    version = device[
-                        'version'] if 'version' in device else 'Unknown'
+                    version = device['version'] if 'version' in device else 'Unknown'
                     click.echo(
                         f"{device_name:20} {device['deviceIP']:15} {device['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
                     )
@@ -139,18 +132,14 @@ def config(ctx, device, type, json):
                             template = device['template']
                         else:
                             template = ''
-                        device_name = device[
-                            'host-name'] if 'host-name' in device else 'Unknown'
-                        reachability = device[
-                            'reachability'] if 'reachability' in device else 'Unknown'
-                        site_id = device[
-                            'site-id'] if 'site-id' in device else 'Unknown'
+                        device_name = device['host-name'] if 'host-name' in device else 'Unknown'
+                        reachability = device['reachability'] if 'reachability' in device else 'Unknown'
+                        site_id = device['site-id'] if 'site-id' in device else 'Unknown'
                         config_status_message = device[
                             'configStatusMessage'] if 'configStatusMessage' in device else 'Unknown'
                         vmanage_connection_state = device[
                             'vmanageConnectionState'] if 'vmanageConnectionState' in device else 'Unknown'
-                        version = device[
-                            'version'] if 'version' in device else 'Unknown'
+                        version = device['version'] if 'version' in device else 'Unknown'
                         click.echo(
                             f"{device_name:20} {device['deviceIP']:15} {device['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
                         )

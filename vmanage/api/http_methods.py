@@ -26,10 +26,7 @@ SOFTWARE.
 import requests
 import json
 
-STANDARD_HEADERS = {
-    'Connection': 'keep-alive',
-    'Content-Type': 'application/json'
-}
+STANDARD_HEADERS = {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
 STANDARD_TIMEOUT = 10
 VALID_STATUS_CODES = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
 
@@ -107,8 +104,7 @@ class HttpMethods(object):
 
             result = {
                 'status_code': response.status_code,
-                'status':
-                requests.status_codes._codes[response.status_code][0],
+                'status': requests.status_codes._codes[response.status_code][0],
                 'details': details,
                 'error': error,
                 'json': result_json,

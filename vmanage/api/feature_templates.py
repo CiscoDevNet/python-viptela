@@ -99,8 +99,7 @@ class FeatureTemplates(object):
         }
         api = "template/feature"
         url = self.base_url + api
-        return HttpMethods(self.session,
-                           url).request('POST', payload=json.dumps(payload))
+        return HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
     def get_feature_template_list(self, factory_default=False, name_list=None):
         """Obtain a list of all configured feature templates.
@@ -124,8 +123,7 @@ class FeatureTemplates(object):
                 continue
             if name_list and template['templateName'] not in name_list:
                 continue
-            template['templateDefinition'] = json.loads(
-                template['templateDefinition'])
+            template['templateDefinition'] = json.loads(template['templateDefinition'])
             template.pop('editedTemplateDefinition', None)
             return_list.append(template)
 
@@ -150,15 +148,11 @@ class FeatureTemplates(object):
         """
         if name_list is None:
             name_list = []
-        feature_template_list = self.get_feature_template_list(
-            factory_default=factory_default, name_list=name_list)
+        feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
         return self.list_to_dict(feature_template_list, key_name, remove_key)
 
-    def import_feature_template_list(self,
-                                     feature_template_list,
-                                     check_mode=False,
-                                     update=False):
+    def import_feature_template_list(self, feature_template_list, check_mode=False, update=False):
         """Add a list of feature templates to vManage.
 
 
@@ -172,35 +166,20 @@ class FeatureTemplates(object):
         """
         # Process the feature templates
         feature_template_updates = []
-        feature_template_dict = self.get_feature_template_dict(
-            factory_default=True, remove_key=False)
+        feature_template_dict = self.get_feature_template_dict(factory_default=True, remove_key=False)
         for feature_template in feature_template_list:
             if feature_template['templateName'] in feature_template_dict:
-                existing_template = feature_template_dict[
-                    feature_template['templateName']]
+                existing_template = feature_template_dict[feature_template['templateName']]
                 diff = list(
-                    dictdiffer.diff(existing_template['templateDefinition'],
-                                    feature_template['templateDefinition']))
+                    dictdiffer.diff(existing_template['templateDefinition'], feature_template['templateDefinition']))
                 if len(diff):
-                    feature_template_updates.append({
-                        'name':
-                        feature_template['templateName'],
-                        'diff':
-                        diff
-                    })
+                    feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                     if not check_mode and update:
                         if not check_mode:
                             self.add_feature_template(feature_template)
             else:
-                diff = list(
-                    dictdiffer.diff({},
-                                    feature_template['templateDefinition']))
-                feature_template_updates.append({
-                    'name':
-                    feature_template['templateName'],
-                    'diff':
-                    diff
-                })
+                diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
+                feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                 if not check_mode:
                     self.add_feature_template(feature_template)
 

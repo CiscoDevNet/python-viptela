@@ -30,12 +30,8 @@ def peers(ctx, device, json):
 
     if not json:
         click.echo("                         DOMAIN OVERLAY SITE")
-        click.echo(
-            "PEER             TYPE    ID     ID      ID     STATE    UPTIME           R/I/S"
-        )
-        click.echo(
-            "---------------------------------------------------------------------------------------"
-        )
+        click.echo("PEER             TYPE    ID     ID      ID     STATE    UPTIME           R/I/S")
+        click.echo("---------------------------------------------------------------------------------------")
     # try:
     omp_peers = mn.get_omp_peers(system_ip)
     if json:

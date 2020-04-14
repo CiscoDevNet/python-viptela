@@ -15,10 +15,8 @@ class CatchAllExceptions(click.Group):
         try:
             return self.main(*args, **kwargs)
         except Exception as exc:
-            click.secho('Exception raised while running your command',
-                        fg="red")
-            click.secho("Please open an issue and provide this info:",
-                        fg="red")
+            click.secho('Exception raised while running your command', fg="red")
+            click.secho("Please open an issue and provide this info:", fg="red")
             click.secho("%s" % exc, fg="red")
 
 
@@ -33,22 +31,14 @@ class Viptela(object):
     @property
     def auth(self):
         if self.__auth is None:
-            self.__auth = Authentication(host=self.host,
-                                         user=self.username,
-                                         password=self.password).login()
+            self.__auth = Authentication(host=self.host, user=self.username, password=self.password).login()
         return self.__auth
 
 
 # @click.group(cls=CatchAllExceptions)
 @click.group()
-@click.option('--host',
-              envvar='VMANAGE_HOST',
-              help='vManage Host (env: VMANAGE_HOST)',
-              required=True)
-@click.option('--username',
-              envvar='VMANAGE_USERNAME',
-              help='vManage Username (env: VMANAGE_USERNAME)',
-              required=True)
+@click.option('--host', envvar='VMANAGE_HOST', help='vManage Host (env: VMANAGE_HOST)', required=True)
+@click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password',
               envvar='VMANAGE_PASSWORD',
               prompt=True,

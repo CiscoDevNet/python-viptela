@@ -96,8 +96,7 @@ class PolicyLists(object):
         payload = f"{{'name':'{name}','type':'dataPrefix',\
             'listId':null,'entries':{entries}}}"
 
-        response = HttpMethods(self.session, url).request('POST',
-                                                          payload=payload)
+        response = HttpMethods(self.session, url).request('POST', payload=payload)
         result = ParseMethods.parse_status(response)
         return result
 
@@ -120,8 +119,7 @@ class PolicyLists(object):
         payload = f"{{'name':'{name}','type':'dataPrefix',\
             'listId':'{listid}','entries':{entries}}}"
 
-        response = HttpMethods(self.session, url).request('PUT',
-                                                          payload=payload)
+        response = HttpMethods(self.session, url).request('PUT', payload=payload)
         result = ParseMethods.parse_status(response)
         return result
 
@@ -193,11 +191,7 @@ class PolicyLists(object):
             self.policy_list_cache[type] = response
             return response['json']['data']
 
-    def get_policy_list_dict(self,
-                             type='all',
-                             key_name='name',
-                             remove_key=False,
-                             cache=True):
+    def get_policy_list_dict(self, type='all', key_name='name', remove_key=False, cache=True):
 
         policy_list = self.get_policy_list_list(type, cache=cache)
 
@@ -216,9 +210,7 @@ class PolicyLists(object):
         """
         policy_list_type = policy_list['type'].lower()
         url = f"{self.base_url}template/policy/list/{policy_list_type}"
-        response = HttpMethods(self.session,
-                               url).request('POST',
-                                            payload=json.dumps(policy_list))
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(policy_list))
         return ParseMethods.parse_status(response)
 
     def update_policy_list(self, policy_list):
@@ -235,18 +227,11 @@ class PolicyLists(object):
         policy_list_type = policy_list['type'].lower()
         policy_list_id = policy_list['listId']
         url = f"{self.base_url}template/policy/list/{policy_list_type}/{policy_list_id}"
-        response = HttpMethods(self.session,
-                               url).request('PUT',
-                                            payload=json.dumps(policy_list))
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_list))
         status = ParseMethods.parse_status(response)
         return response
 
-    def import_policy_list_list(self,
-                                policy_list_list,
-                                push=False,
-                                update=False,
-                                check_mode=False,
-                                force=False):
+    def import_policy_list_list(self, policy_list_list, push=False, update=False, check_mode=False, force=False):
         """Import a list of policy lists into vManage
 
         Args:
@@ -263,26 +248,17 @@ class PolicyLists(object):
         # Policy Lists
         policy_list_updates = []
         for policy_list in policy_list_list:
-            policy_list_dict = self.get_policy_list_dict(policy_list['type'],
-                                                         remove_key=False,
-                                                         cache=False)
+            policy_list_dict = self.get_policy_list_dict(policy_list['type'], remove_key=False, cache=False)
             if policy_list['name'] in policy_list_dict:
                 existing_list = policy_list_dict[policy_list['name']]
-                diff = list(
-                    dictdiffer.diff(existing_list['entries'],
-                                    policy_list['entries']))
+                diff = list(dictdiffer.diff(existing_list['entries'], policy_list['entries']))
                 if diff:
-                    policy_list_updates.append({
-                        'name': policy_list['name'],
-                        'diff': diff
-                    })
+                    policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
                 if diff:
-                    policy_list['listId'] = policy_list_dict[
-                        policy_list['name']]['listId']
+                    policy_list['listId'] = policy_list_dict[policy_list['name']]['listId']
                     # If description is not specified, try to get it from the existing information
                     if not policy_list['description']:
-                        policy_list['description'] = policy_list_dict[
-                            policy_list['name']]['description']
+                        policy_list['description'] = policy_list_dict[policy_list['name']]['description']
                     if not check_mode and update:
                         response = self.update_policy_list(policy_list)
 
@@ -290,28 +266,19 @@ class PolicyLists(object):
                             # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
                             # that lists the templates affected by the change.
                             if 'error' in response['json']:
-                                raise Exception(
-                                    response['json']['error']['message'])
+                                raise Exception(response['json']['error']['message'])
                             elif 'processId' in response['json']:
                                 process_id = response['json']['processId']
                                 if push:
-                                    vmanage_device_templates = DeviceTemplates(
-                                        self.session, self.host)
+                                    vmanage_device_templates = DeviceTemplates(self.session, self.host)
                                     # If told to push out the change, we need to reattach each template affected by the change
-                                    for template_id in response['json'][
-                                            'masterTemplatesAffected']:
-                                        action_id = vmanage_device_templates.reattach_device_template(
-                                            template_id)
+                                    for template_id in response['json']['masterTemplatesAffected']:
+                                        action_id = vmanage_device_templates.reattach_device_template(template_id)
                             else:
-                                raise Exception(
-                                    "Did not get a process id when updating policy list"
-                                )
+                                raise Exception("Did not get a process id when updating policy list")
             else:
                 diff = list(dictdiffer.diff({}, policy_list))
-                policy_list_updates.append({
-                    'name': policy_list['name'],
-                    'diff': diff
-                })
+                policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
                 if not check_mode:
                     self.add_policy_list(policy_list)
 

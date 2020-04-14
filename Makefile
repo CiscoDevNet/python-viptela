@@ -34,7 +34,7 @@ dev: deps ## Installs python_viptela in develop mode.
 check-format: $(VENV)/bin/activate ## Check code format
 	@( \
 	set -eu pipefail ; set -x ;\
-	DIFF=`$(VENV)/bin/yapf -d -r *.py $(PYDIRS)` ;\
+	DIFF=`$(VENV)/bin/yapf --style=yapf.ini -d -r *.py $(PYDIRS)` ;\
 	if [ -n "$$DIFF" ] ;\
 	then \
 	echo -e "\nFormatting changes requested:\n" ;\
@@ -45,7 +45,7 @@ check-format: $(VENV)/bin/activate ## Check code format
 	)
 
 format: $(VENV_BIN)/activate ## Format code
-	$(VENV_BIN)/yapf -i -r *.py $(PYDIRS)
+	$(VENV_BIN)/yapf --style=yapf.ini -i -r *.py $(PYDIRS)
 
 pylint: $(VENV_BIN)/activate ## Run pylint
 	$(VENV_BIN)/pylint --output-format=parseable --rcfile .pylintrc *.py $(PYDIRS)
