@@ -1,5 +1,4 @@
 import click
-import json
 from vmanage.apps.files import Files
 
 
@@ -10,7 +9,7 @@ from vmanage.apps.files import Files
 #               help="Device type [vedges, controllers]",
 #               type=click.Choice(['vedges', 'controllers']))
 @click.pass_obj
-def policies(ctx, type, file):
+def policies(ctx, file):
     """
     Export policies to file
     """

@@ -2,11 +2,12 @@
 """
 
 import json
-import requests
+
 import dictdiffer
 from vmanage.api.http_methods import HttpMethods
-from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.policy_lists import PolicyLists
+from vmanage.data.parse_methods import ParseMethods
+from vmanage.utils import list_to_dict
 
 
 class PolicyDefinitions(object):
@@ -32,31 +33,17 @@ class PolicyDefinitions(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.policy_lists = PolicyLists(self.session, self.host, self.port)
 
-    # Need to decide where this goes
-    def list_to_dict(self, list, key_name, remove_key=True):
-        dict = {}
-        for item in list:
-            if key_name in item:
-                if remove_key:
-                    key = item.pop(key_name)
-                else:
-                    key = item[key_name]
-
-                dict[key] = item
-
-        return dict
-
-    def convert_list_id_to_name(self, input):
-        if isinstance(input, dict):
-            for key, value in list(input.items()):
+    def convert_list_id_to_name(self, id_list):
+        if isinstance(id_list, dict):
+            for key, value in list(id_list.items()):
                 if key.endswith('List'):
-                    type = key[0:len(key) - 4]
-                    policy_list_dict = self.policy_lists.get_policy_list_dict(type, key_name='listId')
+                    t = key[0:len(key) - 4]
+                    policy_list_dict = self.policy_lists.get_policy_list_dict(t, key_name='listId')
                     if value in policy_list_dict:
-                        input[key] = policy_list_dict[value]['name']
+                        id_list[key] = policy_list_dict[value]['name']
                 elif key.endswith('Lists'):
-                    type = key[0:len(key) - 5]
-                    policy_list_dict = self.policy_lists.get_policy_list_dict(type, key_name='listId')
+                    t = key[0:len(key) - 5]
+                    policy_list_dict = self.policy_lists.get_policy_list_dict(t, key_name='listId')
                     new_list = []
                     for list_id in value:
                         if list_id in policy_list_dict:
@@ -64,44 +51,44 @@ class PolicyDefinitions(object):
                             new_list.append(list_name)
                         else:
                             new_list.append(list_id)
-                    input[key] = new_list
+                    id_list[key] = new_list
                 elif key.endswith('Zone'):
                     policy_list_dict = self.policy_lists.get_policy_list_dict('zone', key_name='listId')
                     if value in policy_list_dict:
-                        input[key] = policy_list_dict[value]['name']
+                        id_list[key] = policy_list_dict[value]['name']
                 elif key == 'ref':
                     policy_list_dict = self.policy_lists.get_policy_list_dict('all', key_name='listId')
-                    if input['ref'] in policy_list_dict:
-                        input['listName'] = policy_list_dict[input['ref']]['name']
-                        input['listType'] = policy_list_dict[input['ref']]['type']
-                        input.pop('ref')
+                    if id_list['ref'] in policy_list_dict:
+                        id_list['listName'] = policy_list_dict[id_list['ref']]['name']
+                        id_list['listType'] = policy_list_dict[id_list['ref']]['type']
+                        id_list.pop('ref')
                     else:
-                        raise Exception("Could not find list {0}".format(input['ref']))
+                        raise Exception("Could not find list {0}".format(id_list['ref']))
                 elif key == 'class':
                     policy_list_dict = self.policy_lists.get_policy_list_dict('all', key_name='listId')
-                    if input['class'] in policy_list_dict:
-                        input['className'] = policy_list_dict[input['class']]['name']
-                        input['classType'] = policy_list_dict[input['class']]['type']
-                        input.pop('class')
+                    if id_list['class'] in policy_list_dict:
+                        id_list['className'] = policy_list_dict[id_list['class']]['name']
+                        id_list['classType'] = policy_list_dict[id_list['class']]['type']
+                        id_list.pop('class')
                     else:
-                        raise Exception("Could not find list {0}".format(input['ref']))
+                        raise Exception("Could not find list {0}".format(id_list['ref']))
                 else:
                     self.convert_list_id_to_name(value)
-        elif isinstance(input, list):
-            for item in input:
+        elif isinstance(id_list, list):
+            for item in id_list:
                 self.convert_list_id_to_name(item)
 
-    def convert_list_name_to_id(self, input):
-        if isinstance(input, dict):
-            for key, value in list(input.items()):
+    def convert_list_name_to_id(self, name_list):
+        if isinstance(name_list, dict):
+            for key, value in list(name_list.items()):
                 if key.endswith('List'):
-                    type = key[0:len(key) - 4]
-                    policy_list_dict = self.policy_lists.get_policy_list_dict(type)
+                    t = key[0:len(key) - 4]
+                    policy_list_dict = self.policy_lists.get_policy_list_dict(t)
                     if value in policy_list_dict:
-                        input[key] = policy_list_dict[value]['listId']
+                        name_list[key] = policy_list_dict[value]['listId']
                 elif key.endswith('Lists'):
-                    type = key[0:len(key) - 5]
-                    policy_list_dict = self.policy_lists.get_policy_list_dict(type)
+                    t = key[0:len(key) - 5]
+                    policy_list_dict = self.policy_lists.get_policy_list_dict(t)
                     new_list = []
                     for list_name in value:
                         if list_name in policy_list_dict:
@@ -109,39 +96,43 @@ class PolicyDefinitions(object):
                             new_list.append(list_id)
                         else:
                             new_list.append(list_name)
-                    input[key] = new_list
+                    name_list[key] = new_list
                 elif key.endswith('Zone'):
                     policy_list_dict = self.policy_lists.get_policy_list_dict('zone')
                     if value in policy_list_dict:
-                        input[key] = policy_list_dict[value]['listId']
+                        name_list[key] = policy_list_dict[value]['listId']
                 elif key == 'listName':
-                    if 'listType' in input:
-                        policy_list_dict = self.policy_lists.get_policy_list_dict(input['listType'], key_name='name')
+                    if 'listType' in name_list:
+                        policy_list_dict = self.policy_lists.get_policy_list_dict(name_list['listType'],
+                                                                                  key_name='name')
                     else:
-                        raise Exception("Could not find type for list {0}".format(input['listName']))
-                    if input['listName'] in policy_list_dict and 'listId' in policy_list_dict[input['listName']]:
-                        input['ref'] = policy_list_dict[input['listName']]['listId']
-                        input.pop('listName')
-                        input.pop('listType')
+                        raise Exception("Could not find type for list {0}".format(name_list['listName']))
+                    if name_list['listName'] in policy_list_dict and 'listId' in policy_list_dict[
+                            name_list['listName']]:
+                        name_list['ref'] = policy_list_dict[name_list['listName']]['listId']
+                        name_list.pop('listName')
+                        name_list.pop('listType')
                     else:
                         raise Exception("Could not find id for list {0}, type {1}".format(
-                            input['listName'], input['listType']))
+                            name_list['listName'], name_list['listType']))
                 elif key == 'className':
-                    if 'classType' in input:
-                        policy_list_dict = self.policy_lists.get_policy_list_dict(input['classType'], key_name='name')
+                    if 'classType' in name_list:
+                        policy_list_dict = self.policy_lists.get_policy_list_dict(name_list['classType'],
+                                                                                  key_name='name')
                     else:
-                        raise Exception("Could not find type for list {0}".format(input['className']))
-                    if input['className'] in policy_list_dict and 'listId' in policy_list_dict[input['className']]:
-                        input['class'] = policy_list_dict[input['className']]['listId']
-                        input.pop('className')
-                        input.pop('classType')
+                        raise Exception("Could not find type for list {0}".format(name_list['className']))
+                    if name_list['className'] in policy_list_dict and 'listId' in policy_list_dict[
+                            name_list['className']]:
+                        name_list['class'] = policy_list_dict[name_list['className']]['listId']
+                        name_list.pop('className')
+                        name_list.pop('classType')
                     else:
                         raise Exception("Could not find id for list {0}, type {1}".format(
-                            input['listName'], input['listType']))
+                            name_list['listName'], name_list['listType']))
                 else:
                     self.convert_list_name_to_id(value)
-        elif isinstance(input, list):
-            for item in input:
+        elif isinstance(name_list, list):
+            for item in name_list:
                 self.convert_list_name_to_id(item)
 
     def convert_definition_id_to_name(self, policy_definition):
@@ -183,7 +174,7 @@ class PolicyDefinitions(object):
         """
 
         url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
-        response = HttpMethods(self.session, url).request('GET')
+        HttpMethods(self.session, url).request('GET')
 
     def add_policy_definition(self, policy_definition):
         """Delete a Policy Definition from vManage.
@@ -198,7 +189,7 @@ class PolicyDefinitions(object):
         """
 
         url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}"
-        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(policy_definition))
+        HttpMethods(self.session, url).request('POST', payload=json.dumps(policy_definition))
 
     def update_policy_definition(self, policy_definition, policy_definition_id):
         """Update a Policy Definition from vManage.
@@ -213,7 +204,7 @@ class PolicyDefinitions(object):
         """
 
         url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}/{policy_definition_id}"
-        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
+        HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
 
     def get_policy_definition(self, definition_type, definition_id):
         """Get a Policy Definition from vManage.
@@ -265,29 +256,28 @@ class PolicyDefinitions(object):
                 definition_type_titles = response['json']['header']['columns'][1]['keyvalue']
             except:
                 raise Exception('Could not retrieve definition types')
-            for definition_type in definition_type_titles:
-                definition_list_types.append(definition_type['key'].lower())
-            for definition_type in definition_list_types:
-                definition_list = self.get_policy_definition_list(definition_type)
+            for def_type in definition_type_titles:
+                definition_list_types.append(def_type['key'].lower())
+            for def_type in definition_list_types:
+                definition_list = self.get_policy_definition_list(def_type)
                 if definition_list:
                     all_definitions_list.extend(definition_list)
             return all_definitions_list
-        else:
-            definition_list = []
-            policy_list_dict = self.policy_lists.get_policy_list_dict('all', key_name='listId')
 
-            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
-            response = HttpMethods(self.session, url).request('GET')
-            result = ParseMethods.parse_data(response)
-            for definition in result:
-                definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
-                if definition_detail:
-                    definition_list.append(definition_detail)
-            return definition_list
+        definition_list = []
 
-    def get_policy_definition_dict(self, type, key_name='name', remove_key=False):
-        policy_definition_list = self.get_policy_definition_list(type)
-        return self.list_to_dict(policy_definition_list, key_name, remove_key=remove_key)
+        url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        for definition in result:
+            definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
+            if definition_detail:
+                definition_list.append(definition_detail)
+        return definition_list
+
+    def get_policy_definition_dict(self, t, key_name='name', remove_key=False):
+        policy_definition_list = self.get_policy_definition_list(t)
+        return list_to_dict(policy_definition_list, key_name, remove_key=remove_key)
 
     def convert_sequences_to_id(self, sequence_list):
         for sequence in sequence_list:
@@ -303,6 +293,7 @@ class PolicyDefinitions(object):
                             raise Exception("Could not find list {0} of type {1}".format(
                                 entry['listName'], entry['listType']))
 
+    #pylint: disable=unused-argument
     def import_policy_definition_list(self,
                                       policy_definition_list,
                                       update=False,
@@ -341,8 +332,8 @@ class PolicyDefinitions(object):
                     if 'rules' in definition:
                         self.convert_sequences_to_id(definition['rules'])
                     if not check_mode and update:
-                        response = self.update_policy_definition(
-                            definition, policy_definition_dict[definition['name']]['definitionId'])
+                        self.update_policy_definition(definition,
+                                                      policy_definition_dict[definition['name']]['definitionId'])
                     policy_definition_updates.append({'name': definition['name'], 'diff': diff})
             else:
                 diff = list(dictdiffer.diff({}, payload))
@@ -355,6 +346,6 @@ class PolicyDefinitions(object):
                 if 'rules' in definition:
                     self.convert_list_name_to_id(definition['rules'])
                 if not check_mode:
-                    response = self.add_policy_definition(definition)
+                    self.add_policy_definition(definition)
 
         return policy_definition_updates

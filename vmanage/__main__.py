@@ -46,16 +46,13 @@ class Viptela(object):
               help='vManage Password (env: VMANAGE_PASSWORD)',
               required=True)
 @click.pass_context
-def main(ctx, host, username, password):
+def vmanage(ctx, host, username, password):
     ctx.obj = Viptela(host, username, password)
 
 
-main.add_command(activate)
-main.add_command(deactivate)
-main.add_command(show)
-main.add_command(export)
-main.add_command(import_cmd)
-main.add_command(certificate)
-
-if __name__ == '__main__':
-    main(prog_name="vmanage")  # pragma: no cover
+vmanage.add_command(activate)
+vmanage.add_command(deactivate)
+vmanage.add_command(show)
+vmanage.add_command(export)
+vmanage.add_command(import_cmd)
+vmanage.add_command(certificate)

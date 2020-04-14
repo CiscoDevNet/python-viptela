@@ -1,8 +1,6 @@
 """Cisco vManage Device Inventory API Methods.
 """
 
-import json
-import requests
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 

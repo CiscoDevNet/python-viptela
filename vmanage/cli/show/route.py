@@ -1,6 +1,7 @@
-import click
-import pprint
 import ipaddress
+import pprint
+
+import click
 from vmanage.api.device import Device
 
 
@@ -17,7 +18,7 @@ def table(ctx, device, json):
     if device:
         # Check to see if we were passed in a device IP address or a device name
         try:
-            ip = ipaddress.ip_address(device)
+            ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
             device_dict = vmanage_device.get_device_status(device, key='host-name')
@@ -29,21 +30,20 @@ def table(ctx, device, json):
         click.echo("VPNID           PREFIX                  NEXT HOP                 MAC ADDR       OPER STATE")
         click.echo("---------------------------------------------------------------------------------------------")
 
-    for device in device_list:
-        routes = vmanage_device.get_device_data('ip/routetable', device)
-        for route in routes:
+    for dev in device_list:
+        routes = vmanage_device.get_device_data('ip/routetable', dev)
+        for rte in routes:
             if json:
                 pp = pprint.PrettyPrinter(indent=2)
-                pp.pprint(route)
+                pp.pprint(rte)
             else:
-                if 'nexthop-addr' not in route:
-                    route['nexthop-addr'] = ''
-                click.echo(f"{route['vpn-id']:5} {route['prefix']:40} {route['nexthop-addr']:1} {route['protocol']}")
+                if 'nexthop-addr' not in rte:
+                    rte['nexthop-addr'] = ''
+                click.echo(f"{rte['vpn-id']:5} {rte['prefix']:40} {rte['nexthop-addr']:1} {rte['protocol']}")
 
 
 @click.group()
-@click.pass_context
-def route(ctx):
+def route():
     """
     Show device route information
     """

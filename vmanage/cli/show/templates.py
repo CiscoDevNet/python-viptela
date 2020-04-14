@@ -1,5 +1,6 @@
-import click
 import pprint
+
+import click
 import dictdiffer
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
@@ -12,7 +13,7 @@ from vmanage.api.feature_templates import FeatureTemplates
 @click.option('--name', '-n')
 @click.option('--json/--no-json', help="JSON Output")
 @click.pass_obj
-def templates(ctx, type, name, diff, default, json):
+def templates(ctx, template_type, diff, default, name, json):
     """
     Show template information
     """
@@ -21,9 +22,9 @@ def templates(ctx, type, name, diff, default, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
-        if type == 'device':
+        if template_type == 'device':
             template_list = device_templates.get_device_template_list(name_list=[name])
-        elif type == 'feature':
+        elif template_type == 'feature':
             template_list = feature_templates.get_feature_template_list(name_list=[name])
         else:
             raise click.ClickException("Must specify template type with name")
@@ -32,13 +33,13 @@ def templates(ctx, type, name, diff, default, json):
         if template:
             if diff:
                 diff_template = {}
-                if type == 'device':
+                if template_type == 'device':
                     diff_template_list = device_templates.get_device_template_list(name_list=[diff])
                     if diff_template_list:
                         diff_template = diff_template_list[0]
                     else:
                         click.secho(f"Cannot find device template {diff}", fg="red")
-                elif type == 'feature':
+                elif template_type == 'feature':
                     diff_template_list = feature_templates.get_feature_template_list(name_list=[diff])
                     if diff_template_list:
                         diff_template = diff_template_list[0]
@@ -46,7 +47,7 @@ def templates(ctx, type, name, diff, default, json):
                         click.secho(f"Cannot find feature template {diff}", fg="red")
                 else:
                     # Should not get here
-                    raise click.ClickException(f"Unknown template type {type}")
+                    raise click.ClickException(f"Unknown template type {template_type}")
                 if diff_template:
                     diff = dictdiffer.diff(template, diff_template)
                     pp.pprint(list(diff))
@@ -55,7 +56,7 @@ def templates(ctx, type, name, diff, default, json):
         else:
             click.secho(f"Cannot find template named {name}", fg="red")
     else:
-        if type in ['device', None]:
+        if template_type in ['device', None]:
             device_template_list = device_templates.get_device_template_list(factory_default=default)
             if not json:
                 click.echo("                                          DEVICES")
@@ -68,7 +69,7 @@ def templates(ctx, type, name, diff, default, json):
                 click.echo()
             else:
                 pp.pprint(device_template_list)
-        if type in ['feature', None]:
+        if template_type in ['feature', None]:
             feature_template_list = feature_templates.get_feature_template_list(factory_default=default)
             if not json:
                 click.echo("                                                    DEVICE     DEVICES   DEVICE")

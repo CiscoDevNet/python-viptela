@@ -1,7 +1,6 @@
 """Reset vManage Application.
 """
 
-import json
 import time
 from vmanage.api.utilities import Utilities
 from vmanage.api.centralized_policy import CentralizedPolicy
@@ -93,6 +92,7 @@ class ResetVmanage(object):
         # Step 5 - Delete All Feature Templates
         data = self.fet_temps.get_feature_templates()
         for device in data:
+            #pylint: disable=no-else-continue
             if device['factoryDefault']:
                 continue
             else:
@@ -146,11 +146,13 @@ class ResetVmanage(object):
         # Step 11 - Delete All UTD Specific Security Policies
         version = self.utilities.get_vmanage_version()
         definitionList = []
+        # TODO: implement a proper semver comparison, this will fail if version is 18.30.0
         if version >= '18.4.0':
             definitionList = [
                 'zonebasedfw', 'urlfiltering', 'dnssecurity', 'intrusionprevention', 'advancedMalwareProtection'
             ]
-        if '18.4.0' > version and version >= '18.2.0':
+        #pylint: disable=chained-comparison
+        if version < '18.4.0' and version >= '18.2.0':
             definitionList = ['zonebasedfw']
 
         if definitionList:

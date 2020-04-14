@@ -4,8 +4,7 @@ from vmanage.cli.export.policies import policies
 
 
 @click.group()
-@click.pass_context
-def export(ctx):
+def export():
     """
     Export commands
     """

@@ -1,7 +1,6 @@
 """Cisco vManage Device Inventory API Methods.
 """
 
-import json
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 
@@ -27,21 +26,6 @@ class Device(object):
         self.host = host
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
-
-    def list_to_dict(self, list, key_name, remove_key=True):
-        dict = {}
-        for item in list:
-            if key_name in item:
-                if remove_key:
-                    key = item.pop(key_name)
-                else:
-                    key = item[key_name]
-
-                dict[key] = item
-            # else:
-            #     self.fail_json(msg="key {0} not found in dictionary".format(key_name))
-
-        return dict
 
     #
     # Devices
@@ -98,25 +82,25 @@ class Device(object):
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
 
-    def get_device_config_list(self, type):
+    def get_device_config_list(self, device_type):
         """Get the config status of a list of devices
 
         Args:
-            type (str): vedge or controller
+            device_type (str): vedge or controller
 
         Returns:
             result (dict): All data associated with a response.
         """
 
-        api = f"system/device/{type}"
+        api = f"system/device/{device_type}"
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_device_config_dict(self, type, key_name='host-name', remove_key=False):
+    def get_device_config_dict(self, device_type, key_name='host-name', remove_key=False):
 
-        device_list = self.get_device_config_list(type)
+        device_list = self.get_device_config_list(device_type)
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
 

@@ -1,7 +1,6 @@
 """Cisco vManage Utilities API Methods.
 """
 
-import json
 import time
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
@@ -57,7 +56,7 @@ class Utilities(object):
         while status == "in_progress":
             url = f"{self.base_url}device/action/status/{action_id}"
             response = HttpMethods(self.session, url).request('GET')
-            result = ParseMethods.parse_data(response)
+            ParseMethods.parse_data(response)
 
             if 'json' in response:
                 status = response['json']['summary']['status']

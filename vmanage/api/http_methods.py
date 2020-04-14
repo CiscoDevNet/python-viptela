@@ -23,8 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import requests
 import json
+
+import requests
 
 STANDARD_HEADERS = {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
 STANDARD_TIMEOUT = 10
@@ -104,7 +105,7 @@ class HttpMethods(object):
 
             result = {
                 'status_code': response.status_code,
-                'status': requests.status_codes._codes[response.status_code][0],
+                'status': requests.status_codes._codes[response.status_code][0],  #pylint: disable=protected-access
                 'details': details,
                 'error': error,
                 'json': result_json,

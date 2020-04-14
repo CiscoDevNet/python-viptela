@@ -2,11 +2,11 @@
 """
 
 import json
-import requests
 import dictdiffer
 from vmanage.api.http_methods import HttpMethods
-from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.device_templates import DeviceTemplates
+from vmanage.data.parse_methods import ParseMethods
+from vmanage.utils import list_to_dict
 
 
 class PolicyLists(object):
@@ -141,45 +141,28 @@ class PolicyLists(object):
         result = ParseMethods.parse_status(response)
         return result
 
-    #
-    # Orig
-    #
-    # Need to decide where this goes
-    def list_to_dict(self, list, key_name, remove_key=True):
-        dict = {}
-        for item in list:
-            if key_name in item:
-                if remove_key:
-                    key = item.pop(key_name)
-                else:
-                    key = item[key_name]
-
-                dict[key] = item
-
-        return dict
-
     def clear_policy_list_cache(self):
         self.policy_list_cache = {}
 
-    def get_policy_list_list(self, type='all', cache=True):
+    def get_policy_list_list(self, policy_list_type='all', cache=True):
         """Get a list of policy lists
 
         Args:
-            type (str): Policy list type
+            policy_list_type (str): Policy list type
             cache (bool): Whether to cache the response
 
         Returns:
             result (dict): All data associated with a response.
 
         """
-        if cache and type in self.policy_list_cache:
-            response = self.policy_list_cache[type]
+        if cache and policy_list_type in self.policy_list_cache:
+            response = self.policy_list_cache[policy_list_type]
         else:
-            if type == 'all':
+            if policy_list_type == 'all':
                 api = f"template/policy/list"
                 # result = self.request('/template/policy/list', status_codes=[200])
             else:
-                api = f"template/policy/list/{type.lower()}"
+                api = f"template/policy/list/{policy_list_type.lower()}"
                 # result = self.request('/template/policy/list/{0}'.format(type.lower()), status_codes=[200, 404])
 
             url = self.base_url + api
@@ -187,15 +170,15 @@ class PolicyLists(object):
 
         if response['status_code'] == 404:
             return []
-        else:
-            self.policy_list_cache[type] = response
-            return response['json']['data']
 
-    def get_policy_list_dict(self, type='all', key_name='name', remove_key=False, cache=True):
+        self.policy_list_cache[policy_list_type] = response
+        return response['json']['data']
 
-        policy_list = self.get_policy_list_list(type, cache=cache)
+    def get_policy_list_dict(self, policy_list_type='all', key_name='name', remove_key=False, cache=True):
 
-        return self.list_to_dict(policy_list, key_name, remove_key=remove_key)
+        policy_list = self.get_policy_list_list(policy_list_type, cache=cache)
+
+        return list_to_dict(policy_list, key_name, remove_key=remove_key)
 
     def add_policy_list(self, policy_list):
         """Add a new Policy List to vManage.
@@ -228,9 +211,10 @@ class PolicyLists(object):
         policy_list_id = policy_list['listId']
         url = f"{self.base_url}template/policy/list/{policy_list_type}/{policy_list_id}"
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_list))
-        status = ParseMethods.parse_status(response)
+        ParseMethods.parse_status(response)
         return response
 
+    #pylint: disable=unused-argument
     def import_policy_list_list(self, policy_list_list, push=False, update=False, check_mode=False, force=False):
         """Import a list of policy lists into vManage
 
@@ -247,6 +231,7 @@ class PolicyLists(object):
 
         # Policy Lists
         policy_list_updates = []
+        #pylint: disable=too-many-nested-blocks
         for policy_list in policy_list_list:
             policy_list_dict = self.get_policy_list_dict(policy_list['type'], remove_key=False, cache=False)
             if policy_list['name'] in policy_list_dict:
@@ -268,12 +253,11 @@ class PolicyLists(object):
                             if 'error' in response['json']:
                                 raise Exception(response['json']['error']['message'])
                             elif 'processId' in response['json']:
-                                process_id = response['json']['processId']
                                 if push:
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
                                     # If told to push out the change, we need to reattach each template affected by the change
                                     for template_id in response['json']['masterTemplatesAffected']:
-                                        action_id = vmanage_device_templates.reattach_device_template(template_id)
+                                        vmanage_device_templates.reattach_device_template(template_id)
                             else:
                                 raise Exception("Did not get a process id when updating policy list")
             else:

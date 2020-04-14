@@ -46,6 +46,7 @@ disable=
     no-self-use,
     star-args,
     useless-else-on-loop,
+    useless-object-inheritance,
     line-too-long,
     invalid-name,
     bad-continuation,
@@ -54,7 +55,8 @@ disable=
     old-style-class,
     no-init,
     len-as-condition,
-    superfluous-parens
+    superfluous-parens,
+    no-else-raise,
 
 [basic]
 bad-functions=apply,input
