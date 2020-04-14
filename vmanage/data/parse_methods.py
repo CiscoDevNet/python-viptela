@@ -14,7 +14,6 @@ class ParseMethods:
     configurations applied to a vManage instance.
 
     """
-
     @staticmethod
     def parse_data(response):
         """Parse data and provide error handling for missing data.

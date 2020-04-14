@@ -16,7 +16,6 @@ class CentralPolicy(object):
     Central Policy.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Centralized Policy object with session parameters.
 
@@ -59,10 +58,10 @@ class CentralPolicy(object):
         """
 
         url = f"{self.base_url}template/policy/vsmart/activate/{policy_id}?confirm=true"
-        payload = {
-            'policyName': policy_name
-        }
-        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+        payload = {'policyName': policy_name}
+        response = HttpMethods(self.session,
+                               url).request('POST',
+                                            payload=json.dumps(payload))
         # result = ParseMethods.parse_status(response)
         if 'json' in response and 'id' in response['json']:
             return response['json']['id']
@@ -102,7 +101,8 @@ class CentralPolicy(object):
         """
 
         url = f"{self.base_url}template/policy/vsmart"
-        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(policy))
+        response = HttpMethods(self.session,
+                               url).request('POST', payload=json.dumps(policy))
 
     def update_central_policy(self, policy, policy_id):
         """Update a Central from vManage.
@@ -117,7 +117,8 @@ class CentralPolicy(object):
         """
 
         url = f"{self.base_url}template/policy/vsmart/{policy_id}"
-        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
+        response = HttpMethods(self.session,
+                               url).request('PUT', payload=json.dumps(policy))
 
     def delete_central_policy(self, policyId):
         """Deletes the specified centralized policy
@@ -157,44 +158,65 @@ class CentralPolicy(object):
                 policy['policyDefinition'] = json_policy
             except:
                 pass
-            self.policy_definitions.convert_definition_id_to_name(policy['policyDefinition'])
+            self.policy_definitions.convert_definition_id_to_name(
+                policy['policyDefinition'])
         return central_policy_list
 
     def get_central_policy_dict(self, key_name='policyName', remove_key=False):
 
         central_policy_list = self.get_central_policy_list()
 
-        return self.list_to_dict(central_policy_list, key_name, remove_key=remove_key)
+        return self.list_to_dict(central_policy_list,
+                                 key_name,
+                                 remove_key=remove_key)
 
-    def import_central_policy_list(self, central_policy_list, update=False, push=False, check_mode=False, force=False):
+    def import_central_policy_list(self,
+                                   central_policy_list,
+                                   update=False,
+                                   push=False,
+                                   check_mode=False,
+                                   force=False):
         central_policy_dict = self.get_central_policy_dict(remove_key=True)
         central_policy_updates = []
         for central_policy in central_policy_list:
-            payload = {
-                'policyName': central_policy['policyName']
-            }
+            payload = {'policyName': central_policy['policyName']}
             payload['policyDescription'] = central_policy['policyDescription']
             payload['policyType'] = central_policy['policyType']
             payload['policyDefinition'] = central_policy['policyDefinition']
             if payload['policyName'] in central_policy_dict:
                 # A policy by that name already exists
                 existing_policy = central_policy_dict[payload['policyName']]
-                diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
+                diff = list(
+                    dictdiffer.diff(existing_policy['policyDefinition'],
+                                    payload['policyDefinition']))
                 if diff:
-                    central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
+                    central_policy_updates.append({
+                        'name':
+                        central_policy['policyName'],
+                        'diff':
+                        diff
+                    })
                 if len(diff):
                     # Convert list and definition names to template IDs
                     if 'policyDefinition' in payload:
-                        self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
+                        self.policy_definitions.convert_definition_name_to_id(
+                            payload['policyDefinition'])
                     if not check_mode and update:
-                        self.update_central_policy(payload, existing_policy['policyId'])
+                        self.update_central_policy(payload,
+                                                   existing_policy['policyId'])
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
-                central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
+                central_policy_updates.append({
+                    'name':
+                    central_policy['policyName'],
+                    'diff':
+                    diff
+                })
                 if not check_mode:
                     # Convert list and definition names to template IDs
                     if 'policyDefinition' in payload:
-                        self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
+                        self.policy_definitions.convert_definition_name_to_id(
+                            payload['policyDefinition'])
                     self.add_central_policy(payload)
         return central_policy_updates
 
@@ -213,7 +235,8 @@ class CentralPolicy(object):
                     action_status = response['json']['data'][0]['statusId']
                     action_activity = response['json']['data'][0]['activity']
                     if 'actionConfig' in response['json']['data'][0]:
-                        action_config = response['json']['data'][0]['actionConfig']
+                        action_config = response['json']['data'][0][
+                            'actionConfig']
                     else:
                         action_config = None
             else:

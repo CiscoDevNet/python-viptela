@@ -5,7 +5,8 @@ from vmanage.apps.files import Files
 @click.command()
 @click.option('--file', '-f', help="Output file name", required=True)
 @click.option('--name', '-n', multiple=True)
-@click.option('--type', '-t',
+@click.option('--type',
+              '-t',
               help="Template type",
               type=click.Choice(['device', 'feature']),
               default=None)
@@ -18,15 +19,21 @@ def templates(ctx, type, name, file):
 
     if type == 'device':
         if name:
-            click.echo(f'Exporting device template(s) {",".join(name)} to {file}')
-            vmanage_files.export_templates_to_file(file, name_list=name, type='device')
+            click.echo(
+                f'Exporting device template(s) {",".join(name)} to {file}')
+            vmanage_files.export_templates_to_file(file,
+                                                   name_list=name,
+                                                   type='device')
         else:
             click.echo(f'Exporting device templates to {file}')
             vmanage_files.export_templates_to_file(file, type='device')
     elif type == 'feature':
         if name:
-            click.echo(f'Exporting feature template(s) {",".join(name)} to {file}')
-            vmanage_files.export_templates_to_file(file, name_list=name, type='feature')
+            click.echo(
+                f'Exporting feature template(s) {",".join(name)} to {file}')
+            vmanage_files.export_templates_to_file(file,
+                                                   name_list=name,
+                                                   type='feature')
         else:
             click.echo(f'Exporting feature templates to {file}')
             vmanage_files.export_templates_to_file(file, type='feature')

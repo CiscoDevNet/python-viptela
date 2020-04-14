@@ -14,7 +14,6 @@ class CentralizedPolicy(object):
     Centralized Policy.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Centralized Policy object with session parameters.
 

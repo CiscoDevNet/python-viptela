@@ -14,7 +14,6 @@ class MonitorNetwork(object):
     for network devices.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Monitor Networks object with session parameters.
 

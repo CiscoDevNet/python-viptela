@@ -41,7 +41,6 @@ class HttpMethods(object):
     error handling for common HTTP interaction issues.
 
     """
-
     def __init__(self, session, url):
         """Initialize HttpMethods object with session parameters.
 
@@ -54,9 +53,7 @@ class HttpMethods(object):
         self.session = session
         self.url = url
 
-    def request(
-            self, method, headers=None, payload=None, files=None
-    ):
+    def request(self, method, headers=None, payload=None, files=None):
         """Performs HTTP REST API Call.
 
         Args:
@@ -94,10 +91,12 @@ class HttpMethods(object):
             if payload:
                 data = payload.replace("\'", "\"")
 
-            response = self.session.request(
-                method, self.url, headers=headers, files=files,
-                data=data, timeout=STANDARD_TIMEOUT
-            )
+            response = self.session.request(method,
+                                            self.url,
+                                            headers=headers,
+                                            files=files,
+                                            data=data,
+                                            timeout=STANDARD_TIMEOUT)
 
             if response.text:
                 result_json = json.loads(response.text)
@@ -107,18 +106,13 @@ class HttpMethods(object):
                 error = json.loads(response.text)['error']['message']
 
             result = {
-                'status_code':
-                    response.status_code,
+                'status_code': response.status_code,
                 'status':
-                    requests.status_codes._codes[response.status_code][0],
-                'details':
-                    details,
-                'error':
-                    error,
-                'json':
-                    result_json,
-                'response':
-                    response,
+                requests.status_codes._codes[response.status_code][0],
+                'details': details,
+                'error': error,
+                'json': result_json,
+                'response': response,
             }
 
         except json.JSONDecodeError as e:

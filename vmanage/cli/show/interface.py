@@ -3,6 +3,7 @@ import pprint
 import ipaddress
 from vmanage.api.device import Device
 
+
 @click.command()
 @click.argument('device', required=True)
 @click.option('--json/--no-json', default=False)
@@ -19,14 +20,19 @@ def list(ctx, device, json):
             ip = ipaddress.ip_address(device)
             system_ip = device
         except ValueError:
-            device_dict = vmanage_device.get_device_status(device, key='host-name')
+            device_dict = vmanage_device.get_device_status(device,
+                                                           key='host-name')
             if 'system-ip' in device_dict:
                 system_ip = device_dict['system-ip']
         device_list = [system_ip]
 
     if not json:
-        click.echo("IFNAME            VPNID  IP ADDR          MAC ADDR                  OPER STATE            DESC")
-        click.echo("----------------------------------------------------------------------------------------------------------------------")
+        click.echo(
+            "IFNAME            VPNID  IP ADDR          MAC ADDR                  OPER STATE            DESC"
+        )
+        click.echo(
+            "----------------------------------------------------------------------------------------------------------------------"
+        )
 
     for device in device_list:
         interfaces = vmanage_device.get_device_data('interface', device)
@@ -41,7 +47,9 @@ def list(ctx, device, json):
                     interface['desc'] = ''
                 if 'ip-address' not in interface:
                     interface['ip-address'] = ''
-                click.echo(f"{interface['ifname']:17} {interface['vpn-id']:6} {interface['ip-address']:16} {interface['hwaddr']:25} {interface['if-oper-status']:17} {interface['desc']:17}")
+                click.echo(
+                    f"{interface['ifname']:17} {interface['vpn-id']:6} {interface['ip-address']:16} {interface['hwaddr']:25} {interface['if-oper-status']:17} {interface['desc']:17}"
+                )
 
 
 @click.group()
@@ -50,5 +58,6 @@ def interface(ctx):
     """
     Show real-time information
     """
+
 
 interface.add_command(list)

@@ -20,7 +20,6 @@ class ResetVmanage(object):
     configurations applied to a vManage instance.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Reset vManage object with session parameters.
 
@@ -65,31 +64,25 @@ class ResetVmanage(object):
         # Step 2 - Detach vedges from template
         data = self.inventory.get_device_list('vedges')
         for device in data:
-            if (
-                    ('deviceIP' in device) and
-                    (device['configOperationMode'] == 'vmanage')
-            ):
+            if (('deviceIP' in device)
+                    and (device['configOperationMode'] == 'vmanage')):
                 deviceId = device['uuid']
                 deviceIP = device['deviceIP']
                 deviceType = device['deviceType']
-                self.inventory.post_device_cli_mode(
-                    deviceId, deviceIP, deviceType
-                )
+                self.inventory.post_device_cli_mode(deviceId, deviceIP,
+                                                    deviceType)
         self.active_count_delay()
 
         # Step 3 - Detach controllers from template
         data = self.inventory.get_device_list('controllers')
         for device in data:
-            if (
-                    ('deviceIP' in device) and
-                    (device['configOperationMode'] == 'vmanage')
-            ):
+            if (('deviceIP' in device)
+                    and (device['configOperationMode'] == 'vmanage')):
                 deviceId = device['uuid']
                 deviceIP = device['deviceIP']
                 deviceType = device['deviceType']
-                self.inventory.post_device_cli_mode(
-                    deviceId, deviceIP, deviceType
-                )
+                self.inventory.post_device_cli_mode(deviceId, deviceIP,
+                                                    deviceType)
                 # Requires pause between controllers
                 self.active_count_delay()
         self.active_count_delay()
@@ -119,17 +112,17 @@ class ResetVmanage(object):
         self.active_count_delay()
 
         # Step 7 - Delete All Topology, Traffic, Cflowd Policies
-        definitionList = ['control', 'mesh', 'hubandspoke',
-                          'vpnmembershipgroup', 'approute', 'data', 'cflowd'
-                          ]
+        definitionList = [
+            'control', 'mesh', 'hubandspoke', 'vpnmembershipgroup', 'approute',
+            'data', 'cflowd'
+        ]
         for definition in definitionList:
             data = self.cen_pol.get_policy_definition(definition)
             if data:
                 for policy in data:
                     definitionId = policy['definitionId']
                     self.cen_pol.delete_policy_definition(
-                        definition, definitionId
-                    )
+                        definition, definitionId)
         self.active_count_delay()
 
         # Step 8 - Delete All Localized Policies
@@ -140,17 +133,16 @@ class ResetVmanage(object):
         self.active_count_delay()
 
         # Step 9 - Delete All Localized Specific Definitions
-        definitionList = ['qosmap', 'rewriterule', 'acl', 'aclv6',
-                          'vedgeroute'
-                          ]
+        definitionList = [
+            'qosmap', 'rewriterule', 'acl', 'aclv6', 'vedgeroute'
+        ]
         for definition in definitionList:
             data = self.loc_pol.get_localized_definition(definition)
             if data:
                 for policy in data:
                     definitionId = policy['definitionId']
                     self.loc_pol.delete_localized_definition(
-                        definition, definitionId
-                    )
+                        definition, definitionId)
         self.active_count_delay()
 
         # Step 10 - Delete All Security Policies
@@ -166,9 +158,10 @@ class ResetVmanage(object):
         version = self.utilities.get_vmanage_version()
         definitionList = []
         if version >= '18.4.0':
-            definitionList = ['zonebasedfw', 'urlfiltering', 'dnssecurity',
-                              'intrusionprevention', 'advancedMalwareProtection'
-                              ]
+            definitionList = [
+                'zonebasedfw', 'urlfiltering', 'dnssecurity',
+                'intrusionprevention', 'advancedMalwareProtection'
+            ]
         if '18.4.0' > version and version >= '18.2.0':
             definitionList = ['zonebasedfw']
 
@@ -179,8 +172,7 @@ class ResetVmanage(object):
                     for policy in data:
                         definitionId = policy['definitionId']
                         self.sec_pol.delete_security_definition(
-                            definition, definitionId
-                        )
+                            definition, definitionId)
         self.active_count_delay()
 
         # Step 12 - Delete All Lists
@@ -192,8 +184,6 @@ class ResetVmanage(object):
             if owner != 'system':
                 listType = policy_list['type'].lower()
                 listId = policy_list['listId']
-                self.pol_lists.delete_policy_list(
-                    listType, listId
-                )
+                self.pol_lists.delete_policy_list(listType, listId)
 
         return ('Reset Complete')

@@ -9,8 +9,7 @@ from vmanage.api.central_policy import CentralPolicy
 @click.command('list')
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
-@click.option('--type', default='all',
-              help="Policy list type")
+@click.option('--type', default='all', help="Policy list type")
 @click.pass_obj
 def list_cmd(ctx, name, type, json):
     """
@@ -31,7 +30,8 @@ def list_cmd(ctx, name, type, json):
 @click.command()
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
-@click.option('--type', default='all',
+@click.option('--type',
+              default='all',
               help="Definition type",
               type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
 @click.pass_obj
@@ -43,14 +43,17 @@ def definition(ctx, name, type, json):
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
-        policy_definition_dict = policy_definitions.get_policy_definition_dict(type)
+        policy_definition_dict = policy_definitions.get_policy_definition_dict(
+            type)
         if name in policy_definition_dict:
-            policy_definition = policy_definitions.get_policy_definition(policy_definition_dict[name]['type'].lower(),
-                                                                         policy_definition_dict[name]['definitionId'])
+            policy_definition = policy_definitions.get_policy_definition(
+                policy_definition_dict[name]['type'].lower(),
+                policy_definition_dict[name]['definitionId'])
             # list_keys(policy_definition['definition'])
             pp.pprint(policy_definition)
     else:
-        policy_definition_list = policy_definitions.get_policy_definition_list('all')
+        policy_definition_list = policy_definitions.get_policy_definition_list(
+            'all')
         pp.pprint(policy_definition_list)
 
 
@@ -71,7 +74,8 @@ def central(ctx, name, json):
             if json:
                 pp.pprint(central_policy_dict[name])
             else:
-                preview = central_policy.get_central_policy_preview(central_policy_dict[name]['policyId'])
+                preview = central_policy.get_central_policy_preview(
+                    central_policy_dict[name]['policyId'])
                 pp.pprint(preview)
     else:
         central_policy_list = central_policy.get_central_policy_list()

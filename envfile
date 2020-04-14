@@ -1,0 +1,1 @@
+PYTHON_VIPTELA_VERSION ?= $(shell venv_python_viptela/bin/python setup.py --version)

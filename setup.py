@@ -16,12 +16,7 @@ setup(
     version='0.2.0',
     packages=find_namespace_packages(include=includes),
     description="Cisco DevNet Viptela vManage CLI/SDK",
-    install_requires=[
-        'Click',
-        'requests',
-        'dictdiffer',
-        'PyYAML'
-    ],
+    install_requires=['Click', 'requests', 'dictdiffer', 'PyYAML'],
     entry_points='''
         [console_scripts]
         vmanage=vmanage.__main__:main     

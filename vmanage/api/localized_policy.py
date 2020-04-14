@@ -14,7 +14,6 @@ class LocalizedPolicy(object):
     Localized Policy.
 
     """
-
     def __init__(self, session, host, port=443):
         """Initialize Localized Policy object with session parameters.
 

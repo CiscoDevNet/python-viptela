@@ -7,6 +7,7 @@ from vmanage.cli.show.control import control
 from vmanage.cli.show.interface import interface
 from vmanage.cli.show.route import route
 
+
 @click.group()
 @click.pass_context
 def show(ctx):
