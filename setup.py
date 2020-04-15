@@ -19,6 +19,6 @@ setup(
     install_requires=['Click', 'requests', 'dictdiffer', 'PyYAML'],
     entry_points='''
         [console_scripts]
-        vmanage=vmanage.__main__:vmanage     
+        vmanage=vmanage.__main__:vmanage
     ''',
 )

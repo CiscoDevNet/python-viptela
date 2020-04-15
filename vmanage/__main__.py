@@ -13,7 +13,7 @@ from vmanage.api.authentication import Authentication
 class CatchAllExceptions(click.Group):
     def __call__(self, *args, **kwargs):
         try:
-            return self.main(*args, **kwargs)
+            return self.vmanage(*args, **kwargs)
         except Exception as exc:
             click.secho('Exception raised while running your command', fg="red")
             click.secho("Please open an issue and provide this info:", fg="red")
