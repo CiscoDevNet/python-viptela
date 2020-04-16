@@ -88,9 +88,9 @@ docs/source/modules.rst: $(SRC_FILES)  $(VENV)/bin/activate
 docs: docs-markdown docs-html ## Generate documentation in HTML and Markdown
 
 docs-markdown: clean-docs-markdown $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate Markdown documentation
-	$(MAKE) -C docs markdown
+	. $(VENV_BIN)/activate ; $(MAKE) -C docs markdown
 docs-html: clean-docs-html $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate HTML documentation
-	$(MAKE) -C docs html
+	. $(VENV_BIN)/activate ; $(MAKE) -C docs html
 
 docs-clean: ## Clean generated documentation
 	$(MAKE) -C docs clean
