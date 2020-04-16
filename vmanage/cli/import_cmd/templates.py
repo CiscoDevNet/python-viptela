@@ -10,7 +10,12 @@ from vmanage.apps.files import Files
 @click.option('--update/--no-update', help="Update if exists", default=False)
 @click.option('--diff/--no-diff', help="Show Diffs", default=False)
 @click.option('--name', '-n', multiple=True)
-@click.option('--type', '-t', 'template_type', help="Template type", type=click.Choice(['device', 'feature']), default=None)
+@click.option('--type',
+              '-t',
+              'template_type',
+              help="Template type",
+              type=click.Choice(['device', 'feature']),
+              default=None)
 @click.pass_obj
 def templates(ctx, input_file, check, update, diff, name, template_type):
     """

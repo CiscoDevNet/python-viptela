@@ -91,7 +91,10 @@ class Utilities(object):
 
         url = f"{self.base_url}system/device/fileupload"
         response = HttpMethods(self.session, url).request('POST',
-                                    files={'file': open(input_file, 'rb')},
-                                    payload={'validity': 'valid', 'upload': 'true'})
-        result = ParseMethods.parse_status(response)
+                                                          files={'file': open(input_file, 'rb')},
+                                                          payload={
+                                                              'validity': 'valid',
+                                                              'upload': 'true'
+                                                          })
+        ParseMethods.parse_status(response)
         return response['json']['vedgeListUploadStatus']

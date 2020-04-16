@@ -5,7 +5,9 @@ from vmanage.apps.files import Files
 @click.command()
 @click.option('--file', '-f', 'output_file', help="Output file name", required=True)
 @click.option('--name', '-n', multiple=True)
-@click.option('--type', '-t', 'device_type',
+@click.option('--type',
+              '-t',
+              'device_type',
               help="Device Type",
               type=click.Choice(['controllers', 'vedges']),
               default=None)
@@ -14,7 +16,7 @@ def attachments(ctx, device_type, name, output_file):
     """
     Export attachments to file
     """
-    num = 0;
+    num = 0
     vmanage_files = Files(ctx.auth, ctx.host)
     if device_type == 'controllers':
         if name:

@@ -1,13 +1,14 @@
 import pprint
-
-import click
 import ipaddress
+import click
 from vmanage.api.device import Device
 
 
 @click.command()
 @click.argument('dev', required=False)
-@click.option('--type', '-t', 'device_type',
+@click.option('--type',
+              '-t',
+              'device_type',
               required=False,
               default='all',
               type=click.Choice(['edge', 'control', 'all']),
@@ -28,7 +29,7 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
         # Check to see if we were passed in a device IP address or a device name
         try:
             system_ip = ipaddress.ip_address(dev)
-            device_dict = vmanage_device.get_device_status(dev)
+            device_dict = vmanage_device.get_device_status(system_ip)
         except ValueError:
             device_dict = vmanage_device.get_device_status(dev, key='host-name')
 
@@ -66,7 +67,9 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
 
 @click.command()
 @click.argument('dev', required=False)
-@click.option('--type', '-t', 'device_type',
+@click.option('--type',
+              '-t',
+              'device_type',
               required=False,
               default='all',
               type=click.Choice(['edge', 'control', 'all']),
@@ -85,7 +88,7 @@ def config(ctx, dev, device_type, json):
         # Check to see if we were passed in a device IP address or a device name
         try:
             system_ip = ipaddress.ip_address(dev)
-            device_dict = vmanage_device.get_device_status(dev)
+            device_dict = vmanage_device.get_device_status(system_ip)
         except ValueError:
             device_dict = vmanage_device.get_device_status(dev, key='host-name')
 
@@ -119,7 +122,8 @@ def config(ctx, dev, device_type, json):
                     device_name = device_entry['host-name'] if 'host-name' in device_entry else 'Unknown'
                     reachability = device_entry['reachability'] if 'reachability' in device_entry else 'Unknown'
                     site_id = device_entry['site-id'] if 'site-id' in device_entry else 'Unknown'
-                    config_status_message = device_entry['configStatusMessage'] if 'configStatusMessage' in device_entry else 'Unknown'
+                    config_status_message = device_entry[
+                        'configStatusMessage'] if 'configStatusMessage' in device_entry else 'Unknown'
                     vmanage_connection_state = device_entry[
                         'vmanageConnectionState'] if 'vmanageConnectionState' in device_entry else 'Unknown'
                     version = device_entry['version'] if 'version' in device_entry else 'Unknown'
@@ -141,7 +145,8 @@ def config(ctx, dev, device_type, json):
                         device_name = device_entry['host-name'] if 'host-name' in device_entry else 'Unknown'
                         reachability = device_entry['reachability'] if 'reachability' in device_entry else 'Unknown'
                         site_id = device_entry['site-id'] if 'site-id' in device_entry else 'Unknown'
-                        config_status_message = device_entry['configStatusMessage'] if 'configStatusMessage' in device_entry else 'Unknown'
+                        config_status_message = device_entry[
+                            'configStatusMessage'] if 'configStatusMessage' in device_entry else 'Unknown'
                         vmanage_connection_state = device_entry[
                             'vmanageConnectionState'] if 'vmanageConnectionState' in device_entry else 'Unknown'
                         version = device_entry['version'] if 'version' in device_entry else 'Unknown'

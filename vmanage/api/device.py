@@ -73,10 +73,13 @@ class Device(object):
         url = f"{self.base_url}device?{key}={value}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
+
         if len(result):
-            return result[0]
+            return_value = result[0]
         else:
-            return {}
+            return_value = {}
+
+        return return_value
 
     def get_device_config(self, device_type, value, key='system-ip'):
         """Get the config of a specific device
@@ -92,11 +95,13 @@ class Device(object):
         url = f"{self.base_url}system/device/{device_type}?{key}={value}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        if len(result):
-            return result[0]
-        else:
-            return {}
 
+        if len(result):
+            return_value = result[0]
+        else:
+            return_value = {}
+
+        return return_value
 
     def get_device_dict(self, key_name='host-name', remove_key=False):
 

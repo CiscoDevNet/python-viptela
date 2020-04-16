@@ -5,7 +5,12 @@ from vmanage.apps.files import Files
 @click.command()
 @click.option('--file', '-f', 'export_file', help="Output file name", required=True)
 @click.option('--name', '-n', multiple=True)
-@click.option('--type', '-t', 'template_type', help="Template type", type=click.Choice(['device', 'feature']), default=None)
+@click.option('--type',
+              '-t',
+              'template_type',
+              help="Template type",
+              type=click.Choice(['device', 'feature']),
+              default=None)
 @click.pass_obj
 def templates(ctx, template_type, name, export_file):
     """

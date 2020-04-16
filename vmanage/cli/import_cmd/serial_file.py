@@ -1,5 +1,3 @@
-import pprint
-
 import click
 from vmanage.api.utilities import Utilities
 
@@ -15,4 +13,4 @@ def serial_file(ctx, input_file):
 
     click.echo(f'Uploading serial file... {input_file}')
     result = vmanage_utilities.upload_file(input_file)
-    click.echo (result)
+    click.echo(result)

@@ -3,7 +3,6 @@
 
 import json
 import re
-import pprint
 import dictdiffer
 from vmanage.api.feature_templates import FeatureTemplates
 from vmanage.api.device import Device
@@ -198,16 +197,8 @@ class DeviceTemplates(object):
             deviceIds = device_id_list
         else:
             deviceIds = []
-        payload = {
-            "deviceIds": deviceIds,
-            "isEdited": False,
-            "isMasterEdited": False,
-            "templateId": template_id
-        }
-        return_dict = {
-            "columns": [],
-            "data": []
-        }
+        payload = {"deviceIds": deviceIds, "isEdited": False, "isMasterEdited": False, "templateId": template_id}
+        return_dict = {"columns": [], "data": []}
 
         url = f"{self.base_url}template/device/config/input"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
@@ -385,32 +376,28 @@ class DeviceTemplates(object):
                     # The device is already attached to the template.  We need to see if any of
                     # the input changed, so we make an API call to get the input on last attach
                     existing_template_input = self.get_template_input(
-                        device_template_dict[attachment['template']]['templateId'],
-                        [device_uuid])
+                        device_template_dict[attachment['template']]['templateId'], [device_uuid])
                     current_variables = existing_template_input['data'][0]
                     changed = False
                     for property_name in attachment['variables']:
                         # Check to see if any of the passed in varibles have changed from what is
-                        # already on the attachment.  We are are not checking to see if the 
+                        # already on the attachment.  We are are not checking to see if the
                         # correct variables are here.  That will be done on attachment.
-                        if ((property_name in current_variables) and (str(attachment['variables'][property_name]) != str(current_variables[property_name]))):
+                        if ((property_name in current_variables) and
+                            (str(attachment['variables'][property_name]) != str(current_variables[property_name]))):
                             changed = True
                     if changed:
-                        action_id = self.attach_to_template(template_id,
-                                                            device_uuid,
-                                                            attachment['system_ip'],
-                                                            attachment['host_name'],
-                                                            attachment['site_id'],
-                                                            attachment['variables'])
                         action_id_list.append(action_id)
+                        if not check_mode:
+                            action_id = self.attach_to_template(template_id, device_uuid, attachment['system_ip'],
+                                                                attachment['host_name'], attachment['site_id'],
+                                                                attachment['variables'])
                 else:
-                    action_id = self.attach_to_template(template_id,
-                                                        device_uuid,
-                                                        attachment['system_ip'],
-                                                        attachment['host_name'],
-                                                        attachment['site_id'],
-                                                        attachment['variables'])
                     action_id_list.append(action_id)
+                    if not check_mode and update:
+                        action_id = self.attach_to_template(template_id, device_uuid, attachment['system_ip'],
+                                                            attachment['host_name'], attachment['site_id'],
+                                                            attachment['variables'])
             else:
                 raise Exception(f"No template named Template {attachment['templateName']}")
 
@@ -426,7 +413,7 @@ class DeviceTemplates(object):
             else:
                 attachment_updates.update({data['uuid']: data['currentActivity']})
 
-        result = { 'updates': attachment_updates, 'failures': attachment_failures}
+        result = {'updates': attachment_updates, 'failures': attachment_failures}
         return result
 
     def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables):
@@ -442,7 +429,7 @@ class DeviceTemplates(object):
         Returns:
             action_id (str): Returns the action id of the attachment
 
-        """        
+        """
         # Construct the variable payload
         device_template_variables = {
             "csv-status": "complete",
@@ -453,7 +440,7 @@ class DeviceTemplates(object):
             '//system/system-ip': system_ip,
             '//system/site-id': site_id,
         }
-        # Make sure they passed in the required variables and map 
+        # Make sure they passed in the required variables and map
         # variable name -> property mapping
         template_variables = self.get_template_input(template_id)
         for entry in template_variables['columns']:
@@ -464,22 +451,19 @@ class DeviceTemplates(object):
                     raise Exception(f"{entry['variable']} is missing for {host_name}")
 
         payload = {
-            "deviceTemplateList":
-                [
-                    {
-                        "templateId": template_id,
-                        "device": [device_template_variables],
-                        "isEdited": False,
-                        "isMasterEdited": False
-                    }
-                ]
+            "deviceTemplateList": [{
+                "templateId": template_id,
+                "device": [device_template_variables],
+                "isEdited": False,
+                "isMasterEdited": False
+            }]
         }
         url = f"{self.base_url}template/device/config/attachfeature"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         if 'json' in response and 'id' in response['json']:
             action_id = response['json']['id']
         else:
-            raise Exception('Did not get action ID after attaching device to template.')        
+            raise Exception('Did not get action ID after attaching device to template.')
 
         return action_id
 
@@ -494,19 +478,17 @@ class DeviceTemplates(object):
         Returns:
             action_id (str): Returns the action id of the attachment
 
-        """      
+        """
         payload = {
             "deviceType": device_type,
-            "devices": [
-                {
-                    "deviceId": uuid,
-                    "deviceIP": device_ip,
-                }
-            ]
+            "devices": [{
+                "deviceId": uuid,
+                "deviceIP": device_ip,
+            }]
         }
         url = f"{self.base_url}template/config/device/mode/cli"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-        result = ParseMethods.parse_data(response)
+        ParseMethods.parse_data(response)
 
         if 'json' in response and 'id' in response['json']:
             action_id = response.json['id']
@@ -524,10 +506,10 @@ class DeviceTemplates(object):
         Returns:
             result (list): Returns the specified key of the attached devices.
 
-        """  
+        """
         url = f"{self.base_url}template/device/config/attached/{template_id}"
         response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)        
+        result = ParseMethods.parse_data(response)
 
         attached_devices = []
         for device in result:

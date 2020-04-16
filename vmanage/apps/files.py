@@ -251,19 +251,21 @@ class Files(object):
             'local_policy_updates': local_policy_updates
         }
 
-    def export_attachments_to_file(self, export_file, name_list=[], device_type=None):
+    def export_attachments_to_file(self, export_file, name_list=None, device_type=None):
         device_templates = DeviceTemplates(self.session, self.host, self.port)
         vmanage_device = Device(self.session, self.host, self.port)
 
+        if name_list is None:
+            name_list = []
 
         device_template_dict = device_templates.get_device_template_dict()
 
         attachments_list = []
         # Create a device config of the right type of things
         device_list = []
-        if device_type == None or device_type == 'controllers':
+        if device_type in (None, 'controllers'):
             device_list = vmanage_device.get_device_config_list('controllers')
-        if device_type == None or device_type == 'vedges':
+        if device_type in (None, 'vedges'):
             edge_list = vmanage_device.get_device_config_list('vedges')
             device_list = device_list + edge_list
 
@@ -277,9 +279,10 @@ class Files(object):
                     raise Exception(f"Could not find ID for template {device_config['template']}")
                 if name_list == [] or device_config['host-name'] in name_list:
                     variable_dict = {}
-                    input = device_templates.get_template_input(template_id, device_id_list=[device_config['uuid']])
-                    data = input['data'][0]
-                    for column in input['columns']:
+                    template_input = device_templates.get_template_input(template_id,
+                                                                         device_id_list=[device_config['uuid']])
+                    data = template_input['data'][0]
+                    for column in template_input['columns']:
                         variable_dict[column['variable']] = data[column['property']]
                     entry = {
                         'host_name': device_config['host-name'],
@@ -291,7 +294,7 @@ class Files(object):
                         'variables': variable_dict
                     }
                     attachments_list.append(entry)
-        
+
         attachment_export = {'vmanage_attachments': attachments_list}
         if export_file.endswith('.json'):
             with open(export_file, 'w') as outfile:
@@ -305,11 +308,8 @@ class Files(object):
 
     def import_attachments_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
         vmanage_device_templates = DeviceTemplates(self.session, self.host, self.port)
-        vmanage_device = Device(self.session, self.host, self.port)
 
-        attachment_updates = []
         template_data = {}
-
         # Read in the datafile
         if not os.path.exists(file):
             raise Exception(f"Cannot find file {file}")
@@ -324,10 +324,8 @@ class Files(object):
         else:
             imported_attachment_list = []
 
-
-
         # Process the device templates
         result = vmanage_device_templates.import_attachment_list(imported_attachment_list,
-                                                                            check_mode=check_mode,
-                                                                            update=update)
+                                                                 check_mode=check_mode,
+                                                                 update=update)
         return result
