@@ -40,10 +40,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_files = Files(vmanage.auth, vmanage.host)
-    vmanage.result['imported'] = vmanage_files.import_templates_from_file(vmanage.params['file'], update=vmanage.params['update'],
-                                                                          check_mode=module.check_mode,
-                                                                          name_list=vmanage.params['name_list'],
-                                                                          template_type=vmanage.params['type'])
+    vmanage_files.export_attachments_to_file(vmanage.params['file'], name_list=vmanage.params['name_list'])
 
     vmanage.exit_json(**vmanage.result)
 

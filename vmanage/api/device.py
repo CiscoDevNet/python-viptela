@@ -70,11 +70,34 @@ class Device(object):
             result (dict): Device status
         """
 
-        api = f"device?{key}={value}"
-        url = self.base_url + api
+        url = f"{self.base_url}device?{key}={value}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        return result
+
+        if len(result):
+            return result[0]
+
+        return {}
+
+    def get_device_config(self, device_type, value, key='system-ip'):
+        """Get the config of a specific device
+
+        Args:
+            value string: The value of the key to match
+            key (string): The key on which to match (e.g. system-ip)
+
+        Returns:
+            result (dict): Device config
+        """
+
+        url = f"{self.base_url}system/device/{device_type}?{key}={value}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+
+        if len(result):
+            return result[0]
+
+        return {}
 
     def get_device_dict(self, key_name='host-name', remove_key=False):
 

@@ -78,3 +78,23 @@ class Utilities(object):
             'action_activity': action_activity,
             'action_config': action_config
         }
+
+    def upload_file(self, input_file):
+        """Upload a file to vManage.
+
+        Args:
+            input_file (str): The name of the file to upload.
+
+        Returns:
+            upload_status (str): The status of the file upload.
+        """
+
+        url = f"{self.base_url}system/device/fileupload"
+        response = HttpMethods(self.session, url).request('POST',
+                                                          files={'file': open(input_file, 'rb')},
+                                                          payload={
+                                                              'validity': 'valid',
+                                                              'upload': 'true'
+                                                          })
+        ParseMethods.parse_status(response)
+        return response['json']['vedgeListUploadStatus']

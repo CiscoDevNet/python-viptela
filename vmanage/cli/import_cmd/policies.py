@@ -5,7 +5,7 @@ from vmanage.apps.files import Files
 
 
 @click.command()
-@click.argument('input_file', default='all')
+@click.option('--file', '-f', 'input_file', help="Input File name", required=True)
 @click.option('--check/--no-check', help="Just check (no changes)", default=False)
 @click.option('--update/--no-update', help="Update if exists", default=False)
 @click.option('--push/--no-push', help="Push update (when specifed with --update)", default=False)

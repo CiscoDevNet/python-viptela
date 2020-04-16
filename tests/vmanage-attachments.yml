@@ -1,0 +1,65 @@
+vmanage_attachments:
+-   host_name: vsmart1
+    device_type: vsmart
+    uuid: caecb73b-d163-402f-8aef-b3398394bcac
+    system_ip: 1.1.1.3
+    site_id: '1'
+    template: vsmart
+    variables:
+        vpn0_default_gateway: 192.133.184.1
+        vpn0_internet_ipv4_address: 192.133.184.52/22
+-   host_name: hq-cedge1
+    device_type: vedge
+    uuid: CSR-82DEC3C6-3A28-B866-6F4A-40BEA274CA00
+    system_ip: 1.1.1.4
+    site_id: '1'
+    template: hq-csr1000v
+    variables:
+        banner_login: This system is for the use of authorized clients only.
+        banner_motd: Welcome to hq-cedge1!
+        vpn1_interface: GigabitEthernet3
+        vpn1_ipv4_address: 10.0.255.6/30
+        vpn1_ospf_interface: GigabitEthernet3
+        vpn512_interface: GigabitEthernet1
+        vpn0_interface: GigabitEthernet2
+        system_host_name: hq-cedge1
+        system_latitude: '37.411343'
+        system_longitude: '-121.938803'
+        system_system_ip: 192.168.255.13
+        system_site_id: '1'
+-   host_name: site1-cedge1
+    device_type: vedge
+    uuid: CSR-DE49BFC4-10DF-8579-0F64-CD0F51603A38
+    system_ip: 1.1.2.1
+    site_id: '2'
+    template: branch-csr1000v
+    variables:
+        banner_login: This system is for the use of authorized clients only.
+        banner_motd: Welcome to site1-cedge1!
+        vpn1_interface: GigabitEthernet3
+        vpn1_ipv4_address: 192.168.1.1/24
+        vpn512_interface: GigabitEthernet1
+        vpn0_interface: GigabitEthernet2
+        system_host_name: site1-cedge1
+        system_latitude: '35.85636'
+        system_longitude: '-78.879725'
+        system_system_ip: 192.168.255.14
+        system_site_id: '2'
+-   host_name: site2-vedge1
+    device_type: vedge
+    uuid: 36b8fb11-0aa4-8f2e-5174-a7793ae246f4
+    system_ip: 1.1.3.1
+    site_id: '3'
+    template: branch-vedge-cloud
+    variables:
+        banner_login: This system is for the use of authorized clients only.
+        banner_motd: Welcome to site2-vedge1!
+        vpn1_interface: ge0/1
+        vpn1_ipv4_address: 192.168.2.1/24
+        vpn512_interface: eth0
+        vpn0_interface: ge0/0
+        system_host_name: site2-vedge1
+        system_latitude: '32.999892'
+        system_longitude: '-96.678886'
+        system_system_ip: 192.168.255.15
+        system_site_id: '3'

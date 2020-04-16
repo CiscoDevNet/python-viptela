@@ -1,0 +1,20 @@
+vmanage show device status
+vmanage show device status --type edge
+vmanage show device status --type control
+vmanage show device config
+vmanage show device config --type edge
+vmanage show device config --type control
+vmanage show templates
+vmanage show templates --type feature
+vmanage show templates --type device
+vmanage show policies list
+vmanage show policies definition
+vmanage show policies local
+vmanage show policies central
+vmanage import templates --file tests/vmanage-templates.yml
+vmanage export templates --file /tmp/vmanage-templates-cli.yml
+vmanage import policies --file tests/vmanage-policies.yml
+vmanage export policies --file /tmp/vmanage-policies-cli.yml
+vmanage import attachments --file tests/vmanage-attachments.yml
+vmanage export attachments --file /tmp/vmanage-attachments-cli.yml
+vmanage certificate push

@@ -32,6 +32,14 @@
       vmanage_template_export:
         file: "/tmp/vmanage-policies-test.yml"
 
+    - name: vManage Import Attachments
+      vmanage_attachment_import:
+        file: vmanage-attachments.yml
+
+    - name: vManage Export Attachments
+      vmanage_attachment_export:
+        file: "/tmp/vmanage-attachments.yml"
+
     - name: vManage Policy List Facts
       vmanage_policy_list_facts:
 

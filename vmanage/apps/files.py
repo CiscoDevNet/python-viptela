@@ -10,6 +10,7 @@ from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
+from vmanage.api.device import Device
 
 
 class Files(object):
@@ -133,12 +134,12 @@ class Files(object):
 
         # Process the feature templates
         feature_template_updates = vmanage_feature_templates.import_feature_template_list(
-            imported_feature_template_list, check_mode=False, update=False)
+            imported_feature_template_list, check_mode=check_mode, update=update)
 
         # Process the device templates
         device_template_updates = vmanage_device_templates.import_device_template_list(imported_device_template_list,
-                                                                                       check_mode=False,
-                                                                                       update=False)
+                                                                                       check_mode=check_mode,
+                                                                                       update=update)
 
         return {
             'feature_template_updates': feature_template_updates,
@@ -170,7 +171,7 @@ class Files(object):
         if export_file.endswith('.json'):
             with open(export_file, 'w') as outfile:
                 json.dump(policy_export, outfile, indent=4, sort_keys=False)
-        elif export_file.endswith('.yaml') or export_file.endswith('.yml'):
+        elif export_file.endswith(('.yaml', 'yml')):
             with open(export_file, 'w') as outfile:
                 yaml.dump(policy_export, outfile, default_flow_style=False)
         else:
@@ -249,3 +250,82 @@ class Files(object):
             'central_policy_updates': central_policy_updates,
             'local_policy_updates': local_policy_updates
         }
+
+    def export_attachments_to_file(self, export_file, name_list=None, device_type=None):
+        device_templates = DeviceTemplates(self.session, self.host, self.port)
+        vmanage_device = Device(self.session, self.host, self.port)
+
+        if name_list is None:
+            name_list = []
+
+        device_template_dict = device_templates.get_device_template_dict()
+
+        attachments_list = []
+        # Create a device config of the right type of things
+        device_list = []
+        if device_type in (None, 'controllers'):
+            device_list = vmanage_device.get_device_config_list('controllers')
+        if device_type in (None, 'vedges'):
+            edge_list = vmanage_device.get_device_config_list('vedges')
+            device_list = device_list + edge_list
+
+        for device_config in device_list:
+            if 'configStatusMessage' in device_config and device_config['configStatusMessage'] != 'In Sync':
+                continue
+            if 'template' in device_config:
+                if device_config['template'] in device_template_dict:
+                    template_id = device_template_dict[device_config['template']]['templateId']
+                else:
+                    raise Exception(f"Could not find ID for template {device_config['template']}")
+                if name_list == [] or device_config['host-name'] in name_list:
+                    variable_dict = {}
+                    template_input = device_templates.get_template_input(template_id,
+                                                                         device_id_list=[device_config['uuid']])
+                    data = template_input['data'][0]
+                    for column in template_input['columns']:
+                        variable_dict[column['variable']] = data[column['property']]
+                    entry = {
+                        'host_name': device_config['host-name'],
+                        'device_type': device_config['deviceType'],
+                        'uuid': device_config['chasisNumber'],
+                        'system_ip': device_config['deviceIP'],
+                        'site_id': device_config['site-id'],
+                        'template': device_config['template'],
+                        'variables': variable_dict
+                    }
+                    attachments_list.append(entry)
+
+        attachment_export = {'vmanage_attachments': attachments_list}
+        if export_file.endswith('.json'):
+            with open(export_file, 'w') as outfile:
+                json.dump(attachment_export, outfile, indent=4, sort_keys=False)
+        elif export_file.endswith(('.yaml', 'yml')):
+            with open(export_file, 'w') as outfile:
+                yaml.dump(attachment_export, outfile, indent=4, sort_keys=False)
+        else:
+            raise Exception("File format not supported")
+        return (len(attachments_list))
+
+    def import_attachments_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
+        vmanage_device_templates = DeviceTemplates(self.session, self.host, self.port)
+
+        template_data = {}
+        # Read in the datafile
+        if not os.path.exists(file):
+            raise Exception(f"Cannot find file {file}")
+        with open(file) as f:
+            if file.endswith('.yaml') or file.endswith('.yml'):
+                template_data = yaml.safe_load(f)
+            else:
+                template_data = json.load(f)
+
+        if 'vmanage_attachments' in template_data:
+            imported_attachment_list = template_data['vmanage_attachments']
+        else:
+            imported_attachment_list = []
+
+        # Process the device templates
+        result = vmanage_device_templates.import_attachment_list(imported_attachment_list,
+                                                                 check_mode=check_mode,
+                                                                 update=update)
+        return result
