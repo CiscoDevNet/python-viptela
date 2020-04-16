@@ -13,9 +13,9 @@ includes = [
 
 setup(
     name="viptela",
-    version='0.2.1.dev1',
+    version='0.2.1',
     packages=find_namespace_packages(include=includes),
-    description="Cisco DevNet Viptela vManage CLI/SDK",
+    description="Cisco DevNet SD-WAN vManage (Viptela) CLI/SDK",
     install_requires=['Click', 'requests', 'dictdiffer', 'PyYAML'],
     entry_points='''
         [console_scripts]
