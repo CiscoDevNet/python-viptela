@@ -156,7 +156,7 @@ vmanage import policies --file vmanage-policies.json
 
 ##### Diff two templates
 
-```
+```bash
 vmanage show template g0/0/0-R1 --diff g0/0/0-R2
 [ ( 'change',
     'templateDefinition.tunnel-interface.color.value.vipType',
@@ -183,8 +183,4 @@ vmanage show template g0/0/0-R1 --diff g0/0/0-R2
 
 ## License
 
-<<<<<<< HEAD
-GPLv3
-=======
 CISCO SAMPLE CODE LICENSE
->>>>>>> master
