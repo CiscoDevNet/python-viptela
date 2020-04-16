@@ -3,14 +3,14 @@ from vmanage.apps.files import Files
 
 
 @click.command()
-@click.option('--file', '-f', 'output_file', help="Output file name", required=True)
-@click.option('--name', '-n', multiple=True)
 @click.option('--type',
               '-t',
               'device_type',
               help="Device Type",
               type=click.Choice(['controllers', 'vedges']),
               default=None)
+@click.option('--name', '-n', multiple=True)
+@click.option('--file', '-f', 'output_file', help="Output file name", required=True)
 @click.pass_obj
 def attachments(ctx, device_type, name, output_file):
     """

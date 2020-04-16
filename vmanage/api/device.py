@@ -75,11 +75,9 @@ class Device(object):
         result = ParseMethods.parse_data(response)
 
         if len(result):
-            return_value = result[0]
-        else:
-            return_value = {}
+            return result[0]
 
-        return return_value
+        return {}
 
     def get_device_config(self, device_type, value, key='system-ip'):
         """Get the config of a specific device
@@ -97,11 +95,9 @@ class Device(object):
         result = ParseMethods.parse_data(response)
 
         if len(result):
-            return_value = result[0]
-        else:
-            return_value = {}
+            return result[0]
 
-        return return_value
+        return {}
 
     def get_device_dict(self, key_name='host-name', remove_key=False):
 

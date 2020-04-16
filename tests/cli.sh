@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 path=`dirname $_`
 input="${path}/commands.txt"
 while IFS= read -r line

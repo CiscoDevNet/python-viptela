@@ -171,7 +171,7 @@ class Files(object):
         if export_file.endswith('.json'):
             with open(export_file, 'w') as outfile:
                 json.dump(policy_export, outfile, indent=4, sort_keys=False)
-        elif export_file.endswith('.yaml') or export_file.endswith('.yml'):
+        elif export_file.endswith(('.yaml', 'yml')):
             with open(export_file, 'w') as outfile:
                 yaml.dump(policy_export, outfile, default_flow_style=False)
         else:
@@ -299,7 +299,7 @@ class Files(object):
         if export_file.endswith('.json'):
             with open(export_file, 'w') as outfile:
                 json.dump(attachment_export, outfile, indent=4, sort_keys=False)
-        elif export_file.endswith('.yaml') or export_file.endswith('.yml'):
+        elif export_file.endswith(('.yaml', 'yml')):
             with open(export_file, 'w') as outfile:
                 yaml.dump(attachment_export, outfile, indent=4, sort_keys=False)
         else:
