@@ -57,6 +57,7 @@ build: deps ## Builds EGG info and project documentation.
 
 dist: build ## Creates the distribution.
 	$(VENV_BIN)/python setup.py sdist --formats gztar
+	$(VENV_BIN)/python setup.py bdist_wheel
 
 
 test: deps ## Run python-viptela tests
