@@ -88,6 +88,20 @@ class FeatureTemplates(object):
         url = self.base_url + api
         return HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
+    def update_feature_template(self, feature_template):
+        """Add a feature template to Vmanage.
+
+
+        Args:
+            feature_template (dict): Feature Template
+
+        Returns:
+            result (list): Response from Vmanage
+
+        """
+        url = f"{self.base_url}template/feature/{feature_template['templateId']}"
+        return HttpMethods(self.session, url).request('PUT', payload=json.dumps(feature_template))
+
     def get_feature_template_list(self, factory_default=False, name_list=None):
         """Obtain a list of all configured feature templates.
 
@@ -157,13 +171,13 @@ class FeatureTemplates(object):
         for feature_template in feature_template_list:
             if feature_template['templateName'] in feature_template_dict:
                 existing_template = feature_template_dict[feature_template['templateName']]
+                feature_template['templateId'] = existing_template['templateId']
                 diff = list(
                     dictdiffer.diff(existing_template['templateDefinition'], feature_template['templateDefinition']))
                 if len(diff):
                     feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                     if not check_mode and update:
-                        if not check_mode:
-                            self.add_feature_template(feature_template)
+                        self.update_feature_template(feature_template)
             else:
                 diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
                 feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})

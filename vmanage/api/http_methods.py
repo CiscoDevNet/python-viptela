@@ -80,15 +80,21 @@ class HttpMethods(object):
         if headers is None:
             headers = STANDARD_HEADERS
         result = {}
-        data = None
         error = None
+        data = None
         details = None
         result_json = None
 
-        try:
-            if payload:
+        if payload:
+            if isinstance(payload, str):
                 data = payload.replace("\'", "\"")
+            else:
+                data = payload
 
+        if files:
+            headers = None
+
+        try:
             response = self.session.request(method,
                                             self.url,
                                             headers=headers,

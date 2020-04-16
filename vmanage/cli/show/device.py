@@ -1,12 +1,13 @@
 import pprint
 
 import click
+import ipaddress
 from vmanage.api.device import Device
 
 
 @click.command()
-@click.argument('device', required=False)
-@click.option('--type',
+@click.argument('dev', required=False)
+@click.option('--type', '-t', 'device_type',
               required=False,
               default='all',
               type=click.Choice(['edge', 'control', 'all']),
@@ -26,10 +27,15 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
     if dev:
         # Check to see if we were passed in a device IP address or a device name
         try:
+            system_ip = ipaddress.ip_address(dev)
             device_dict = vmanage_device.get_device_status(dev)
         except ValueError:
             device_dict = vmanage_device.get_device_status(dev, key='host-name')
-        pp.pprint(device_dict)
+
+        if device_dict:
+            pp.pprint(device_dict)
+        else:
+            click.secho(f"Could not find device {dev}", err=True, fg='red')
     else:
         device_list = vmanage_device.get_device_status_list()
         if json:
@@ -38,29 +44,29 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
             click.echo(
                 f"{'Hostname':20} {'System IP':15} {'Model':15} {'Site':6} {'Status':9} {'BFD':>3} {'OMP':>3} {'CON':>3} {'Version':8} {'UUID':40} {'Serial'}"
             )
-            for dv in device_list:
-                if 'bfdSessionsUp' in dv:
-                    bfd = dv['bfdSessionsUp']
+            for device_entry in device_list:
+                if 'bfdSessionsUp' in device_entry:
+                    bfd = device_entry['bfdSessionsUp']
                 else:
                     bfd = ''
-                if 'ompPeers' in dv:
-                    omp = dv['ompPeers']
+                if 'ompPeers' in device_entry:
+                    omp = device_entry['ompPeers']
                 else:
                     omp = ''
-                if 'controlConnections' in dv:
-                    control = dv['controlConnections']
+                if 'controlConnections' in device_entry:
+                    control = device_entry['controlConnections']
                 else:
                     control = ''
                 click.echo(
-                    f"{dv['host-name']:20} {dv['system-ip']:15} {dv['device-model']:15} {dv['site-id']:6} {dv['reachability']:9} {bfd:>3} {omp:>3} {control:>3} {dv['version']:8} {dv['uuid']:40} {dv['board-serial']}"
+                    f"{device_entry['host-name']:20} {device_entry['system-ip']:15} {device_entry['device-model']:15} {device_entry['site-id']:6} {device_entry['reachability']:9} {bfd:>3} {omp:>3} {control:>3} {device_entry['version']:8} {device_entry['uuid']:40} {device_entry['board-serial']}"
                 )
 
     #     device_list = [device_ip]
 
 
 @click.command()
-@click.argument('device', required=False)
-@click.option('--type',
+@click.argument('dev', required=False)
+@click.option('--type', '-t', 'device_type',
               required=False,
               default='all',
               type=click.Choice(['edge', 'control', 'all']),
@@ -78,17 +84,21 @@ def config(ctx, dev, device_type, json):
     if dev:
         # Check to see if we were passed in a device IP address or a device name
         try:
+            system_ip = ipaddress.ip_address(dev)
             device_dict = vmanage_device.get_device_status(dev)
         except ValueError:
             device_dict = vmanage_device.get_device_status(dev, key='host-name')
 
-        if device_dict['device-type'] in ['vmanage', 'vbond', 'vsmart']:
-            device_type = 'controllers'
-        else:
-            device_type = 'vedges'
+        if device_dict:
+            if device_dict['device-type'] in ['vmanage', 'vbond', 'vsmart']:
+                device_type = 'controllers'
+            else:
+                device_type = 'vedges'
 
-        device_config = vmanage_device.get_device_config(device_type, device_dict['system-ip'])
-        pp.pprint(device_config)
+            device_config = vmanage_device.get_device_config(device_type, device_dict['system-ip'])
+            pp.pprint(device_config)
+        else:
+            click.secho(f"Could not find device {dev}", err=True, fg='red')
 
     else:
         click.echo(
@@ -100,21 +110,21 @@ def config(ctx, dev, device_type, json):
             if json:
                 pp.pprint(device_list)
             else:
-                for dv in device_list:
-                    if 'template' in dev:
-                        template = dev['template']
+                for device_entry in device_list:
+                    if 'template' in device_entry:
+                        template = device_entry['template']
                     else:
                         template = ''
 
-                    device_name = dv['host-name'] if 'host-name' in dv else 'Unknown'
-                    reachability = dv['reachability'] if 'reachability' in dv else 'Unknown'
-                    site_id = dv['site-id'] if 'site-id' in dv else 'Unknown'
-                    config_status_message = dv['configStatusMessage'] if 'configStatusMessage' in dv else 'Unknown'
-                    vmanage_connection_state = dv[
-                        'vmanageConnectionState'] if 'vmanageConnectionState' in dv else 'Unknown'
-                    version = dv['version'] if 'version' in dv else 'Unknown'
+                    device_name = device_entry['host-name'] if 'host-name' in device_entry else 'Unknown'
+                    reachability = device_entry['reachability'] if 'reachability' in device_entry else 'Unknown'
+                    site_id = device_entry['site-id'] if 'site-id' in device_entry else 'Unknown'
+                    config_status_message = device_entry['configStatusMessage'] if 'configStatusMessage' in device_entry else 'Unknown'
+                    vmanage_connection_state = device_entry[
+                        'vmanageConnectionState'] if 'vmanageConnectionState' in device_entry else 'Unknown'
+                    version = device_entry['version'] if 'version' in device_entry else 'Unknown'
                     click.echo(
-                        f"{device_name:20} {dv['deviceIP']:15} {dv['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
+                        f"{device_name:20} {device_entry['deviceIP']:15} {device_entry['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
                     )
 
         if type in ['all', 'edge']:
@@ -122,21 +132,21 @@ def config(ctx, dev, device_type, json):
             if json:
                 pp.pprint(device_list)
             else:
-                for dv in device_list:
-                    if 'host-name' in dv:
-                        if 'template' in dv:
-                            template = dv['template']
+                for device_entry in device_list:
+                    if 'host-name' in device_entry:
+                        if 'template' in device_entry:
+                            template = device_entry['template']
                         else:
                             template = ''
-                        device_name = dv['host-name'] if 'host-name' in dv else 'Unknown'
-                        reachability = dv['reachability'] if 'reachability' in dv else 'Unknown'
-                        site_id = dv['site-id'] if 'site-id' in dv else 'Unknown'
-                        config_status_message = dv['configStatusMessage'] if 'configStatusMessage' in dv else 'Unknown'
-                        vmanage_connection_state = dv[
-                            'vmanageConnectionState'] if 'vmanageConnectionState' in dv else 'Unknown'
-                        version = dv['version'] if 'version' in dv else 'Unknown'
+                        device_name = device_entry['host-name'] if 'host-name' in device_entry else 'Unknown'
+                        reachability = device_entry['reachability'] if 'reachability' in device_entry else 'Unknown'
+                        site_id = device_entry['site-id'] if 'site-id' in device_entry else 'Unknown'
+                        config_status_message = device_entry['configStatusMessage'] if 'configStatusMessage' in device_entry else 'Unknown'
+                        vmanage_connection_state = device_entry[
+                            'vmanageConnectionState'] if 'vmanageConnectionState' in device_entry else 'Unknown'
+                        version = device_entry['version'] if 'version' in device_entry else 'Unknown'
                         click.echo(
-                            f"{device_name:20} {dv['deviceIP']:15} {dv['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
+                            f"{device_name:20} {device_entry['deviceIP']:15} {device_entry['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
                         )
 
 

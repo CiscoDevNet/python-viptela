@@ -40,7 +40,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_files = Files(vmanage.auth, vmanage.host)
-    vmanage_files.export_templates_to_file(vmanage.params['file'], name_list=vmanage.params['name_list'], type=vmanage.params['type'])
+    vmanage_files.export_templates_to_file(vmanage.params['file'], name_list=vmanage.params['name_list'], template_type=vmanage.params['type'])
 
     vmanage.exit_json(**vmanage.result)
 

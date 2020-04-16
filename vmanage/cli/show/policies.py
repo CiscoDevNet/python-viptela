@@ -10,7 +10,7 @@ from vmanage.api.central_policy import CentralPolicy
 @click.command('list')
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
-@click.option('--type', default='all', help="Policy list type")
+@click.option('--type', '-t', 'policy_list_type', default='all', help="Policy list type")
 @click.pass_obj
 def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argument
     """
@@ -31,7 +31,7 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
 @click.command()
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
-@click.option('--type', default='all', help="Definition type", type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
+@click.option('--type', '-t', 'definition_type', default='all', help="Definition type", type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
 @click.pass_obj
 def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """

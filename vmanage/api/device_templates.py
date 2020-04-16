@@ -3,11 +3,13 @@
 
 import json
 import re
-
+import pprint
 import dictdiffer
 from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.api.device import Device
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
+from vmanage.api.utilities import Utilities
 from vmanage.utils import list_to_dict
 
 
@@ -135,7 +137,7 @@ class DeviceTemplates(object):
                     obj['templateId'] = device['templateId']
                     obj['attached_devices'] = self.get_template_attachments(device['templateId'])
                     obj['input'] = self.get_template_input(device['templateId'])
-                    obj.pop('templateId')
+                    # obj.pop('templateId')
                     return_list.append(obj)
 
         return return_list
@@ -171,8 +173,7 @@ class DeviceTemplates(object):
             result (list): List of keys.
 
         """
-        api = f"template/device/config/attached/{template_id}"
-        url = self.base_url + api
+        url = f"{self.base_url}template/device/config/attached/{template_id}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
 
@@ -182,9 +183,8 @@ class DeviceTemplates(object):
 
         return attached_devices
 
-    def get_template_input(self, template_id):
+    def get_template_input(self, template_id, device_id_list=None):
         """Get the input associated with a device attachment.
-
 
         Args:
             template_id (string): Template ID
@@ -193,16 +193,26 @@ class DeviceTemplates(object):
             result (dict): All data associated with a response.
 
         """
-        payload = {"deviceIds": [], "isEdited": False, "isMasterEdited": False, "templateId": template_id}
+
+        if device_id_list:
+            deviceIds = device_id_list
+        else:
+            deviceIds = []
+        payload = {
+            "deviceIds": deviceIds,
+            "isEdited": False,
+            "isMasterEdited": False,
+            "templateId": template_id
+        }
         return_dict = {
             "columns": [],
+            "data": []
         }
 
-        api = "template/device/config/input"
-        url = self.base_url + api
+        url = f"{self.base_url}template/device/config/input"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
-        if response['json']:
+        if 'json' in response:
             if 'header' in response['json'] and 'columns' in response['json']['header']:
                 column_list = response['json']['header']['columns']
 
@@ -214,15 +224,18 @@ class DeviceTemplates(object):
                         if match:
                             variable = match.groups('variable')[0]
                         else:
+                            # If the variable is not found, but is a default entry
                             variable = None
 
                         entry = {'title': column['title'], 'property': column['property'], 'variable': variable}
                         return_dict['columns'].append(entry)
+            if 'data' in response['json'] and response['json']['data']:
+                return_dict['data'] = response['json']['data']
 
         return return_dict
 
     def add_device_template(self, device_template):
-        """Add a device template to Vmanage.
+        """Add a single device template to Vmanage.
 
 
         Args:
@@ -258,13 +271,42 @@ class DeviceTemplates(object):
                 payload['generalTemplates'] = self.generalTemplates_to_id(device_template['generalTemplates'])
             else:
                 raise Exception("No generalTemplates found in device template", data=device_template)
-            api = "template/device/feature"
-            url = self.base_url + api
+            url = f"{self.base_url}template/device/feature"
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         return response
 
+    def update_device_template(self, device_template):
+        """Update a single device template to Vmanage.
+
+
+        Args:
+            device_template (dict): Device Template
+
+        Returns:
+            result (list): Response from Vmanage
+
+        """
+        #
+        # File templates are much easier in that they are just a bunch of CLI
+        #
+        if device_template['configType'] == 'file':
+            url = f"{self.base_url}template/device/cli/{device_template['templateId']}"
+            response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
+        #
+        # Feature based templates are just a list of templates Id that make up a devie template.  We are
+        # given the name of the feature templates, but we need to translate that to the template ID
+        #
+        else:
+            if 'generalTemplates' in device_template:
+                device_template['generalTemplates'] = self.generalTemplates_to_id(device_template['generalTemplates'])
+            else:
+                raise Exception("No generalTemplates found in device template", data=device_template)
+            url = f"{self.base_url}template/device/feature/{device_template['templateId']}"
+            response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
+        return response
+
     def import_device_template_list(self, device_template_list, check_mode=False, update=False):
-        """Add a list of feature templates to vManage.
+        """Import a list of feature templates to vManage.
 
 
         Args:
@@ -292,8 +334,7 @@ class DeviceTemplates(object):
                 if len(diff):
                     device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
                     if not check_mode and update:
-                        if not check_mode:
-                            self.add_device_template(device_template)
+                        self.update_device_template(device_template)
             else:
                 if 'generalTemplates' in device_template:
                     diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
@@ -306,6 +347,193 @@ class DeviceTemplates(object):
                     self.add_device_template(device_template)
 
         return device_template_updates
+
+    def import_attachment_list(self, attachment_list, check_mode=False, update=False):
+        """Import a list of device attachments to vManage.
+
+
+        Args:
+            check_mode (bool): Only check to see if changes would be made
+            update (bool): Update the template if it exists
+
+        Returns:
+            result (list): Returns the diffs of the updates.
+
+        """
+        attachment_updates = {}
+        attachment_failures = {}
+        action_id_list = []
+        device_template_dict = self.get_device_template_dict()
+        vmanage_device = Device(self.session, self.host, self.port)
+        for attachment in attachment_list:
+            if attachment['template'] in device_template_dict:
+                if attachment['device_type'] == 'vedge':
+                    # The UUID is fixes from the serial file/upload
+                    device_uuid = attachment['uuid']
+                else:
+                    # If this is not a vedge, we need to get the UUID from the vmanage since
+                    # it is generated by that vmanage
+                    device_status = vmanage_device.get_device_status(attachment['host_name'], key='host-name')
+                    if device_status:
+                        device_uuid = device_status['uuid']
+                    else:
+                        raise Exception(f"Cannot find UUID for {attachment['host_name']}")
+
+                template_id = device_template_dict[attachment['template']]['templateId']
+                attached_uuid_list = self.get_attachments(template_id, key='uuid')
+                if device_uuid in attached_uuid_list:
+                    # The device is already attached to the template.  We need to see if any of
+                    # the input changed, so we make an API call to get the input on last attach
+                    existing_template_input = self.get_template_input(
+                        device_template_dict[attachment['template']]['templateId'],
+                        [device_uuid])
+                    current_variables = existing_template_input['data'][0]
+                    changed = False
+                    for property_name in attachment['variables']:
+                        # Check to see if any of the passed in varibles have changed from what is
+                        # already on the attachment.  We are are not checking to see if the 
+                        # correct variables are here.  That will be done on attachment.
+                        if ((property_name in current_variables) and (str(attachment['variables'][property_name]) != str(current_variables[property_name]))):
+                            changed = True
+                    if changed:
+                        action_id = self.attach_to_template(template_id,
+                                                            device_uuid,
+                                                            attachment['system_ip'],
+                                                            attachment['host_name'],
+                                                            attachment['site_id'],
+                                                            attachment['variables'])
+                        action_id_list.append(action_id)
+                else:
+                    action_id = self.attach_to_template(template_id,
+                                                        device_uuid,
+                                                        attachment['system_ip'],
+                                                        attachment['host_name'],
+                                                        attachment['site_id'],
+                                                        attachment['variables'])
+                    action_id_list.append(action_id)
+            else:
+                raise Exception(f"No template named Template {attachment['templateName']}")
+
+        # pp = pprint.PrettyPrinter(indent=2)
+        utilities = Utilities(self.session, self.host)
+        # Batch the waits so that the peocessing of the attachments is in parallel
+        for action_id in action_id_list:
+            result = utilities.waitfor_action_completion(action_id)
+            data = result['action_response']['data'][0]
+            # pp.pprint(data)
+            if result['action_status'] == 'failure':
+                attachment_failures.update({data['uuid']: data['currentActivity']})
+            else:
+                attachment_updates.update({data['uuid']: data['currentActivity']})
+
+        result = { 'updates': attachment_updates, 'failures': attachment_failures}
+        return result
+
+    def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables):
+        """Attach and device to a template
+
+        Args:
+            template_id (str): The template ID to attach to
+            uuid (str): The UUID of the device to attach
+            system_ip (str): The System IP of the system to attach
+            host_name (str): The host-name of the device to attach
+            variables (dict): The variables needed by the template
+
+        Returns:
+            action_id (str): Returns the action id of the attachment
+
+        """        
+        # Construct the variable payload
+        device_template_variables = {
+            "csv-status": "complete",
+            "csv-deviceId": uuid,
+            "csv-deviceIP": system_ip,
+            "csv-host-name": host_name,
+            '//system/host-name': host_name,
+            '//system/system-ip': system_ip,
+            '//system/site-id': site_id,
+        }
+        # Make sure they passed in the required variables and map 
+        # variable name -> property mapping
+        template_variables = self.get_template_input(template_id)
+        for entry in template_variables['columns']:
+            if entry['variable']:
+                if entry['variable'] in variables:
+                    device_template_variables[entry['property']] = variables[entry['variable']]
+                else:
+                    raise Exception(f"{entry['variable']} is missing for {host_name}")
+
+        payload = {
+            "deviceTemplateList":
+                [
+                    {
+                        "templateId": template_id,
+                        "device": [device_template_variables],
+                        "isEdited": False,
+                        "isMasterEdited": False
+                    }
+                ]
+        }
+        url = f"{self.base_url}template/device/config/attachfeature"
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+        if 'json' in response and 'id' in response['json']:
+            action_id = response['json']['id']
+        else:
+            raise Exception('Did not get action ID after attaching device to template.')        
+
+        return action_id
+
+    def detach_from_template(self, uuid, device_ip, device_type):
+        """Detach a device from a template (i.e. Put in CLI mode)
+
+        Args:
+            uuid (str): The UUID of the device to detach
+            system_ip (str): The System IP of the system to detach
+            device_type (str): The device type of the device to detach
+
+        Returns:
+            action_id (str): Returns the action id of the attachment
+
+        """      
+        payload = {
+            "deviceType": device_type,
+            "devices": [
+                {
+                    "deviceId": uuid,
+                    "deviceIP": device_ip,
+                }
+            ]
+        }
+        url = f"{self.base_url}template/config/device/mode/cli"
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+        result = ParseMethods.parse_data(response)
+
+        if 'json' in response and 'id' in response['json']:
+            action_id = response.json['id']
+        else:
+            raise Exception('Did not get action ID after attaching device to template.')
+        return action_id
+
+    def get_attachments(self, template_id, key='host-name'):
+        """Get a list of attachments to a particular template.
+
+        Args:
+            template_id (str): Template ID of the template
+            key (str): The key of the elements to return
+
+        Returns:
+            result (list): Returns the specified key of the attached devices.
+
+        """  
+        url = f"{self.base_url}template/device/config/attached/{template_id}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)        
+
+        attached_devices = []
+        for device in result:
+            attached_devices.append(device[key])
+
+        return attached_devices
 
     def generalTemplates_to_id(self, generalTemplates):
         converted_generalTemplates = []

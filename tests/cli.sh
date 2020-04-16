@@ -1,25 +1,17 @@
 #!/bin/sh
+path=`dirname $_`
+input="${path}/commands.txt"
+while IFS= read -r line
+do
+    printf "Running: $line..."
+    $line > /dev/null
+    if [ $? -eq 0 ]; then
+        echo OK
+    else
+        echo FAIL
+fi
+done < "$input"
 
-vmanage show device status
+# printf "Running vmanage show device status..."
+# vmanage show device status > /dev/null
 
-vmanage show device config
-
-vmanage show templates
-
-vmanage show policies list
-
-vmanage show policies definition
-
-vmanage show policies local
-
-vmanage show policies central
-
-vmanage import templates --file tests/vmanage-templates.yml
-
-vmanage import policies --file tests/vmanage-policies.yml
-
-vmanage export templates --file /tmp/vmanage-templates-cli.yml
-
-vmanage export policies --file /tmp/vmanage-policies-cli.yml
-
-vmanage certificate push
