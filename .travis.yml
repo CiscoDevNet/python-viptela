@@ -9,7 +9,8 @@ script:
 - "./test.bash"
 deploy:
   provider: pypi
-  on: tags
+  on:
+    tags: true
   skip_existing: true
   user: "__token__"
   password:
