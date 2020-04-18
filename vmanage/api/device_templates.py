@@ -387,17 +387,17 @@ class DeviceTemplates(object):
                             (str(attachment['variables'][property_name]) != str(current_variables[property_name]))):
                             changed = True
                     if changed:
-                        action_id_list.append(action_id)
-                        if not check_mode:
+                        if not check_mode and update:
                             action_id = self.attach_to_template(template_id, device_uuid, attachment['system_ip'],
                                                                 attachment['host_name'], attachment['site_id'],
                                                                 attachment['variables'])
+                            action_id_list.append(action_id)
                 else:
-                    action_id_list.append(action_id)
-                    if not check_mode and update:
+                    if not check_mode:
                         action_id = self.attach_to_template(template_id, device_uuid, attachment['system_ip'],
                                                             attachment['host_name'], attachment['site_id'],
                                                             attachment['variables'])
+                        action_id_list.append(action_id)
             else:
                 raise Exception(f"No template named Template {attachment['templateName']}")
 
