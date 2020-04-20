@@ -1,11 +1,17 @@
 language: python
 python:
-  - "3.6"      # current default Python on Travis CI
-  - "3.7"
-  - "3.8"
-# command to install dependencies
+- '3.6'
+- '3.7'
+- '3.8'
 install:
-  - pip install -r requirements.txt
-# command to run tests
+- pip install -r requirements.txt
 script:
-  - ./test.bash
+- "./test.bash"
+deploy:
+  provider: pypi
+  on:
+    tags: true
+  skip_existing: true
+  user: "__token__"
+  password:
+    secure: KXXKBvhpLGdqY3cxiHrmLxvIGnrhfz/+Jleu/E0YGJ9rMezCQXWTLfqEk0REq0Kkgzwu8OiX77WXrRiIjXrH59DoWqMifSbOEM4J6Px9hhuqC+W/eZRAipLFVL8vNcbWwKN+l4dBdvT9k3j3Z/N8kPdp4W55yxPTtCxTU0cMtFyuy9lzWXK4mjgkOhHNSxaVq5WbTNKFyyX3BdWo7pHKozeQgfC8suMJSIw7fEk65V1SuCJjwwwc+Dm5RGxbcegwP3WRZOs5u7WD92wJjLfRO3DnWSExVYTeoZOUU1amFjfRYgJ2uoFy7ugIbTHi9/4oqoypD+szL9W4xVDjFPZSDHfdXhYIZYdGXFaozKrwr7lZG6alp1cUgojdZr/bjGS+nkxO7MlApZm+DDyJfQ1CCW76fyNEfLAVfq4bZ1bJfjiYOM6YNxQt2TKQFmrbqOOWoQ+YLw8yrrYTsE2Eh/bJDCExfPqnKGr6A7CH7usaFJEhRhXG8xCgc95VfviSUSOMehM5sxFxk9icKxbia3LapCT7Qp14wO4YkFMYpGQw3yUl+qVSOFQSKhO1S0TguXGpFDhFvjsiBmNexIQSTjmYJpODoGNoZiCZD+4MkSwAdEuPH5iJKIGTcRUIdKwP+rW9MeZTrcRHPuPrzQhRfNZJhnxlyKS/o+AlnkQh0IfRh7A=
