@@ -6,7 +6,8 @@ PYDIRS="vmanage"
 VENV = venv_python_viptela
 VENV_BIN=$(VENV)/bin
 SRC_FILES := $(shell find vmanage -name \*.py)
-SPHINX_DEPS := $(shell find docs/src)
+SPHINX_DEPS := $(shell find docs/source)
+GENERATED_DOC_SOURCES := $(shell find docs/source -maxdepth 1 -type f -name \*.rst -not -name index.rst)
 NON_PYTHON_LIBS := $(shell ls | grep -v vmanage)
 
 help: ## Display help
@@ -83,9 +84,9 @@ clean-docs-markdown:
 apidocs: docs/source/modules.rst ## regenerate API documention sources
 
 docs/source/modules.rst: $(SRC_FILES)  $(VENV)/bin/activate
-	$(VENV_BIN)/sphinx-apidoc -M -fo docs/api . $(NON_PYTHON_LIBS)
+	$(VENV_BIN)/sphinx-apidoc -M -fo docs/source vmanage
 
-docs: docs-markdown docs-html ## Generate documentation in HTML and Markdown
+docs: apidocs docs-markdown docs-html ## Generate documentation in HTML and Markdown
 
 docs-markdown: clean-docs-markdown $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate Markdown documentation
 	. $(VENV_BIN)/activate ; $(MAKE) -C docs markdown
@@ -93,7 +94,8 @@ docs-html: clean-docs-html $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate HTML 
 	. $(VENV_BIN)/activate ; $(MAKE) -C docs html
 
 docs-clean: ## Clean generated documentation
-	$(MAKE) -C docs clean
+	$(RM) $(GENERATED_DOC_SOURCES)
+	. $(VENV_BIN)/activate ; $(MAKE) -C docs clean
 
 
 .PHONY: all clean $(VENV) test check format check-format pylint clean-docs-html clean-docs-markdown apidocs
