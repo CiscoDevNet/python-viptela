@@ -39,8 +39,11 @@ class PolicyDefinitions(object):
                 if key.endswith('List'):
                     t = key[0:len(key) - 4]
                     policy_list_dict = self.policy_lists.get_policy_list_dict(t, key_name='listId')
-                    if value in policy_list_dict:
-                        id_list[key] = policy_list_dict[value]['name']
+                    val = value
+                    if isinstance(value, list):
+                        val = value[0]
+                    if val in policy_list_dict:
+                        id_list[key] = policy_list_dict[val]['name']
                 elif key.endswith('Lists'):
                     t = key[0:len(key) - 5]
                     policy_list_dict = self.policy_lists.get_policy_list_dict(t, key_name='listId')
