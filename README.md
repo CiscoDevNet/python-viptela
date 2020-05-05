@@ -183,4 +183,4 @@ vmanage show template g0/0/0-R1 --diff g0/0/0-R2
 
 ## License
 
-CISCO SAMPLE CODE LICENSE
+GNU General Public License v3.0

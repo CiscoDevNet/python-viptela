@@ -236,14 +236,6 @@ class Files(object):
                                                                              update=update,
                                                                              push=push)
 
-        for local_policy in local_policy_data:
-            diff = vmanage_local_policy.import_local_policy(local_policy,
-                                                            check_mode=check_mode,
-                                                            update=update,
-                                                            push=push)
-            if len(diff):
-                local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
-
         return {
             'policy_list_updates': policy_list_updates,
             'policy_definition_updates': policy_definition_updates,
