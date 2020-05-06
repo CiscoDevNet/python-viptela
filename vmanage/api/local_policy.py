@@ -6,6 +6,7 @@ import json
 import dictdiffer
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
+from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.utils import list_to_dict
 
 
@@ -30,6 +31,7 @@ class LocalPolicy(object):
         self.host = host
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
+        self.policy_definitions = PolicyDefinitions(self.session, self.host)
 
     # Need to decide where this goes
 
@@ -99,7 +101,7 @@ class LocalPolicy(object):
             except Exception:
                 pass
             # policy['policyDefinition'] = json.loads(policy['policyDefinition'])
-            self.convert_definition_id_to_name(policy['policyDefinition'])
+            self.policy_definitions.convert_definition_id_to_name(policy['policyDefinition'])
         return local_policy_list
 
     def get_local_policy_dict(self, key_name='policyName', remove_key=False):
@@ -123,14 +125,14 @@ class LocalPolicy(object):
                 diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
                 if len(diff):
                     if 'policyDefinition' in payload:
-                        self.convert_definition_name_to_id(payload['policyDefinition'])
+                        self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
                     if not check_mode and update:
                         self.update_local_policy(payload, existing_policy['policyId'])
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 if 'policyDefinition' in payload:
                     # Convert list and definition names to template IDs
-                    self.convert_definition_name_to_id(payload['policyDefinition'])
+                    self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
                 if not check_mode:
                     self.add_local_policy(payload)
         return local_policy_updates

@@ -99,7 +99,7 @@ def run_module():
 
         else:
             # TODO: The reference to 'policy' in the following line is wrong. What should it be?
-            vmanage.fail_json(msg="Cannot find central policy {0}".format(policy['policyName']))
+            vmanage.fail_json(msg="Cannot find central policy {0}".format(vmanage.params['name']))
     if vmanage.params['state'] in ['absent', 'deactivated']:
         central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=False)
         if policy['policyName'] in central_policy_dict:
