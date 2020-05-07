@@ -3,16 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Python vManage's documentation!
+Welcome to Python viptela's documentation!
 ==========================================
+
+`python-viptela` provides a PYthon SDK for interacting with Cisco SDWAN (formerly Viptela).
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   modules
-
-
+   autoapi/index.rst
 
 Indices and tables
 ==================

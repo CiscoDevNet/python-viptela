@@ -81,12 +81,7 @@ clean-docs-html:
 clean-docs-markdown:
 	$(RM) -rf docs/build/markdown
 
-apidocs: docs/source/modules.rst ## regenerate API documention sources
-
-docs/source/modules.rst: $(SRC_FILES)  $(VENV)/bin/activate
-	$(VENV_BIN)/sphinx-apidoc -M -fo docs/source vmanage
-
-docs: apidocs docs-markdown docs-html ## Generate documentation in HTML and Markdown
+docs: docs-markdown docs-html ## Generate documentation in HTML and Markdown
 
 docs-markdown: clean-docs-markdown $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate Markdown documentation
 	. $(VENV_BIN)/activate ; $(MAKE) -C docs markdown
