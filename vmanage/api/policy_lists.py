@@ -2,9 +2,7 @@
 """
 
 import json
-import dictdiffer
 from vmanage.api.http_methods import HttpMethods
-from vmanage.api.device_templates import DeviceTemplates
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
 
@@ -213,57 +211,3 @@ class PolicyLists(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_list))
         ParseMethods.parse_status(response)
         return response
-
-    #pylint: disable=unused-argument
-    def import_policy_list_list(self, policy_list_list, push=False, update=False, check_mode=False, force=False):
-        """Import a list of policy lists into vManage
-
-        Args:
-            policy_list_list: A list of polcies
-            push (bool): Whether to push a change out
-            update (bool): Whether to update when the list exists
-            check_mode (bool): Report what updates would happen, but don't update
-
-        Returns:
-            result (dict): All data associated with a response.
-
-        """
-
-        # Policy Lists
-        policy_list_updates = []
-        #pylint: disable=too-many-nested-blocks
-        for policy_list in policy_list_list:
-            policy_list_dict = self.get_policy_list_dict(policy_list['type'], remove_key=False, cache=False)
-            if policy_list['name'] in policy_list_dict:
-                existing_list = policy_list_dict[policy_list['name']]
-                diff = list(dictdiffer.diff(existing_list['entries'], policy_list['entries']))
-                if diff:
-                    policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
-                if diff:
-                    policy_list['listId'] = policy_list_dict[policy_list['name']]['listId']
-                    # If description is not specified, try to get it from the existing information
-                    if not policy_list['description']:
-                        policy_list['description'] = policy_list_dict[policy_list['name']]['description']
-                    if not check_mode and update:
-                        response = self.update_policy_list(policy_list)
-
-                        if response['json']:
-                            # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
-                            # that lists the templates affected by the change.
-                            if 'error' in response['json']:
-                                raise Exception(response['json']['error']['message'])
-                            elif 'processId' in response['json']:
-                                if push:
-                                    vmanage_device_templates = DeviceTemplates(self.session, self.host)
-                                    # If told to push out the change, we need to reattach each template affected by the change
-                                    for template_id in response['json']['masterTemplatesAffected']:
-                                        vmanage_device_templates.reattach_device_template(template_id)
-                            else:
-                                raise Exception("Did not get a process id when updating policy list")
-            else:
-                diff = list(dictdiffer.diff({}, policy_list))
-                policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
-                if not check_mode:
-                    self.add_policy_list(policy_list)
-
-        return policy_list_updates

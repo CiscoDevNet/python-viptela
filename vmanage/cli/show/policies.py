@@ -3,6 +3,7 @@ import pprint
 import click
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
+from vmanage.data.policy_data import PolicyData
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
 
@@ -43,17 +44,18 @@ def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argum
     Show policy definition information
     """
     policy_definitions = PolicyDefinitions(ctx.auth, ctx.host)
+    policy_data = PolicyData(ctx.auth, ctx.host)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
         policy_definition_dict = policy_definitions.get_policy_definition_dict(definition_type)
         if name in policy_definition_dict:
-            policy_definition = policy_definitions.get_policy_definition(policy_definition_dict[name]['type'].lower(),
+            policy_definition = policy_data.export_policy_definition(policy_definition_dict[name]['type'].lower(),
                                                                          policy_definition_dict[name]['definitionId'])
             # list_keys(policy_definition['definition'])
             pp.pprint(policy_definition)
     else:
-        policy_definition_list = policy_definitions.get_policy_definition_list('all')
+        policy_definition_list = policy_data.export_policy_definition_list('all')
         pp.pprint(policy_definition_list)
 
 
@@ -66,6 +68,7 @@ def central(ctx, name, json):  #pylint: disable=unused-argument
     Show central policy information
     """
     central_policy = CentralPolicy(ctx.auth, ctx.host)
+    policy_data = PolicyData(ctx.auth, ctx.host)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -77,7 +80,7 @@ def central(ctx, name, json):  #pylint: disable=unused-argument
                 preview = central_policy.get_central_policy_preview(central_policy_dict[name]['policyId'])
                 pp.pprint(preview)
     else:
-        central_policy_list = central_policy.get_central_policy_list()
+        central_policy_list = policy_data.export_central_policy_list()
         pp.pprint(central_policy_list)
 
 
@@ -90,6 +93,7 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
     Show local policy information
     """
     local_policy = LocalPolicy(ctx.auth, ctx.host)
+    policy_data = PolicyData(ctx.auth, ctx.host)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -97,7 +101,7 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
         if name in policy_list_dict:
             pp.pprint(policy_list_dict[name])
     else:
-        local_policy_list = local_policy.get_local_policy_list()
+        local_policy_list = policy_data.export_local_policy_list()
         pp.pprint(local_policy_list)
 
 

@@ -3,7 +3,6 @@
 
 import json
 
-import dictdiffer
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.policy_definitions import PolicyDefinitions
@@ -64,7 +63,7 @@ class LocalPolicy(object):
         url = f"{self.base_url}template/policy/vedge/{policy_id}"
         HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
 
-    def delete_localized_policy(self, policy_id):
+    def delete_local_policy(self, policy_id):
         """Deletes the specified local policy
 
         Args:
@@ -79,6 +78,19 @@ class LocalPolicy(object):
         result = ParseMethods.parse_status(response)
         return result
 
+    def get_local_policy(self):
+        """Obtain a list of all configured local policies
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/vedge"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
     def get_local_policy_list(self):
         """Get all Central Policies from vManage.
 
@@ -87,12 +99,8 @@ class LocalPolicy(object):
                 in vManage.
 
         """
-        api = "template/policy/vedge"
-        url = self.base_url + api
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
 
-        local_policy_list = result
+        local_policy_list = self.get_local_policy()
         for policy in local_policy_list:
             # This is to accommodate CLI policy
             try:
@@ -100,8 +108,6 @@ class LocalPolicy(object):
                 policy['policyDefinition'] = json_policy
             except Exception:
                 pass
-            # policy['policyDefinition'] = json.loads(policy['policyDefinition'])
-            self.policy_definitions.convert_definition_id_to_name(policy['policyDefinition'])
         return local_policy_list
 
     def get_local_policy_dict(self, key_name='policyName', remove_key=False):
@@ -109,30 +115,3 @@ class LocalPolicy(object):
         local_policy_list = self.get_local_policy_list()
 
         return list_to_dict(local_policy_list, key_name, remove_key=remove_key)
-
-    #pylint: disable=unused-argument
-    def import_local_policy_list(self, local_policy_list, update=False, push=False, check_mode=False, force=False):
-        local_policy_dict = self.get_local_policy_dict(remove_key=False)
-        local_policy_updates = []
-        for local_policy in local_policy_list:
-            payload = {'policyName': local_policy['policyName']}
-            payload['policyDescription'] = local_policy['policyDescription']
-            payload['policyType'] = local_policy['policyType']
-            payload['policyDefinition'] = local_policy['policyDefinition']
-            if payload['policyName'] in local_policy_dict:
-                # A policy by that name already exists
-                existing_policy = local_policy_dict[payload['policyName']]
-                diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
-                if len(diff):
-                    if 'policyDefinition' in payload:
-                        self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
-                    if not check_mode and update:
-                        self.update_local_policy(payload, existing_policy['policyId'])
-            else:
-                diff = list(dictdiffer.diff({}, payload['policyDefinition']))
-                if 'policyDefinition' in payload:
-                    # Convert list and definition names to template IDs
-                    self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
-                if not check_mode:
-                    self.add_local_policy(payload)
-        return local_policy_updates

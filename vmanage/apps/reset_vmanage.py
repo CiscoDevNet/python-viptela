@@ -7,7 +7,7 @@ from vmanage.api.central_policy import CentralPolicy
 from vmanage.api.device_inventory import DeviceInventory
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
-from vmanage.api.localized_policy import LocalizedPolicy
+from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.security_policy import SecurityPolicy
 from vmanage.api.policy_lists import PolicyLists
 
@@ -35,10 +35,10 @@ class ResetVmanage(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.utilities = Utilities(self.session, self.host)
         self.central_policy = CentralPolicy(self.session, self.host)
+        self.local_policy = LocalPolicy(self.session, self.host)
         self.inventory = DeviceInventory(self.session, self.host)
         self.dev_temps = DeviceTemplates(self.session, self.host)
         self.fet_temps = FeatureTemplates(self.session, self.host)
-        self.loc_pol = LocalizedPolicy(self.session, self.host)
         self.sec_pol = SecurityPolicy(self.session, self.host)
         self.pol_lists = PolicyLists(self.session, self.host)
 
@@ -118,10 +118,10 @@ class ResetVmanage(object):
         self.active_count_delay()
 
         # Step 8 - Delete All Localized Policies
-        data = self.loc_pol.get_localized_policy()
+        data = self.local_policy.get_local_policy()
         for policy in data:
             policyId = policy['policyId']
-            self.loc_pol.delete_localized_policy(policyId)
+            self.local_policy.delete_local_policy(policyId)
         self.active_count_delay()
 
         # Step 9 - Delete All Localized Specific Definitions
