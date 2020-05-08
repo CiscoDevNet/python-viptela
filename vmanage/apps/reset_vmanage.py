@@ -3,7 +3,7 @@
 
 import time
 from vmanage.api.utilities import Utilities
-from vmanage.api.centralized_policy import CentralizedPolicy
+from vmanage.api.central_policy import CentralPolicy
 from vmanage.api.device_inventory import DeviceInventory
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
@@ -34,7 +34,7 @@ class ResetVmanage(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.utilities = Utilities(self.session, self.host)
-        self.cen_pol = CentralizedPolicy(self.session, self.host)
+        self.central_policy = CentralPolicy(self.session, self.host)
         self.inventory = DeviceInventory(self.session, self.host)
         self.dev_temps = DeviceTemplates(self.session, self.host)
         self.fet_temps = FeatureTemplates(self.session, self.host)
@@ -52,12 +52,12 @@ class ResetVmanage(object):
 
     def execute(self):
 
-        # Step 1 - Deactivate Centralized Policy
-        data = self.cen_pol.get_centralized_policy()
+        # Step 1 - Deactivate Central Policy
+        data = self.central_policy.get_central_policy()
         for policy in data:
             if policy['isPolicyActivated']:
-                policyId = policy['policyId']
-                self.cen_pol.deactivate_centralized_policy(policyId)
+                policy_id = policy['policyId']
+                self.central_policy.deactivate_central_policy(policy_id)
         self.active_count_delay()
 
         # Step 2 - Detach vedges from template

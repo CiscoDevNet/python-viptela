@@ -3,7 +3,6 @@
 
 import json
 import re
-import dictdiffer
 from vmanage.api.feature_templates import FeatureTemplates
 from vmanage.api.device import Device
 from vmanage.api.http_methods import HttpMethods
@@ -98,10 +97,7 @@ class DeviceTemplates(object):
         if name_list is None:
             name_list = []
         device_templates = self.get_device_templates()
-
         return_list = []
-        feature_template_dict = self.feature_templates.get_feature_template_dict(factory_default=True,
-                                                                                 key_name='templateId')
 
         #pylint: disable=too-many-nested-blocks
         for device in device_templates:
@@ -113,32 +109,11 @@ class DeviceTemplates(object):
             if obj:
                 if not factory_default and obj['factoryDefault']:
                     continue
-                if 'generalTemplates' in obj:
-                    generalTemplates = []
-                    for old_template in obj.pop('generalTemplates'):
-                        new_template = {
-                            'templateName': feature_template_dict[old_template['templateId']]['templateName'],
-                            'templateType': old_template['templateType']
-                        }
-                        if 'subTemplates' in old_template:
-                            subTemplates = []
-                            for sub_template in old_template['subTemplates']:
-                                subTemplates.append({
-                                    'templateName':
-                                    feature_template_dict[sub_template['templateId']]['templateName'],
-                                    'templateType':
-                                    sub_template['templateType']
-                                })
-                            new_template['subTemplates'] = subTemplates
-                        generalTemplates.append(new_template)
-                    obj['generalTemplates'] = generalTemplates
+                obj['templateId'] = device['templateId']
 
-                    obj['templateId'] = device['templateId']
-                    obj['attached_devices'] = self.get_template_attachments(device['templateId'])
-                    obj['input'] = self.get_template_input(device['templateId'])
-                    # obj.pop('templateId')
-                    return_list.append(obj)
-
+                # obj['attached_devices'] = self.get_template_attachments(device['templateId'])
+                # obj['input'] = self.get_template_input(device['templateId'])
+                return_list.append(obj)
         return return_list
 
     def get_device_template_dict(self, factory_default=False, key_name='templateName', remove_key=True, name_list=None):
@@ -242,7 +217,7 @@ class DeviceTemplates(object):
             'deviceType': device_template['deviceType'],
             'factoryDefault': device_template['factoryDefault'],
             'configType': device_template['configType'],
-            'policyId': '',
+            'policyId': device_template['policyId'],
             'featureTemplateUidRange': []
         }
         #
@@ -250,18 +225,13 @@ class DeviceTemplates(object):
         #
         if device_template['configType'] == 'file':
             payload['templateConfiguration'] = device_template['templateConfiguration']
-            api = "template/device/cli"
-            url = self.base_url + api
+            url = f"{self.base_url}template/device/cli"
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         #
         # Feature based templates are just a list of templates Id that make up a devie template.  We are
         # given the name of the feature templates, but we need to translate that to the template ID
         #
         else:
-            if 'generalTemplates' in device_template:
-                payload['generalTemplates'] = self.generalTemplates_to_id(device_template['generalTemplates'])
-            else:
-                raise Exception("No generalTemplates found in device template", data=device_template)
             url = f"{self.base_url}template/device/feature"
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         return response
@@ -288,56 +258,9 @@ class DeviceTemplates(object):
         # given the name of the feature templates, but we need to translate that to the template ID
         #
         else:
-            if 'generalTemplates' in device_template:
-                device_template['generalTemplates'] = self.generalTemplates_to_id(device_template['generalTemplates'])
-            else:
-                raise Exception("No generalTemplates found in device template", data=device_template)
             url = f"{self.base_url}template/device/feature/{device_template['templateId']}"
             response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
         return response
-
-    def import_device_template_list(self, device_template_list, check_mode=False, update=False):
-        """Import a list of feature templates to vManage.
-
-
-        Args:
-            check_mode (bool): Only check to see if changes would be made
-            update (bool): Update the template if it exists
-
-        Returns:
-            result (list): Returns the diffs of the updates.
-
-        """
-        device_template_updates = []
-        device_template_dict = self.get_device_template_dict()
-        for device_template in device_template_list:
-            if device_template['templateName'] in device_template_dict:
-                existing_template = device_template_dict[device_template['templateName']]
-                if 'generalTemplates' in device_template:
-                    diff = list(
-                        dictdiffer.diff(existing_template['generalTemplates'], device_template['generalTemplates']))
-                elif 'templateConfiguration' in device_template:
-                    diff = list(
-                        dictdiffer.diff(existing_template['templateConfiguration'],
-                                        device_template['templateConfiguration']))
-                else:
-                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
-                if len(diff):
-                    device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
-                    if not check_mode and update:
-                        self.update_device_template(device_template)
-            else:
-                if 'generalTemplates' in device_template:
-                    diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
-                elif 'templateConfiguration' in device_template:
-                    diff = list(dictdiffer.diff({}, device_template['templateConfiguration']))
-                else:
-                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
-                device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
-                if not check_mode:
-                    self.add_device_template(device_template)
-
-        return device_template_updates
 
     def import_attachment_list(self, attachment_list, check_mode=False, update=False):
         """Import a list of device attachments to vManage.
@@ -516,36 +439,3 @@ class DeviceTemplates(object):
             attached_devices.append(device[key])
 
         return attached_devices
-
-    def generalTemplates_to_id(self, generalTemplates):
-        converted_generalTemplates = []
-        feature_templates = self.feature_templates.get_feature_template_dict(factory_default=True)
-        for template in generalTemplates:
-            if 'templateName' not in template:
-                self.result['generalTemplates'] = generalTemplates
-                self.fail_json(msg="Bad template")
-            if template['templateName'] in feature_templates:
-                template_item = {
-                    'templateId': feature_templates[template['templateName']]['templateId'],
-                    'templateType': template['templateType']
-                }
-                if 'subTemplates' in template:
-                    subTemplates = []
-                    for sub_template in template['subTemplates']:
-                        if sub_template['templateName'] in feature_templates:
-                            subTemplates.append({
-                                'templateId':
-                                feature_templates[sub_template['templateName']]['templateId'],
-                                'templateType':
-                                sub_template['templateType']
-                            })
-                        else:
-                            self.fail_json(msg="There is no existing feature template named {0}".format(
-                                sub_template['templateName']))
-                    template_item['subTemplates'] = subTemplates
-
-                converted_generalTemplates.append(template_item)
-            else:
-                self.fail_json(msg="There is no existing feature template named {0}".format(template['templateName']))
-
-        return converted_generalTemplates

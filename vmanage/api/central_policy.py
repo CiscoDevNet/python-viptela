@@ -119,6 +119,19 @@ class CentralPolicy(object):
         result = ParseMethods.parse_status(response)
         return result
 
+    def get_central_policy(self):
+        """Obtain a list of all configured central policies
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/vsmart"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
     def get_central_policy_list(self):
         """Get all Central Policies from vManage.
 
@@ -128,12 +141,7 @@ class CentralPolicy(object):
 
         """
 
-        api = "template/policy/vsmart"
-        url = self.base_url + api
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-
-        central_policy_list = result
+        central_policy_list = self.get_central_policy()
         # We need to convert the policy definitions from JSON
         for policy in central_policy_list:
             try:

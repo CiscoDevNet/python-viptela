@@ -68,8 +68,9 @@ def templates(ctx, template_type, diff, default, name, json):
                 click.echo("NAME                           TYPE       ATTACHED  DEVICE TYPES")
                 click.echo("--------------------------------------------------------------------------")
                 for template in device_template_list:
+                    attached_devices = device_templates.get_template_attachments(template['templateId'])
                     click.echo(
-                        f"{template['templateName'][:30]:30} {template['configType'][:10]:10} {len(template['attached_devices']):<9} {template['deviceType'][:16]:16} "
+                        f"{template['templateName'][:30]:30} {template['configType'][:10]:10} {len(attached_devices):<9} {template['deviceType'][:16]:16} "
                     )
                 click.echo()
             else:

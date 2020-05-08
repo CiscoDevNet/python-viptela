@@ -6,6 +6,7 @@ import os
 import yaml
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.data.template_methods import TemplateMethods
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.api.local_policy import LocalPolicy
@@ -40,6 +41,7 @@ class Files(object):
 
         device_templates = DeviceTemplates(self.session, self.host, self.port)
         feature_templates = FeatureTemplates(self.session, self.host, self.port)
+        template_methods = TemplateMethods(self.session, self.host, self.port)
 
         template_export = {}
         #pylint: disable=too-many-nested-blocks
@@ -48,20 +50,25 @@ class Files(object):
             device_template_list = device_templates.get_device_template_list(name_list=name_list)
             template_export.update({'vmanage_device_templates': device_template_list})
             feature_name_list = []
-            if name_list:
-                for device_template in device_template_list:
-                    if 'generalTemplates' in device_template:
-                        for general_template in device_template['generalTemplates']:
-                            if 'templateName' in general_template:
-                                feature_name_list.append(general_template['templateName'])
-                            if 'subTemplates' in general_template:
-                                for sub_template in general_template['subTemplates']:
-                                    if 'templateName' in sub_template:
-                                        feature_name_list.append(sub_template['templateName'])
-                name_list = list(set(feature_name_list))
+
+            for device_template in device_template_list:
+                device_template = template_methods.convert_device_template_to_name(device_template)
+                if name_list and 'generalTemplates' in device_template:
+                    # If a name_list is specified, gather a list of all the feature
+                    # templates used so we know which ones we need to export
+                    for general_template in device_template['generalTemplates']:
+                        if 'templateName' in general_template:
+                            feature_name_list.append(general_template['templateName'])
+                        if 'subTemplates' in general_template:
+                            for sub_template in general_template['subTemplates']:
+                                if 'templateName' in sub_template:
+                                    feature_name_list.append(sub_template['templateName'])
+
+                if feature_name_list:
+                    feature_name_list = list(set(feature_name_list))
         # Since device templates depend on feature templates, we always add them.
         feature_templates = FeatureTemplates(self.session, self.host, self.port)
-        feature_template_list = feature_templates.get_feature_template_list(name_list=name_list)
+        feature_template_list = feature_templates.get_feature_template_list(name_list=feature_name_list)
         template_export.update({'vmanage_feature_templates': feature_template_list})
 
         if export_file.endswith('.json'):
@@ -76,7 +83,7 @@ class Files(object):
     #pylint: disable=unused-argument
     def import_templates_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
 
-        vmanage_device_templates = DeviceTemplates(self.session, self.host, self.port)
+        template_methods = TemplateMethods(self.session, self.host, self.port)
         vmanage_feature_templates = FeatureTemplates(self.session, self.host, self.port)
 
         feature_template_updates = []
@@ -137,9 +144,9 @@ class Files(object):
             imported_feature_template_list, check_mode=check_mode, update=update)
 
         # Process the device templates
-        device_template_updates = vmanage_device_templates.import_device_template_list(imported_device_template_list,
-                                                                                       check_mode=check_mode,
-                                                                                       update=update)
+        device_template_updates = template_methods.import_device_template_list(imported_device_template_list,
+                                                                               check_mode=check_mode,
+                                                                               update=update)
 
         return {
             'feature_template_updates': feature_template_updates,
