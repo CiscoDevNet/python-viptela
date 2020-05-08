@@ -6,7 +6,7 @@
 Welcome to Python viptela's documentation!
 ==========================================
 
-`python-viptela` provides a PYthon SDK for interacting with Cisco SDWAN (formerly Viptela).
+`python-viptela` provides a Python SDK for interacting with Cisco SDWAN (formerly Viptela).
 
 .. toctree::
    :maxdepth: 2
