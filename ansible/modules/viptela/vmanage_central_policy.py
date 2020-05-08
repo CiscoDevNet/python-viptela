@@ -45,7 +45,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_central_policy = CentralPolicy(vmanage.auth, vmanage.host)
-    policy_data = PolicyData(self.session, self.host, self.port)
+    policy_data = PolicyData(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:

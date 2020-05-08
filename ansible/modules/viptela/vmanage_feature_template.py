@@ -3,6 +3,7 @@
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.data.template_data import TemplateData
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -45,6 +46,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_feature_templates = FeatureTemplates(vmanage.auth, vmanage.host)
+    vmanage_template_data = TemplateData(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
@@ -81,7 +83,7 @@ def run_module():
 
     feature_template_updates = []
     if vmanage.params['state'] == 'present':
-        feature_template_updates = vmanage_feature_templates.import_feature_template_list(
+        feature_template_updates = vmanage_template_data.import_feature_template_list(
             feature_template_list,
             check_mode=module.check_mode,
             update=vmanage.params['update']

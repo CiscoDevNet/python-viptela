@@ -9,6 +9,7 @@ ANSIBLE_METADATA = {
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.policy_lists import PolicyLists
+from vmanage.data.policy_data import PolicyData
 
 
 def run_module():
@@ -46,6 +47,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_policy_lists = PolicyLists(vmanage.auth, vmanage.host)
+    vmanage_policy_data = PolicyData(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
@@ -63,7 +65,7 @@ def run_module():
     # Import site lists
     policy_list_updates = []
     if vmanage.params['state'] == 'present':
-        policy_list_updates = vmanage_policy_lists.import_policy_list_list(
+        policy_list_updates = vmanage_policy_data.import_policy_list_list(
             policy_list_list,
             check_mode=module.check_mode,
             update=vmanage.params['update'],

@@ -195,7 +195,7 @@ class TemplateData(object):
 
                 # obj['attached_devices'] = self.get_template_attachments(device['templateId'])
                 # obj['input'] = self.get_template_input(device['templateId'])
-                converted_device_template = self.template_data.convert_device_template_to_name(obj)
+                converted_device_template = self.convert_device_template_to_name(obj)
                 return_list.append(converted_device_template)
         return return_list
 

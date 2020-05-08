@@ -8,7 +8,7 @@ ANSIBLE_METADATA = {
 
 from ansible.module_utils.basic import AnsibleModule, json
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
-from vmanage.api.local_policy import LocalPolicy
+from vmanage.data.policy_data import PolicyData
 
 
 def run_module():
@@ -36,9 +36,9 @@ def run_module():
                            supports_check_mode=True,
                            )
     vmanage = Vmanage(module)
-    vmanage_local_policy = LocalPolicy(vmanage.auth, vmanage.host)
+    policy_data = PolicyData(vmanage.auth, vmanage.host)
 
-    vmanage.result['local_policy'] = vmanage_local_policy.get_local_policy_dict()
+    vmanage.result['local_policy'] = policy_data.export_local_policy_list()
 
     vmanage.exit_json(**vmanage.result)
 

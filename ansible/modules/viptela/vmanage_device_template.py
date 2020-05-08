@@ -3,6 +3,7 @@
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.device_templates import DeviceTemplates
+from vmanage.data.template_data import TemplateData
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -43,6 +44,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_device_templates = DeviceTemplates(vmanage.auth, vmanage.host)
+    vmanage_template_data = TemplateData(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
@@ -69,7 +71,7 @@ def run_module():
 
     device_template_updates = []
     if vmanage.params['state'] == 'present':
-        device_template_updates = vmanage_device_templates.import_device_template_list(
+        device_template_updates = vmanage_template_data.import_device_template_list(
             device_template_list,
             check_mode=module.check_mode,
             update=vmanage.params['update']

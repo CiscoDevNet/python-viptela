@@ -49,31 +49,27 @@ class Files(object):
         self.vmanage_device = Device(self.session, self.host, self.port)
 
     def export_templates_to_file(self, export_file, name_list=None, template_type=None):
+
         template_export = {}
         #pylint: disable=too-many-nested-blocks
         if template_type != 'feature':
             # Export the device templates and associated feature templates
-            device_template_list = self.device_templates.get_device_template_list(name_list=name_list)
+            device_template_list = self.template_data.export_device_template_list(name_list=name_list)
             template_export.update({'vmanage_device_templates': device_template_list})
             feature_name_list = []
-
-            for device_template in device_template_list:
-                device_template = self.template_data.convert_device_template_to_name(device_template)
-                if name_list and 'generalTemplates' in device_template:
-                    # If a name_list is specified, gather a list of all the feature
-                    # templates used so we know which ones we need to export
-                    for general_template in device_template['generalTemplates']:
-                        if 'templateName' in general_template:
-                            feature_name_list.append(general_template['templateName'])
-                        if 'subTemplates' in general_template:
-                            for sub_template in general_template['subTemplates']:
-                                if 'templateName' in sub_template:
-                                    feature_name_list.append(sub_template['templateName'])
-
-                if feature_name_list:
-                    feature_name_list = list(set(feature_name_list))
+            if name_list:
+                for device_template in device_template_list:
+                    if 'generalTemplates' in device_template:
+                        for general_template in device_template['generalTemplates']:
+                            if 'templateName' in general_template:
+                                feature_name_list.append(general_template['templateName'])
+                            if 'subTemplates' in general_template:
+                                for sub_template in general_template['subTemplates']:
+                                    if 'templateName' in sub_template:
+                                        feature_name_list.append(sub_template['templateName'])
+                name_list = list(set(feature_name_list))
         # Since device templates depend on feature templates, we always add them.
-        feature_template_list = self.feature_templates.get_feature_template_list(name_list=feature_name_list)
+        feature_template_list = self.feature_templates.get_feature_template_list(name_list=name_list)
         template_export.update({'vmanage_feature_templates': feature_template_list})
 
         if export_file.endswith('.json'):
@@ -87,21 +83,22 @@ class Files(object):
 
     #pylint: disable=unused-argument
     def import_templates_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
+
         feature_template_updates = []
         device_template_updates = []
-        template_data = {}
+        imported_template_data = {}
 
         # Read in the datafile
         if not os.path.exists(file):
             raise Exception(f"Cannot find file {file}")
         with open(file) as f:
             if file.endswith('.yaml') or file.endswith('.yml'):
-                template_data = yaml.safe_load(f)
+                imported_template_data = yaml.safe_load(f)
             else:
-                template_data = json.load(f)
+                imported_template_data = json.load(f)
 
-        if 'vmanage_feature_templates' in template_data:
-            imported_feature_template_list = template_data['vmanage_feature_templates']
+        if 'vmanage_feature_templates' in imported_template_data:
+            imported_feature_template_list = imported_template_data['vmanage_feature_templates']
         else:
             imported_feature_template_list = []
 
@@ -110,8 +107,8 @@ class Files(object):
         #pylint: disable=too-many-nested-blocks
         if template_type != 'feature':
             # Import the device templates and associated feature templates
-            if 'vmanage_device_templates' in template_data:
-                imported_device_template_list = template_data['vmanage_device_templates']
+            if 'vmanage_device_templates' in imported_template_data:
+                imported_device_template_list = imported_template_data['vmanage_device_templates']
             if name_list:
                 feature_name_list = []
                 pruned_device_template_list = []

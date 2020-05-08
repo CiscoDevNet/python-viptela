@@ -51,7 +51,7 @@ def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argum
         policy_definition_dict = policy_definitions.get_policy_definition_dict(definition_type)
         if name in policy_definition_dict:
             policy_definition = policy_data.export_policy_definition(policy_definition_dict[name]['type'].lower(),
-                                                                         policy_definition_dict[name]['definitionId'])
+                                                                     policy_definition_dict[name]['definitionId'])
             # list_keys(policy_definition['definition'])
             pp.pprint(policy_definition)
     else:

@@ -212,8 +212,8 @@ class PolicyData(object):
     def convert_definition_id_to_name(self, policy_definition):
         if 'assembly' in policy_definition and policy_definition['assembly']:
             for assembly_item in policy_definition['assembly']:
-                policy_definition_detail = self.policy_definitions.get_policy_definition(assembly_item['type'].lower(),
-                                                                      assembly_item['definitionId'])
+                policy_definition_detail = self.policy_definitions.get_policy_definition(
+                    assembly_item['type'].lower(), assembly_item['definitionId'])
                 definition_id = assembly_item.pop('definitionId')
                 if policy_definition_detail:
                     assembly_item['definitionName'] = policy_definition_detail['name']
@@ -250,7 +250,8 @@ class PolicyData(object):
         policy_definition_list = self.policy_definitions.get_policy_definition_list(definition_type)
         export_definition_list = []
         for policy_definition in policy_definition_list:
-            definition_detail = self.policy_definitions.get_policy_definition(policy_definition['type'], policy_definition['definitionId'])
+            definition_detail = self.policy_definitions.get_policy_definition(policy_definition['type'],
+                                                                              policy_definition['definitionId'])
             if definition_detail:
                 if 'definition' in definition_detail:
                     self.convert_list_id_to_name(definition_detail['definition'])
