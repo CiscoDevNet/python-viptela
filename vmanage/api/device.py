@@ -27,9 +27,38 @@ class Device(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    #
-    # Devices
-    #
+    def get_device_list(self, category):
+        """Obtain a list of specified device type
+
+        Args:
+            category (str): vedges or controllers
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}system/device/{category}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def post_device_cli_mode(self, deviceId, deviceIP, deviceType):
+        """Update a device to CLI mode
+
+        Args:
+            deviceId (str): uuid for device object
+            deviceIP (str): system IP equivalent
+            deviceType (str): vedge or controller
+
+        """
+
+        url = "{self.base_url}template/config/device/mode/cli"
+        devices = f"{{'deviceId':'{deviceId}','deviceIP':'{deviceIP}'}}"
+        payload = f"{{'deviceType':'{deviceType}','devices':[{devices}]}}"
+        response = HttpMethods(self.session, url).request('POST', payload=payload)
+        result = ParseMethods.parse_status(response)
+        return result
+
     def get_device_status_list(self):
         """Obtain a list of specified device type
 

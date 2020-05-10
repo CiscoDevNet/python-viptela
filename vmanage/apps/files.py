@@ -17,15 +17,12 @@ from vmanage.utils import list_to_dict
 
 
 class Files(object):
-    """Access to Various vManage Utilitiesinstance.
+    """Read and write data to file.
 
-    vManage has several utilities that are needed for correct execution
-    of applications against the API.  For example, this includes waiting
-    for an action to complete before moving onto the next task.
 
     """
     def __init__(self, session, host, port=443):
-        """Initialize Utilities object with session parameters.
+        """Initialize Files object with session parameters.
 
         Args:
             session (obj): Requests Session object
@@ -49,6 +46,15 @@ class Files(object):
         self.vmanage_device = Device(self.session, self.host, self.port)
 
     def export_templates_to_file(self, export_file, name_list=None, template_type=None):
+        """Export templates to a file.  All object IDs will be translated to names.  Use
+        a '.yml' extention to export as YAML and a '.json' extension to export as JSON.
+
+        Args:
+            export_file (str): The name of the export file
+            name_list (list): List of device templates to export
+            template_type (str): Template type: device or template
+
+        """
 
         template_export = {}
         #pylint: disable=too-many-nested-blocks
@@ -82,17 +88,31 @@ class Files(object):
             raise Exception("File format not supported")
 
     #pylint: disable=unused-argument
-    def import_templates_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
+    def import_templates_from_file(self,
+                                   import_file,
+                                   update=False,
+                                   check_mode=False,
+                                   name_list=None,
+                                   template_type=None):
+        """Import templates from a file.  All object Names will be translated to IDs.
 
+        Args:
+            import_file (str): The name of the import file
+            name_list (list): List of device templates to export
+            template_type (str): Template type: device or template
+            check_mode (bool): Try the import, but don't make changes (default: False)
+            update (bool): Update existing templates (default: False)
+
+        """
         feature_template_updates = []
         device_template_updates = []
         imported_template_data = {}
 
         # Read in the datafile
-        if not os.path.exists(file):
-            raise Exception(f"Cannot find file {file}")
-        with open(file) as f:
-            if file.endswith('.yaml') or file.endswith('.yml'):
+        if not os.path.exists(import_file):
+            raise Exception(f"Cannot find file {import_file}")
+        with open(import_file) as f:
+            if import_file.endswith('.yaml') or import_file.endswith('.yml'):
                 imported_template_data = yaml.safe_load(f)
             else:
                 imported_template_data = json.load(f)
@@ -156,6 +176,13 @@ class Files(object):
     # Policy
     #
     def export_policy_to_file(self, export_file):
+        """Export policy to a file.  All object IDs will be translated to names.  Use
+        a '.yml' extention to export as YAML and a '.json' extension to export as JSON.
+
+        Args:
+            export_file (str): The name of the export file
+
+        """
 
         policy_lists_list = self.policy_lists.get_policy_list_list()
         policy_definitions_list = self.policy_data.export_policy_definition_list()
@@ -179,6 +206,15 @@ class Files(object):
             raise Exception("File format not supported")
 
     def import_policy_from_file(self, file, update=False, check_mode=False, push=False):
+        """Import policy from a file.  All object Names will be translated to IDs.
+
+        Args:
+            import_file (str): The name of the import file
+            check_mode (bool): Try the import, but don't make changes (default: False)
+            update (bool): Update existing templates (default: False)
+            push (bool): Push tempaltes to devices if changed (default: False)
+
+        """
 
         policy_list_updates = []
         policy_definition_updates = []
@@ -240,6 +276,14 @@ class Files(object):
         }
 
     def export_attachments_to_file(self, export_file, name_list=None, device_type=None):
+        """Export attachments to a file.  All object IDs will be translated to names.  Use
+        a '.yml' extention to export as YAML and a '.json' extension to export as JSON.
+
+        Args:
+            export_file (str): The name of the export file
+
+        """
+
         if name_list is None:
             name_list = []
 
@@ -291,13 +335,27 @@ class Files(object):
             raise Exception("File format not supported")
         return (len(attachments_list))
 
-    def import_attachments_from_file(self, file, update=False, check_mode=False, name_list=None, template_type=None):
+    def import_attachments_from_file(self,
+                                     import_file,
+                                     update=False,
+                                     check_mode=False,
+                                     name_list=None,
+                                     template_type=None):
+        """Import policy from a file.  All object Names will be translated to IDs.
+
+        Args:
+            import_file (str): The name of the import file
+            check_mode (bool): Try the import, but don't make changes (default: False)
+            update (bool): Update existing templates (default: False)
+
+        """
+
         template_data = {}
         # Read in the datafile
-        if not os.path.exists(file):
-            raise Exception(f"Cannot find file {file}")
-        with open(file) as f:
-            if file.endswith('.yaml') or file.endswith('.yml'):
+        if not os.path.exists(import_file):
+            raise Exception(f"Cannot find file {import_file}")
+        with open(import_file) as f:
+            if import_file.endswith('.yaml') or import_file.endswith('.yml'):
                 template_data = yaml.safe_load(f)
             else:
                 template_data = json.load(f)

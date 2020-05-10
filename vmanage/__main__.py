@@ -4,6 +4,7 @@ from vmanage.cli.deactivate import deactivate
 from vmanage.cli.show import show
 from vmanage.cli.export import export
 from vmanage.cli.import_cmd import import_cmd
+from vmanage.cli.clean import clean
 from vmanage.cli.certificate import certificate
 from vmanage.api.authentication import Authentication
 
@@ -56,3 +57,4 @@ vmanage.add_command(show)
 vmanage.add_command(export)
 vmanage.add_command(import_cmd)
 vmanage.add_command(certificate)
+vmanage.add_command(clean)

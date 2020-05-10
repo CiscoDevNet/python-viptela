@@ -25,7 +25,7 @@ class ParseMethods:
             Exception: Provides error message and details of issue.
         """
 
-        if 'data' in response['json']:
+        if response['json'] and 'data' in response['json']:
             result = response['json']['data']
         else:
             error = response['error']

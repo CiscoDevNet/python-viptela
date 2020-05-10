@@ -134,7 +134,7 @@ class CentralPolicy(object):
         """Get all Central Policies from vManage.
 
         Returns:
-            response (dict): A list of all policy lists currently
+            response (list): A list of all policy lists currently
                 in vManage.
 
         """
@@ -150,6 +150,17 @@ class CentralPolicy(object):
         return central_policy_list
 
     def get_central_policy_dict(self, key_name='policyName', remove_key=False):
+        """Get all Central Policies from vManage.
+
+        Args:
+            key_name (str): The name of the attribute to use as the key
+            remove_key (bool): Remove the key from the dict (default: False)
+
+        Returns:
+            response (dict): A dict of all policy lists currently
+                in vManage.
+
+        """
 
         central_policy_list = self.get_central_policy_list()
 

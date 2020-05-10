@@ -215,9 +215,12 @@ class DeviceTemplates(object):
             'deviceType': device_template['deviceType'],
             'factoryDefault': device_template['factoryDefault'],
             'configType': device_template['configType'],
-            'policyId': device_template['policyId'],
             'featureTemplateUidRange': []
         }
+        if 'policyId' in device_template:
+            payload['policyId'] = device_template['policyId']
+        else:
+            payload['policyId'] = ''
         #
         # File templates are much easier in that they are just a bunch of CLI
         #
@@ -230,6 +233,7 @@ class DeviceTemplates(object):
         # given the name of the feature templates, but we need to translate that to the template ID
         #
         else:
+            payload['generalTemplates'] = device_template['generalTemplates']
             url = f"{self.base_url}template/device/feature"
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         return response
@@ -251,14 +255,51 @@ class DeviceTemplates(object):
         if device_template['configType'] == 'file':
             url = f"{self.base_url}template/device/cli/{device_template['templateId']}"
             response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
+            ParseMethods.parse_data(response)
         #
         # Feature based templates are just a list of templates Id that make up a devie template.  We are
         # given the name of the feature templates, but we need to translate that to the template ID
         #
         else:
-            url = f"{self.base_url}template/device/feature/{device_template['templateId']}"
+            url = f"{self.base_url}template/device/{device_template['templateId']}"
             response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
+            ParseMethods.parse_data(response)
         return response
+
+    def reattach_device_template(self, template_id):
+        """Re-Attach a template to the devices it it attached to.
+
+        Args:
+            template_id (str): The template ID to attach to
+
+        Returns:
+            action_id (str): Returns the action id of the attachment
+
+        """
+        device_list = self.get_template_attachments(template_id, key='uuid')
+
+        template_input = self.get_template_input(template_id, device_list)
+
+        # Then we feed that to the attach
+        if 'data' in template_input and template_input['data']:
+            payload = {
+                "deviceTemplateList": [{
+                    "templateId": template_id,
+                    "device": response.json['data'],
+                    "isEdited": "true",
+                    "isMasterEdited": "false"
+                }]
+            }
+            url = f"{self.base_url}template/device/config/attachfeature"
+            response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+            if 'json' in response and 'id' in response['json']:
+                action_id = response['json']['id']
+                self.waitfor_action_completion(action_id)
+            else:
+                raise Exception(f"Did not get action ID after attaching device to template {template_id}.")
+        else:
+            raise Exception(f"Could not retrieve input for template {template_id}")
+        return action_id
 
     def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables):
         """Attach and device to a template

@@ -10,9 +10,7 @@ from vmanage.api.device_templates import DeviceTemplates
 
 
 class PolicyData(object):
-    """vManage Policy Methods
-
-    Responsible vManage Policy.
+    """Methods that deal with importing, exporting, and manipulating data from policies.
 
     """
     def __init__(self, session, host, port=443):
@@ -36,7 +34,7 @@ class PolicyData(object):
 
     #pylint: disable=unused-argument
     def import_policy_list_list(self, policy_list_list, push=False, update=False, check_mode=False, force=False):
-        """Import a list of policy lists into vManage
+        """Import a list of policyies lists into vManage.  Object Names are translated to IDs.
 
         Args:
             policy_list_list: A list of polcies
@@ -91,6 +89,12 @@ class PolicyData(object):
         return policy_list_updates
 
     def convert_list_name_to_id(self, name_list):
+        """Convert policy list from names to IDs in object.
+
+        Args:
+            name_list (list): Object
+
+        """
         if isinstance(name_list, dict):
             for key, value in list(name_list.items()):
                 if key.endswith('List'):
@@ -147,21 +151,13 @@ class PolicyData(object):
             for item in name_list:
                 self.convert_list_name_to_id(item)
 
-    def convert_sequences_to_id(self, sequence_list):
-        for sequence in sequence_list:
-            if 'match' in sequence and 'entries' in sequence['match']:
-                for entry in sequence['match']['entries']:
-                    if 'listName' in entry:
-                        policy_list_dict = self.policy_lists.get_policy_list_dict(entry['listType'])
-                        if entry['listName'] in policy_list_dict:
-                            entry['ref'] = policy_list_dict[entry['listName']]['listId']
-                            entry.pop('listName')
-                            entry.pop('listType')
-                        else:
-                            raise Exception("Could not find list {0} of type {1}".format(
-                                entry['listName'], entry['listType']))
-
     def convert_list_id_to_name(self, id_list):
+        """Convert policy list from IDs to names in object.
+
+        Args:
+            id_list (list): Object
+
+        """
         if isinstance(id_list, dict):
             for key, value in list(id_list.items()):
                 if key.endswith('List'):
@@ -209,7 +205,33 @@ class PolicyData(object):
             for item in id_list:
                 self.convert_list_id_to_name(item)
 
+    def convert_sequences_to_id(self, sequence_list):
+        """Convert sequence entries from IDs to names in object.
+
+        Args:
+            sequence_list (list): Sequence list
+
+        """
+        for sequence in sequence_list:
+            if 'match' in sequence and 'entries' in sequence['match']:
+                for entry in sequence['match']['entries']:
+                    if 'listName' in entry:
+                        policy_list_dict = self.policy_lists.get_policy_list_dict(entry['listType'])
+                        if entry['listName'] in policy_list_dict:
+                            entry['ref'] = policy_list_dict[entry['listName']]['listId']
+                            entry.pop('listName')
+                            entry.pop('listType')
+                        else:
+                            raise Exception("Could not find list {0} of type {1}".format(
+                                entry['listName'], entry['listType']))
+
     def convert_definition_id_to_name(self, policy_definition):
+        """Convert policy_definition from IDs to names in object.
+
+        Args:
+            policy_definition (list): Sequence list
+
+        """
         if 'assembly' in policy_definition and policy_definition['assembly']:
             for assembly_item in policy_definition['assembly']:
                 policy_definition_detail = self.policy_definitions.get_policy_definition(
@@ -224,6 +246,12 @@ class PolicyData(object):
                     self.convert_list_id_to_name(assembly_item['entries'])
 
     def convert_definition_name_to_id(self, policy_definition):
+        """Convert policy_definition from names to IDs in object.
+
+        Args:
+            policy_definition (list): Sequence list
+
+        """
         if 'assembly' in policy_definition and policy_definition['assembly']:
             for assembly_item in policy_definition['assembly']:
                 definition_name = assembly_item.pop('definitionName')
@@ -270,6 +298,13 @@ class PolicyData(object):
                                       push=False,
                                       check_mode=False,
                                       force=False):
+        """Import Policy Definitions into vManage.  Object names are converted to IDs.
+
+        Returns:
+            response (dict): A list of all policy lists currently
+                in vManage.
+
+        """
         policy_definition_updates = []
         for definition in policy_definition_list:
             policy_definition_dict = self.policy_definitions.get_policy_definition_dict(definition['type'],
@@ -322,7 +357,7 @@ class PolicyData(object):
         return policy_definition_updates
 
     def export_local_policy_list(self):
-        """Export all Central Policies from vManage.
+        """Export Local Policies from vManage.  Object IDs are converted to names.
 
         Returns:
             response (dict): A list of all policy lists currently
@@ -337,6 +372,13 @@ class PolicyData(object):
 
     #pylint: disable=unused-argument
     def import_local_policy_list(self, local_policy_list, update=False, push=False, check_mode=False, force=False):
+        """Import Local Policies into vManage.  Object names are converted to IDs.
+
+        Returns:
+            response (dict): A list of all policy lists currently
+                in vManage.
+
+        """
         local_policy_dict = self.local_policy.get_local_policy_dict(remove_key=False)
         local_policy_updates = []
         for local_policy in local_policy_list:
@@ -363,7 +405,7 @@ class PolicyData(object):
         return local_policy_updates
 
     def export_central_policy_list(self):
-        """Export Central Policies from vManage, converting IDs to names
+        """Export Central Policies from vManage, converting IDs to names.
 
         Returns:
             response (dict): A list of all policy lists currently
@@ -379,6 +421,13 @@ class PolicyData(object):
 
     #pylint: disable=unused-argument
     def import_central_policy_list(self, central_policy_list, update=False, push=False, check_mode=False, force=False):
+        """Import Central Policies into vManage.  Object names are converted to IDs.
+
+        Returns:
+            response (dict): A list of all policy lists currently
+                in vManage.
+
+        """
         central_policy_dict = self.central_policy.get_central_policy_dict(remove_key=True)
         central_policy_updates = []
         for central_policy in central_policy_list:
