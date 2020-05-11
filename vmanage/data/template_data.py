@@ -234,8 +234,10 @@ class TemplateData(object):
                     device_template_dict[device_template['templateName']])
                 device_template['templateId'] = existing_template['templateId']
                 # Just check the things that we care about changing.
-                diff_ignore = set(
-                    ['templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName', 'attached_devices', 'input'])
+                diff_ignore = set([
+                    'templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName',
+                    'attached_devices', 'input'
+                ])
                 diff = list(dictdiffer.diff(existing_template, device_template, ignore=diff_ignore))
                 if len(diff):
                     device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
