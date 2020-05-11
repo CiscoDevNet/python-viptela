@@ -333,7 +333,7 @@ class DeviceTemplates(object):
                 if entry['variable'] in variables:
                     device_template_variables[entry['property']] = variables[entry['variable']]
                 else:
-                    raise Exception(f"{entry['variable']} is missing for {host_name}")
+                    raise Exception(f"{entry['variable']} is missing for template {host_name}")
 
         payload = {
             "deviceTemplateList": [{

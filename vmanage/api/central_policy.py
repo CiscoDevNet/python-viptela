@@ -82,7 +82,6 @@ class CentralPolicy(object):
             result (dict): All data associated with a response.
 
         """
-
         url = f"{self.base_url}template/policy/vsmart"
         HttpMethods(self.session, url).request('POST', payload=json.dumps(policy))
 

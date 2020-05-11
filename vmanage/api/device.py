@@ -52,7 +52,7 @@ class Device(object):
 
         """
 
-        url = "{self.base_url}template/config/device/mode/cli"
+        url = f"{self.base_url}template/config/device/mode/cli"
         devices = f"{{'deviceId':'{deviceId}','deviceIP':'{deviceIP}'}}"
         payload = f"{{'deviceType':'{deviceType}','devices':[{devices}]}}"
         response = HttpMethods(self.session, url).request('POST', payload=payload)
@@ -128,12 +128,6 @@ class Device(object):
 
         return {}
 
-    def get_device_dict(self, key_name='host-name', remove_key=False):
-
-        device_list = self.get_device_list()
-
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
-
     def get_device_config_list(self, device_type):
         """Get the config status of a list of devices
 
@@ -151,7 +145,6 @@ class Device(object):
         return result
 
     def get_device_config_dict(self, device_type, key_name='host-name', remove_key=False):
-
         device_list = self.get_device_config_list(device_type)
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)

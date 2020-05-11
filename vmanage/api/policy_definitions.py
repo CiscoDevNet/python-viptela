@@ -45,7 +45,7 @@ class PolicyDefinitions(object):
         """
 
         url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
-        HttpMethods(self.session, url).request('GET')
+        HttpMethods(self.session, url).request('DELETE')
 
     def add_policy_definition(self, policy_definition):
         """Delete a Policy Definition from vManage.

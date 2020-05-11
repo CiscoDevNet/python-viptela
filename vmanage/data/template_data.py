@@ -168,7 +168,6 @@ class TemplateData(object):
                 if len(diff):
                     feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                     if not check_mode and update:
-                        print (feature_template)
                         self.feature_templates.update_feature_template(feature_template)
             else:
                 diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
@@ -236,7 +235,7 @@ class TemplateData(object):
                 device_template['templateId'] = existing_template['templateId']
                 # Just check the things that we care about changing.
                 diff_ignore = set(
-                    ['templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName'])
+                    ['templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName', 'attached_devices', 'input'])
                 diff = list(dictdiffer.diff(existing_template, device_template, ignore=diff_ignore))
                 if len(diff):
                     device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
@@ -308,26 +307,28 @@ class TemplateData(object):
                             changed = True
                     if changed:
                         if not check_mode and update:
-                            action_id = self.attach_to_template(template_id, device_uuid, attachment['system_ip'],
-                                                                attachment['host_name'], attachment['site_id'],
-                                                                attachment['variables'])
+                            action_id = self.device_templates.attach_to_template(template_id, device_uuid,
+                                                                                 attachment['system_ip'],
+                                                                                 attachment['host_name'],
+                                                                                 attachment['site_id'],
+                                                                                 attachment['variables'])
                             action_id_list.append(action_id)
                 else:
                     if not check_mode:
-                        action_id = self.attach_to_template(template_id, device_uuid, attachment['system_ip'],
-                                                            attachment['host_name'], attachment['site_id'],
-                                                            attachment['variables'])
+                        action_id = self.device_templates.attach_to_template(template_id, device_uuid,
+                                                                             attachment['system_ip'],
+                                                                             attachment['host_name'],
+                                                                             attachment['site_id'],
+                                                                             attachment['variables'])
                         action_id_list.append(action_id)
             else:
-                raise Exception(f"No template named Template {attachment['templateName']}")
+                raise Exception(f"No template named {attachment['template']}")
 
-        # pp = pprint.PrettyPrinter(indent=2)
         utilities = Utilities(self.session, self.host)
         # Batch the waits so that the peocessing of the attachments is in parallel
         for action_id in action_id_list:
             result = utilities.waitfor_action_completion(action_id)
             data = result['action_response']['data'][0]
-            # pp.pprint(data)
             if result['action_status'] == 'failure':
                 attachment_failures.update({data['uuid']: data['currentActivity']})
             else:
