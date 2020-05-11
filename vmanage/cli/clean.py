@@ -3,14 +3,7 @@ from vmanage.apps.clean import CleanVmanage
 
 
 @click.command()
-@click.option('--verify_clean/--no-verify_clean', default=False)
-# @click.option('--type',
-#               '-t',
-#               'template_type',
-#               multiple=True
-#               help="Template type",
-#               type=click.Choice(['device', 'feature']),
-#               default=None)
+@click.option('--verify-clean/--no-verify-clean', default=False)
 @click.pass_obj
 def clean(ctx, verify_clean):
     """
@@ -19,4 +12,6 @@ def clean(ctx, verify_clean):
     clean_vmanage = CleanVmanage(ctx.auth, ctx.host)
 
     if verify_clean:
+        clean_vmanage.clean_all()
+    elif click.confirm('This will DESTROY EVERYTHING! Do you want to continue?'):
         clean_vmanage.clean_all()

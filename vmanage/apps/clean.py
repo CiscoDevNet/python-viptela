@@ -52,14 +52,6 @@ class CleanVmanage(object):
             data = self.utilities.get_active_count()
             activeCount = data["activeTaskCount"]
 
-    def clean_central_policy(self):
-        data = self.central_policy.get_central_policy()
-        for policy in data:
-            if policy['isPolicyActivated']:
-                policy_id = policy['policyId']
-                self.central_policy.deactivate_central_policy(policy_id)
-        self.active_count_delay()
-
     def clean_vedge_attachments(self):
         data = self.device.get_device_list('vedges')
         for device in data:
@@ -104,13 +96,9 @@ class CleanVmanage(object):
         data = self.central_policy.get_central_policy()
         for policy in data:
             policyId = policy['policyId']
+            if policy['isPolicyActivated']:
+                self.central_policy.deactivate_central_policy(policy_id)
             self.central_policy.delete_central_policy(policyId)
-        self.active_count_delay()
-
-    def clean_policy_definitions(self):
-        policy_definition_list = self.policy_definitions.get_policy_definition_list()
-        for policy_definition in policy_definition_list:
-            self.policy_definitions.delete_policy_definition(policy_definition['type'], policy_definition['definitionId'])
         self.active_count_delay()
 
     def clean_local_policy(self):
@@ -118,6 +106,20 @@ class CleanVmanage(object):
         for policy in data:
             policyId = policy['policyId']
             self.local_policy.delete_local_policy(policyId)
+        self.active_count_delay()
+
+    def clean_policy_definitions(self):
+        policy_definition_list = self.policy_definitions.get_policy_definition_list()
+        for policy_definition in policy_definition_list:
+            self.policy_definitions.delete_policy_definition(policy_definition['type'],
+                                                             policy_definition['definitionId'])
+        self.active_count_delay()
+
+    def clean_policy_lists(self):
+        policy_list_list = self.policy_lists.get_policy_list_list()
+        for policy_list in policy_list_list:
+            if not policy_list['readOnly'] and policy_list['owner'] != 'system':
+                self.policy_lists.delete_policy_list(policy_list['type'], policy_list['listId'])
         self.active_count_delay()
 
     def clean_security_policy(self):
@@ -184,10 +186,13 @@ class CleanVmanage(object):
         # Step 7 - Delete All Policy Definitions
         self.clean_policy_definitions()
 
-        # Step 8 - Delete All Local Policies
+        # Step 8 - Delete All Policy Lists
+        self.clean_policy_lists()
+
+        # Step 9 - Delete All Local Policies
         self.clean_local_policy()
 
-        # Step 9 - Delete All Security Policies
+        # Step 10 - Delete All Security Policies
         self.clean_security_policy()
 
         return ('Reset Complete')
