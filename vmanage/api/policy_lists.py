@@ -133,8 +133,7 @@ class PolicyLists(object):
 
         """
 
-        api = f"template/policy/list/{listType}/{listId}"
-        url = self.base_url + api
+        url = f"{self.base_url}template/policy/list/{listType.lower()}/{listId}"
         response = HttpMethods(self.session, url).request('DELETE')
         result = ParseMethods.parse_status(response)
         return result
@@ -154,22 +153,18 @@ class PolicyLists(object):
 
         """
         if cache and policy_list_type in self.policy_list_cache:
-            response = self.policy_list_cache[policy_list_type]
+            response = self.policy_list_cache[policy_list_type.lower()]
         else:
             if policy_list_type == 'all':
-                api = f"template/policy/list"
+                url = f"{self.base_url}template/policy/list"
                 # result = self.request('/template/policy/list', status_codes=[200])
             else:
-                api = f"template/policy/list/{policy_list_type.lower()}"
+                url = f"{self.base_url}template/policy/list/{policy_list_type.lower()}"
                 # result = self.request('/template/policy/list/{0}'.format(type.lower()), status_codes=[200, 404])
 
-            url = self.base_url + api
             response = HttpMethods(self.session, url).request('GET')
 
-        if response['status_code'] == 404:
-            return []
-
-        self.policy_list_cache[policy_list_type] = response
+        self.policy_list_cache[policy_list_type.lower()] = response
         return response['json']['data']
 
     def get_policy_list_dict(self, policy_list_type='all', key_name='name', remove_key=False, cache=True):
@@ -177,6 +172,30 @@ class PolicyLists(object):
         policy_list = self.get_policy_list_list(policy_list_type, cache=cache)
 
         return list_to_dict(policy_list, key_name, remove_key=remove_key)
+
+    def get_policy_list_by_name(self, policy_list_name, policy_list_type='all'):
+        policy_list_dict = self.get_policy_list_dict(policy_list_type, cache=True)
+        if policy_list_name in policy_list_dict:
+            # Cache Hit!
+            return policy_list_dict[policy_list_name]
+        # Cache miss.  Ignore the cache
+        policy_list_dict = self.get_policy_list_dict(policy_list_type, cache=False)
+        if policy_list_name in policy_list_dict:
+            return policy_list_dict[policy_list_name]
+
+        return None
+
+    def get_policy_list_by_id(self, policy_list_id, policy_list_type='all'):
+        policy_list_dict = self.get_policy_list_dict(policy_list_type, key_name='listId', cache=True)
+        if policy_list_id in policy_list_dict:
+            # Cache Hit!
+            return policy_list_dict[policy_list_id]
+        # Cache miss.  Ignore the cache
+        policy_list_dict = self.get_policy_list_dict(policy_list_type, key_name='listId', cache=False)
+        if policy_list_id in policy_list_dict:
+            return policy_list_dict[policy_list_id]
+
+        return None
 
     def add_policy_list(self, policy_list):
         """Add a new Policy List to vManage.
