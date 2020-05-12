@@ -95,10 +95,12 @@ class CleanVmanage(object):
     def clean_central_policy(self):
         data = self.central_policy.get_central_policy()
         for policy in data:
-            policyId = policy['policyId']
+            policy_id = policy['policyId']
             if policy['isPolicyActivated']:
-                self.central_policy.deactivate_central_policy(policy_id)
-            self.central_policy.delete_central_policy(policyId)
+                action_id = self.central_policy.deactivate_central_policy(policy_id)
+                if action_id:
+                    self.utilities.waitfor_action_completion(action_id)
+            self.central_policy.delete_central_policy(policy_id)
         self.active_count_delay()
 
     def clean_local_policy(self):

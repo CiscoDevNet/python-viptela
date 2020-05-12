@@ -21,7 +21,7 @@ copyright = '2020, Cisco Public Sector'
 author = 'Cisco Public Sector'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.4.dev'
+release = '0.2.4.dev2'
 
 
 # -- General configuration ---------------------------------------------------

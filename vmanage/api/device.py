@@ -138,8 +138,7 @@ class Device(object):
             result (dict): All data associated with a response.
         """
 
-        api = f"system/device/{device_type}"
-        url = self.base_url + api
+        url = f"{self.base_url}system/device/{device_type}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
