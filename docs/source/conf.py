@@ -21,7 +21,7 @@ copyright = '2020, Cisco Public Sector'
 author = 'Cisco Public Sector'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.3'
+release = '0.3.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,7 +40,7 @@ extensions = [
 extensions.append('autoapi.extension')
 autoapi_type = 'python'
 autoapi_dirs = ['../../vmanage']
-autoapi_ignore = ['**/cli/**']
+autoapi_ignore = ['**/cli/**', '**/__main__.py']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -49,7 +49,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
 
 # -- Options for HTML output -------------------------------------------------
 

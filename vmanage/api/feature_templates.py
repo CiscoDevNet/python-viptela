@@ -3,7 +3,6 @@
 
 import json
 
-import dictdiffer
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
@@ -152,36 +151,3 @@ class FeatureTemplates(object):
         feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
         return list_to_dict(feature_template_list, key_name, remove_key)
-
-    def import_feature_template_list(self, feature_template_list, check_mode=False, update=False):
-        """Add a list of feature templates to vManage.
-
-
-        Args:
-            check_mode (bool): Only check to see if changes would be made
-            update (bool): Update the template if it exists
-
-        Returns:
-            result (list): Returns the diffs of the updates.
-
-        """
-        # Process the feature templates
-        feature_template_updates = []
-        feature_template_dict = self.get_feature_template_dict(factory_default=True, remove_key=False)
-        for feature_template in feature_template_list:
-            if feature_template['templateName'] in feature_template_dict:
-                existing_template = feature_template_dict[feature_template['templateName']]
-                feature_template['templateId'] = existing_template['templateId']
-                diff = list(
-                    dictdiffer.diff(existing_template['templateDefinition'], feature_template['templateDefinition']))
-                if len(diff):
-                    feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
-                    if not check_mode and update:
-                        self.update_feature_template(feature_template)
-            else:
-                diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
-                feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
-                if not check_mode:
-                    self.add_feature_template(feature_template)
-
-        return feature_template_updates

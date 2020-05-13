@@ -8,7 +8,7 @@ ANSIBLE_METADATA = {
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
-from vmanage.api.device_templates import DeviceTemplates
+from vmanage.data.template_data import TemplateData
 
 
 def run_module():
@@ -36,9 +36,9 @@ def run_module():
                            supports_check_mode=True,
                            )
     vmanage = Vmanage(module)
-    device_templates = DeviceTemplates(vmanage.auth, vmanage.host)
+    template_data = TemplateData(vmanage.auth, vmanage.host)
 
-    vmanage.result['device_templates'] = device_templates.get_device_template_list(factory_default=vmanage.params['factory_default'])
+    vmanage.result['device_templates'] = template_data.export_device_template_list(factory_default=vmanage.params['factory_default'])
 
     vmanage.exit_json(**vmanage.result)
 

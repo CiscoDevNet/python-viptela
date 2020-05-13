@@ -77,24 +77,6 @@ class HttpMethods(object):
                                             data=data,
                                             timeout=STANDARD_TIMEOUT)
 
-            if response.text:
-                result_json = json.loads(response.text)
-
-            if response.status_code not in VALID_STATUS_CODES:
-                details = json.loads(response.text)['error']['details']
-                error = json.loads(response.text)['error']['message']
-
-            result = {
-                'status_code': response.status_code,
-                'status': requests.status_codes._codes[response.status_code][0],  #pylint: disable=protected-access
-                'details': details,
-                'error': error,
-                'json': result_json,
-                'response': response,
-            }
-
-        except json.JSONDecodeError as e:
-            raise Exception(f'Payload format error: {e}')
         except requests.exceptions.ConnectionError as e:
             raise Exception(f'Connection error to {self.url}: {e}')
         except requests.exceptions.HTTPError as e:
@@ -107,5 +89,28 @@ class HttpMethods(object):
             raise Exception(f'The request timed out: {e}')
         except requests.exceptions.RequestException as e:
             raise Exception(f'There was an ambiguous exception: {e}')
+
+        if response.text:
+            try:
+                result_json = json.loads(response.text)
+            except json.JSONDecodeError as e:
+                raise Exception(f'Payload format error: {e}')
+
+        result = {
+            'status_code': response.status_code,
+            'status': requests.status_codes._codes[response.status_code][0],  #pylint: disable=protected-access
+            'details': details,
+            'error': error,
+            'json': result_json,
+            'response': response,
+        }
+
+        if response.status_code not in VALID_STATUS_CODES:
+            if result_json and 'error' in result_json:
+                details = result_json['error']['details']
+                error = result_json['error']['message']
+                raise Exception(f"{self.url}: Error {result['status_code']} ({result['status']}) - {error}: {details}")
+            else:
+                raise Exception(f"{self.url}: Error {result['status_code']} ({result['status']})")
 
         return result

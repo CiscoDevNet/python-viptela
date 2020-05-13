@@ -27,9 +27,38 @@ class Device(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    #
-    # Devices
-    #
+    def get_device_list(self, category):
+        """Obtain a list of specified device type
+
+        Args:
+            category (str): vedges or controllers
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}system/device/{category}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def post_device_cli_mode(self, deviceId, deviceIP, deviceType):
+        """Update a device to CLI mode
+
+        Args:
+            deviceId (str): uuid for device object
+            deviceIP (str): system IP equivalent
+            deviceType (str): vedge or controller
+
+        """
+
+        url = f"{self.base_url}template/config/device/mode/cli"
+        devices = f"{{'deviceId':'{deviceId}','deviceIP':'{deviceIP}'}}"
+        payload = f"{{'deviceType':'{deviceType}','devices':[{devices}]}}"
+        response = HttpMethods(self.session, url).request('POST', payload=payload)
+        result = ParseMethods.parse_status(response)
+        return result
+
     def get_device_status_list(self):
         """Obtain a list of specified device type
 
@@ -99,12 +128,6 @@ class Device(object):
 
         return {}
 
-    def get_device_dict(self, key_name='host-name', remove_key=False):
-
-        device_list = self.get_device_list()
-
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
-
     def get_device_config_list(self, device_type):
         """Get the config status of a list of devices
 
@@ -115,14 +138,12 @@ class Device(object):
             result (dict): All data associated with a response.
         """
 
-        api = f"system/device/{device_type}"
-        url = self.base_url + api
+        url = f"{self.base_url}system/device/{device_type}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
     def get_device_config_dict(self, device_type, key_name='host-name', remove_key=False):
-
         device_list = self.get_device_config_list(device_type)
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)

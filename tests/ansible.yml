@@ -2,19 +2,65 @@
   gather_facts: no
   tasks: 
     - debug:
-        msg: "Running Ansible Module tests" 
+        msg: "Running Ansible Module tests"
 
     - name: vManage Device Facts
       vmanage_device_facts:
 
     - name: vManage Feature Template Facts
       vmanage_feature_template_facts:
+      register: template_facts
+
+    - debug:
+        var: template_facts
+      tags:
+        - never
+        - debug
 
     - name: vManage Feature Template Facts
       vmanage_device_template_facts:
+      register: template_facts
+
+    - debug:
+        var: template_facts
+      tags:
+        - never
+        - debug
 
     - name: vManage Template Facts
       vmanage_template_facts:
+
+    - name: Read in templates from file
+      include_vars:
+        file: vmanage-templates.yml
+        name: vmanage_templates
+
+    # - debug:
+    #     var: vmanage_templates
+
+    - name: Import feature templates as aggregate
+      vmanage_feature_template:
+        state: present
+        aggregate: "{{ vmanage_templates['vmanage_feature_templates'] }}"
+      register: template_facts
+
+    - debug:
+        var: template_facts
+      tags:
+        - never
+        - debug
+
+    - name: Import device templates as aggregate
+      vmanage_device_template:
+        state: present
+        aggregate: "{{ vmanage_templates['vmanage_device_templates'] }}"
+      register: template_facts
+
+    - debug:
+        var: template_facts
+      tags:
+        - never
+        - debug
 
     - name: vManage Import Templates
       vmanage_template_import:
@@ -23,6 +69,32 @@
     - name: vManage Export Templates
       vmanage_template_export:
         file: "/tmp/vmanage-templates-test.yml"
+
+    - name: Read in templates from file
+      include_vars:
+        file: vmanage-policies.yml
+        name: vmanage_policies
+
+    - name: Import policy lists as aggregate
+      tags:
+        - policy_lists
+      vmanage_policy_list:
+        state: present
+        aggregate: "{{ vmanage_policies['vmanage_policy_lists'] }}"
+
+    - name: Import policy definitions as aggregate
+      tags:
+        - policy_definitions
+      vmanage_policy_definition:
+        state: present
+        aggregate: "{{ vmanage_policies['vmanage_policy_definitions'] }}"
+
+    - name: Import central policies as aggregate
+      tags:
+        - central_policy
+      vmanage_central_policy:
+        state: present
+        aggregate: "{{ vmanage_policies['vmanage_central_policies'] }}"
 
     - name: vManage Import Policies
       vmanage_policy_import:
@@ -42,12 +114,40 @@
 
     - name: vManage Policy List Facts
       vmanage_policy_list_facts:
+      register: policy_facts
+
+    - debug:
+        var: policy_facts        
+      tags:
+        - never
+        - debug
 
     - name: vManage Policy Definition Facts
       vmanage_policy_definition_facts:
+      register: policy_facts
+
+    - debug:
+        var: policy_facts
+      tags:
+        - never
+        - debug         
 
     - name: vManage Central Policy Facts
       vmanage_central_policy_facts:
+      register: policy_facts
+
+    - debug:
+        var: policy_facts    
+      tags:
+        - never
+        - debug
 
     - name: vManage Local Policy Facts
       vmanage_local_policy_facts:
+      register: policy_facts
+
+    - debug:
+        var: policy_facts
+      tags:
+        - never
+        - debug           

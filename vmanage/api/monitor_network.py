@@ -37,8 +37,7 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        api = "device/control/connections?deviceId=" + system_ip
-        url = self.base_url + api
+        url = f"{self.base_url}device/control/connections?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -53,8 +52,7 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        api = "device/control/connectionshistory?deviceId=" + system_ip
-        url = self.base_url + api
+        url = f"{self.base_url}device/control/connectionshistory?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -69,8 +67,7 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        api = "device?system-ip=" + system_ip
-        url = self.base_url + api
+        url = f"{self.base_url}device?system-ip={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -85,8 +82,7 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        api = f"device/omp/peers?deviceId={system_ip}"
-        url = self.base_url + api
+        url = f"{self.base_url}device/omp/peers?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result

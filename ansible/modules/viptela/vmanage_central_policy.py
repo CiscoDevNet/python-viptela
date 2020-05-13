@@ -10,6 +10,7 @@ import re
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.central_policy import CentralPolicy
+from vmanage.data.policy_data import PolicyData
 
 
 def run_module():
@@ -44,6 +45,7 @@ def run_module():
                            )
     vmanage = Vmanage(module)
     vmanage_central_policy = CentralPolicy(vmanage.auth, vmanage.host)
+    policy_data = PolicyData(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
@@ -68,7 +70,7 @@ def run_module():
 
     central_policy_updates = []
     if vmanage.params['state'] == 'present':
-        central_policy_updates = vmanage_central_policy.import_central_policy_list(
+        central_policy_updates = policy_data.import_central_policy_list(
             policy_list,
             check_mode=module.check_mode,
             update=vmanage.params['update'],

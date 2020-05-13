@@ -104,9 +104,10 @@ def config(ctx, dev, device_type, json):
             click.secho(f"Could not find device {dev}", err=True, fg='red')
 
     else:
-        click.echo(
-            f"{'Hostname':20} {'Device IP':15} {'Model':15} {'Site':6} {'State':9} {'Template':16} {'Status':7} {'Connection':10} {'Version':7}"
-        )
+        if not json:
+            click.echo(
+                f"{'Hostname':20} {'Device IP':15} {'Model':15} {'Site':6} {'State':9} {'Template':16} {'Status':7} {'Connection':10} {'Version':7}"
+            )
         if device_type in ['all', 'control']:
             device_list = vmanage_device.get_device_config_list('controllers')
 
@@ -131,7 +132,7 @@ def config(ctx, dev, device_type, json):
                         f"{device_name:20} {device_entry['deviceIP']:15} {device_entry['deviceModel']:15} {site_id:6} {reachability:9} {template:16} {config_status_message:7} {vmanage_connection_state:10} {version:7}"
                     )
 
-        if type in ['all', 'edge']:
+        if device_type in ['all', 'edge']:
             device_list = vmanage_device.get_device_config_list('vedges')
             if json:
                 pp.pprint(device_list)

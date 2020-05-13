@@ -1,9 +1,7 @@
 """Cisco vManage Centralized Policy API Methods.
 """
 import json
-import time
 
-import dictdiffer
 from vmanage.api.http_methods import HttpMethods
 from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.data.parse_methods import ParseMethods
@@ -84,7 +82,6 @@ class CentralPolicy(object):
             result (dict): All data associated with a response.
 
         """
-
         url = f"{self.base_url}template/policy/vsmart"
         HttpMethods(self.session, url).request('POST', payload=json.dumps(policy))
 
@@ -119,21 +116,29 @@ class CentralPolicy(object):
         result = ParseMethods.parse_status(response)
         return result
 
+    def get_central_policy(self):
+        """Obtain a list of all configured central policies
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        url = f"{self.base_url}template/policy/vsmart"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
     def get_central_policy_list(self):
         """Get all Central Policies from vManage.
 
         Returns:
-            response (dict): A list of all policy lists currently
+            response (list): A list of all policy lists currently
                 in vManage.
 
         """
 
-        api = "template/policy/vsmart"
-        url = self.base_url + api
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-
-        central_policy_list = result
+        central_policy_list = self.get_central_policy()
         # We need to convert the policy definitions from JSON
         for policy in central_policy_list:
             try:
@@ -141,74 +146,21 @@ class CentralPolicy(object):
                 policy['policyDefinition'] = json_policy
             except Exception:  # TODO: figuring out better exception type to catch
                 pass
-            self.policy_definitions.convert_definition_id_to_name(policy['policyDefinition'])
         return central_policy_list
 
     def get_central_policy_dict(self, key_name='policyName', remove_key=False):
+        """Get all Central Policies from vManage.
+
+        Args:
+            key_name (str): The name of the attribute to use as the key
+            remove_key (bool): Remove the key from the dict (default: False)
+
+        Returns:
+            response (dict): A dict of all policy lists currently
+                in vManage.
+
+        """
 
         central_policy_list = self.get_central_policy_list()
 
         return list_to_dict(central_policy_list, key_name, remove_key=remove_key)
-
-    #pylint: disable=unused-argument
-    def import_central_policy_list(self, central_policy_list, update=False, push=False, check_mode=False, force=False):
-        central_policy_dict = self.get_central_policy_dict(remove_key=True)
-        central_policy_updates = []
-        for central_policy in central_policy_list:
-            payload = {'policyName': central_policy['policyName']}
-            payload['policyDescription'] = central_policy['policyDescription']
-            payload['policyType'] = central_policy['policyType']
-            payload['policyDefinition'] = central_policy['policyDefinition']
-            if payload['policyName'] in central_policy_dict:
-                # A policy by that name already exists
-                existing_policy = central_policy_dict[payload['policyName']]
-                diff = list(dictdiffer.diff(existing_policy['policyDefinition'], payload['policyDefinition']))
-                if diff:
-                    central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
-                if len(diff):
-                    # Convert list and definition names to template IDs
-                    if 'policyDefinition' in payload:
-                        self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
-                    if not check_mode and update:
-                        self.update_central_policy(payload, existing_policy['policyId'])
-            else:
-                diff = list(dictdiffer.diff({}, payload['policyDefinition']))
-                central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
-                if not check_mode:
-                    # Convert list and definition names to template IDs
-                    if 'policyDefinition' in payload:
-                        self.policy_definitions.convert_definition_name_to_id(payload['policyDefinition'])
-                    self.add_central_policy(payload)
-        return central_policy_updates
-
-    # Might want to move this later
-    def waitfor_action_completion(self, action_id):
-        status = 'in_progress'
-        response = {}
-        while status == "in_progress":
-            url = f"{self.base_url}device/action/status/{action_id}"
-            response = HttpMethods(self.session, url).request('GET')
-            ParseMethods.parse_data(response)
-
-            if 'json' in response:
-                status = response['json']['summary']['status']
-                if 'data' in response['json'] and response['json']['data']:
-                    action_status = response['json']['data'][0]['statusId']
-                    action_activity = response['json']['data'][0]['activity']
-                    if 'actionConfig' in response['json']['data'][0]:
-                        action_config = response['json']['data'][0]['actionConfig']
-                    else:
-                        action_config = None
-            else:
-                raise Exception(msg="Unable to get action status: No response")
-            time.sleep(10)
-
-        # if self.result['action_status'] == 'failure':
-        #    self.fail_json(msg="Action failed")
-        return {
-            'action_response': response['json'],
-            'action_id': action_id,
-            'action_status': action_status,
-            'action_activity': action_activity,
-            'action_config': action_config
-        }

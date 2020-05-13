@@ -53,6 +53,9 @@ class Utilities(object):
     def waitfor_action_completion(self, action_id):
         status = 'in_progress'
         response = {}
+        action_status = None
+        action_activity = None
+        action_config = None
         while status == "in_progress":
             url = f"{self.base_url}device/action/status/{action_id}"
             response = HttpMethods(self.session, url).request('GET')
@@ -67,6 +70,8 @@ class Utilities(object):
                         action_config = response['json']['data'][0]['actionConfig']
                     else:
                         action_config = None
+                else:
+                    action_status = status
             else:
                 raise Exception(msg="Unable to get action status: No response")
             time.sleep(10)
