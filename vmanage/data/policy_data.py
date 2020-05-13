@@ -48,6 +48,7 @@ class PolicyData(object):
         """
 
         # Policy Lists
+        diff = []
         policy_list_updates = []
         #pylint: disable=too-many-nested-blocks
         for policy_list in policy_list_list:
@@ -56,10 +57,12 @@ class PolicyData(object):
                                                                       cache=False)
             if policy_list['name'] in policy_list_dict:
                 existing_list = policy_list_dict[policy_list['name']]
-                diff = list(dictdiffer.diff(existing_list['entries'], policy_list['entries']))
+                diff_ignore = set([
+                    'listId', 'references', 'lastUpdated', 'activatedId', 'policyId', 'listId', 'isActivatedByVsmart'
+                ])
+                diff = list(dictdiffer.diff(existing_list, policy_list, ignore=diff_ignore))
                 if diff:
                     policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
-                if diff:
                     policy_list['listId'] = policy_list_dict[policy_list['name']]['listId']
                     # If description is not specified, try to get it from the existing information
                     if not policy_list['description']:
@@ -370,7 +373,8 @@ class PolicyData(object):
                     'infoTag'
                 ])
                 diff = list(dictdiffer.diff(existing_definition, payload, ignore=diff_ignore))
-                if len(diff):
+                if diff:
+                    central_policy_updates.append({'name': converted_definition['name'], 'diff': diff})
                     converted_definition = self.convert_policy_definition_to_id(definition)
                     if not check_mode and update:
                         self.policy_definitions.update_policy_definition(
@@ -449,7 +453,8 @@ class PolicyData(object):
 
         """
         local_policy_dict = self.local_policy.get_local_policy_dict(remove_key=False)
-        local_policy_updates = []
+        diff = []
+        local_policy_updates = []       
         for local_policy in local_policy_list:
             payload = {'policyName': local_policy['policyName']}
             payload['policyDescription'] = local_policy['policyDescription']
@@ -460,16 +465,19 @@ class PolicyData(object):
                 existing_policy = self.convert_policy_to_name(local_policy_dict[payload['policyName']])
                 diff_ignore = set([
                     'lastUpdated', 'policyVersion', 'createdOn', 'references', 'isPolicyActivated', '@rid', 'policyId',
-                    'createdBy', 'lastUpdatedBy', 'lastUpdatedOn'
+                    'createdBy', 'lastUpdatedBy', 'lastUpdatedOn', 'mastersAttached', 'policyDefinitionEdit', 'devicesAttached' 
                 ])
                 diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
-                if len(diff):
+                if diff:
+                    print (diff)
+                    local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
                     if 'policyDefinition' in payload:
                         self.convert_definition_name_to_id(payload['policyDefinition'])
                     if not check_mode and update:
                         self.local_policy.update_local_policy(payload, existing_policy['policyId'])
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
+                local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
                 if 'policyDefinition' in payload:
                     # Convert list and definition names to template IDs
                     self.convert_definition_name_to_id(payload['policyDefinition'])
@@ -504,6 +512,7 @@ class PolicyData(object):
 
         """
         central_policy_dict = self.central_policy.get_central_policy_dict(remove_key=False)
+        diff = []
         central_policy_updates = []
         for central_policy in central_policy_list:
             payload = {'policyName': central_policy['policyName']}
@@ -520,7 +529,6 @@ class PolicyData(object):
                 diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
                 if diff:
                     central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
-                if len(diff):
                     # Convert list and definition names to template IDs
                     converted_payload = self.convert_policy_to_id(payload)
                     if not check_mode and update:
