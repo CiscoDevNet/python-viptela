@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # This is the information that we need to get to vManage and authenticate.  Although
 # the port can be assumed, the username and password is needed to get an API token. 
-vmanage_host = '192.133.178.240'
+vmanage_host = 'XX.XX.XX.XX'
 vmanage_port = '443'
 vmanage_username = 'admin'
 vmanage_password = 'admin'

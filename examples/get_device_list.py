@@ -6,7 +6,7 @@ import pprint
 
 username = 'admin'
 password = 'admin'
-host = '192.133.184.50'
+host = 'XX.XX.XX.XX'
 
 auth = Authentication(host=host, user=username, password=password).login()
 vmanage_device = Device(auth, host)
