@@ -1,7 +1,7 @@
 # Cisco Viptela vManage Python SDK/CLI/Ansible
 
 This repo contains a Python SDK for Cisco Viptela vManage as well as a CLI and Ansible modules that leverage the SDK.
-The previous stable release can be found at https://github.com/CiscoDevNet/python-viptela/tree/0.1.7.  The `master` branch is under active development and may not offer a stable interface.
+Stable releases are found in pypi.  The `master` branch is under active development and may not offer a stable interface.
 
 * [SDK](https://python-viptela.readthedocs.io/en/latest/)
 * [CLI](#vmanage-command-line-interface)
@@ -62,6 +62,7 @@ Options:
 Commands:
   activate     Activate commands
   certificate  Certficate commands
+  clean        Clean vManage
   deactivate   Deactivate commands
   export       Export commands
   import       Import commands

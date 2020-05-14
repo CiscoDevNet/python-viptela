@@ -369,12 +369,12 @@ class PolicyData(object):
                 # Just check the things that we care about changing.
                 diff_ignore = set([
                     'lastUpdated', 'definitionId', 'referenceCount', 'references', 'owner', 'isActivatedByVsmart',
-                    'infoTag'
+                    'infoTag', 'activatedId'
                 ])
                 diff = list(dictdiffer.diff(existing_definition, payload, ignore=diff_ignore))
                 if diff:
-                    policy_definition_updates.append({'name': converted_definition['name'], 'diff': diff})
                     converted_definition = self.convert_policy_definition_to_id(definition)
+                    policy_definition_updates.append({'name': converted_definition['name'], 'diff': diff})
                     if not check_mode and update:
                         self.policy_definitions.update_policy_definition(
                             converted_definition, policy_definition_dict[converted_definition['name']]['definitionId'])

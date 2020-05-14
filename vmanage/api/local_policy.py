@@ -111,6 +111,17 @@ class LocalPolicy(object):
         return local_policy_list
 
     def get_local_policy_dict(self, key_name='policyName', remove_key=False):
+        """Get all Local Policies from vManage.
+
+        Args:
+            key_name (str): The name of the attribute to use as the key
+            remove_key (bool): Remove the key from the dict (default: False)
+
+        Returns:
+            response (dict): A dict of all Local Polices currently
+                in vManage.
+
+        """
 
         local_policy_list = self.get_local_policy_list()
 

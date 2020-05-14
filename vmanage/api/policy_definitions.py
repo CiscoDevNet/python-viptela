@@ -139,6 +139,18 @@ class PolicyDefinitions(object):
                 definition_list.append(definition_detail)
         return definition_list
 
-    def get_policy_definition_dict(self, t, key_name='name', remove_key=False):
-        policy_definition_list = self.get_policy_definition_list(t)
+    def get_policy_definition_dict(self, definition_type, key_name='name', remove_key=False):
+        """Get all Policy Definition Lists from vManage.
+
+        Args:
+            definition_type (str): Policy definition type
+            key_name (string): The name of the attribute to use as the dictionary key
+            remove_key (boolean): Remove the search key from the element
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+
+        policy_definition_list = self.get_policy_definition_list(definition_type)
         return list_to_dict(policy_definition_list, key_name, remove_key=remove_key)

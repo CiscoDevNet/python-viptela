@@ -135,7 +135,7 @@ class Device(object):
             device_type (str): vedge or controller
 
         Returns:
-            result (dict): All data associated with a response.
+            result (list): All data associated with a response.
         """
 
         url = f"{self.base_url}system/device/{device_type}"
@@ -144,6 +144,17 @@ class Device(object):
         return result
 
     def get_device_config_dict(self, device_type, key_name='host-name', remove_key=False):
+        """Get the config status of a list of devices as a dictionary
+
+        Args:
+            device_type (str): vedge or controller
+            key_name (string): The name of the attribute to use as the dictionary key
+            remove_key (boolean): remove the search key from the element
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
         device_list = self.get_device_config_list(device_type)
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
