@@ -156,7 +156,7 @@ class CentralPolicy(object):
             remove_key (bool): Remove the key from the dict (default: False)
 
         Returns:
-            response (dict): A dict of all policy lists currently
+            response (dict): A dict of all Central Policies currently
                 in vManage.
 
         """

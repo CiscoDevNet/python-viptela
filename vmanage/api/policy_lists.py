@@ -145,8 +145,8 @@ class PolicyLists(object):
         """Get a list of policy lists
 
         Args:
-            policy_list_type (str): Policy list type
-            cache (bool): Whether to cache the response
+            policy_list_type (str): Policy list type (default: all)
+            cache (bool): Use cached data
 
         Returns:
             result (dict): All data associated with a response.
@@ -168,12 +168,33 @@ class PolicyLists(object):
         return response['json']['data']
 
     def get_policy_list_dict(self, policy_list_type='all', key_name='name', remove_key=False, cache=True):
+        """Get a dictionary of policy lists
 
+        Args:
+            policy_list_type (str): Policy list type
+            key_name (string): The name of the attribute to use as the dictionary key
+            remove_key (boolean): Remove the search key from the element
+            cache (boolean): Use cached data
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
         policy_list = self.get_policy_list_list(policy_list_type, cache=cache)
 
         return list_to_dict(policy_list, key_name, remove_key=remove_key)
 
     def get_policy_list_by_name(self, policy_list_name, policy_list_type='all'):
+        """Get a policy list by name
+
+        Args:
+            policy_list_name (str): Policy list name
+            policy_list_type (str): Policy list type (default: all)
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
         policy_list_dict = self.get_policy_list_dict(policy_list_type, cache=True)
         if policy_list_name in policy_list_dict:
             # Cache Hit!
@@ -186,6 +207,16 @@ class PolicyLists(object):
         return None
 
     def get_policy_list_by_id(self, policy_list_id, policy_list_type='all'):
+        """Get a policy list by ID
+
+        Args:
+            policy_list_name (str): Policy list ID
+            policy_list_type (str): Policy list type (default: all)
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
         policy_list_dict = self.get_policy_list_dict(policy_list_type, key_name='listId', cache=True)
         if policy_list_id in policy_list_dict:
             # Cache Hit!

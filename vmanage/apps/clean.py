@@ -45,7 +45,9 @@ class CleanVmanage(object):
         self.policy_lists = PolicyLists(self.session, self.host)
 
     def active_count_delay(self):
+        """Delay while there are active tasks.
 
+        """
         activeCount = 1
         while activeCount != 0:
             time.sleep(1.0)
@@ -53,6 +55,9 @@ class CleanVmanage(object):
             activeCount = data["activeTaskCount"]
 
     def clean_vedge_attachments(self):
+        """Clean all vedge attachments
+
+        """
         data = self.device.get_device_list('vedges')
         for device in data:
             if (('deviceIP' in device) and (device['configOperationMode'] == 'vmanage')):
@@ -63,6 +68,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_controller_attachments(self):
+        """Clean all controller attachments
+
+        """
         data = self.device.get_device_list('controllers')
         for device in data:
             if (('deviceIP' in device) and (device['configOperationMode'] == 'vmanage')):
@@ -75,6 +83,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_device_templates(self):
+        """Clean all device templates
+
+        """
         data = self.device_templates.get_device_templates()
         for device in data:
             templateId = device['templateId']
@@ -82,6 +93,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_feature_templates(self):
+        """Clean all feature templates
+
+        """
         data = self.feature_templates.get_feature_templates()
         for device in data:
             #pylint: disable=no-else-continue
@@ -93,6 +107,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_central_policy(self):
+        """Clean all central policy
+
+        """
         data = self.central_policy.get_central_policy()
         for policy in data:
             policy_id = policy['policyId']
@@ -104,6 +121,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_local_policy(self):
+        """Clean all local policy
+
+        """
         data = self.local_policy.get_local_policy()
         for policy in data:
             policyId = policy['policyId']
@@ -111,6 +131,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_policy_definitions(self):
+        """Clean all policy definitions
+
+        """
         policy_definition_list = self.policy_definitions.get_policy_definition_list()
         for policy_definition in policy_definition_list:
             self.policy_definitions.delete_policy_definition(policy_definition['type'],
@@ -118,6 +141,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_policy_lists(self):
+        """Clean all policy lists
+
+        """
         policy_list_list = self.policy_lists.get_policy_list_list()
         for policy_list in policy_list_list:
             if not policy_list['readOnly'] and policy_list['owner'] != 'system':
@@ -125,6 +151,9 @@ class CleanVmanage(object):
         self.active_count_delay()
 
     def clean_security_policy(self):
+        """Clean all security policy
+
+        """
         version = self.utilities.get_vmanage_version()
         if version >= '18.2.0':
             data = self.sec_pol.get_security_policy()
@@ -166,7 +195,9 @@ class CleanVmanage(object):
         #         self.pol_lists.delete_policy_list(listType, listId)
 
     def clean_all(self):
+        """Clean everything in vManage
 
+        """
         # Step 1 - Deactivate Central Policy
         self.clean_central_policy()
 

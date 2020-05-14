@@ -62,6 +62,7 @@ Options:
 Commands:
   activate     Activate commands
   certificate  Certficate commands
+  clean        Clean vManage
   deactivate   Deactivate commands
   export       Export commands
   import       Import commands
