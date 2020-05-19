@@ -1,5 +1,7 @@
 # The requests library is used to communicate with vManage.
 import requests
+# So that we can pull envionment variables instead of having credetials in code
+import os
 # pprint is used to make the output more readable.  It is mainly used for
 # illustration, but is also usefor for debugging and verbose presentation.
 import pprint
@@ -10,10 +12,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # This is the information that we need to get to vManage and authenticate.  Although
 # the port can be assumed, the username and password is needed to get an API token. 
-vmanage_host = 'XX.XX.XX.XX'
+vmanage_host = os.environ.get('VMANAGE_HOST')
 vmanage_port = '443'
-vmanage_username = 'admin'
-vmanage_password = 'admin'
+vmanage_username = os.environ.get('VMANAGE_USERNAME')
+vmanage_password = os.environ.get('VMANAGE_PASSWORD')
 
 # The base URL is is simply the vManage's IP address/hostname in URL format with
 # optional port number
@@ -55,7 +57,7 @@ if login_token.status_code == 200:
     session.headers['X-XSRF-TOKEN'] = login_token.content
 
 # Finally, construct the URL required to retrive the known devices from vManage
-device_url = base_url + '/dataservice/device'
+device_url = base_url + '/dataservice/system/device/vedges'
 
 # The device data is retrieved using a GET method.  If a successful
 # return code is received (i.e. 200), we use the requests library built in

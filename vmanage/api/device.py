@@ -3,6 +3,7 @@
 
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
+from vmanage.utils import list_to_dict
 
 
 class Device(object):
@@ -86,7 +87,7 @@ class Device(object):
 
         result = self.get_device_status_list()
 
-        return self.list_to_dict(result.json, key_name=key_name, remove_key=remove_key)
+        return list_to_dict(result.json, key_name=key_name, remove_key=remove_key)
 
     def get_device_status(self, value, key='system-ip'):
         """Get the status of a specific device
@@ -157,7 +158,7 @@ class Device(object):
         """
         device_list = self.get_device_config_list(device_type)
 
-        return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
+        return list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
 
     def get_device_data(self, path, device_ip):
         """Get the data from a device
