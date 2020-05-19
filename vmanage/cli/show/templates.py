@@ -57,8 +57,8 @@ def templates(ctx, template_type, diff, default, name, json):
                     raise click.ClickException(f"Unknown template type {template_type}")
                 if diff_template:
                     diff_ignore = set([
-                        'templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName',
-                        'attached_devices', 'input'
+                        'templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference',
+                        'templateName', 'attached_devices', 'input'
                     ])
                     diff = dictdiffer.diff(template, diff_template, ignore=diff_ignore)
                     pp.pprint(list(diff))

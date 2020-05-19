@@ -44,6 +44,7 @@ def peers(ctx, device, json):
                 f"{peer['peer']:<16} {peer['type']:<7} {peer['domain-id']:<6} {'X':<7} {peer['site-id']:<6} {peer['state']:<8} {peer['up-time']:<16} X/X/X"
             )
 
+
 @click.command()
 @click.argument('device', required=True)
 @click.option('--json/--no-json', default=False)
@@ -80,6 +81,7 @@ def received(ctx, device, json):
             click.echo(
                 f"{peer['vpn-id']:<6} {peer['prefix']:<18} {peer['protocol']:<10} {peer['from-peer']:<15} {peer['originator']:<15} {peer['color']:<15} {peer['attribute-type']:<16}"
             )
+
 
 @click.command()
 @click.argument('device', required=True)
@@ -118,9 +120,8 @@ def advertised(ctx, device, json):
                 protocol = peer['protocol']
             else:
                 protocol = ''
-            click.echo(
-                f"{peer['vpn-id']:<6} {peer['prefix']:<18} {protocol:<10}"
-            )
+            click.echo(f"{peer['vpn-id']:<6} {peer['prefix']:<18} {protocol:<10}")
+
 
 @click.group()
 def routes():
@@ -128,8 +129,10 @@ def routes():
     Show OMP information
     """
 
+
 routes.add_command(received)
 routes.add_command(advertised)
+
 
 @click.group()
 def omp():
@@ -137,6 +140,6 @@ def omp():
     Show OMP information
     """
 
+
 omp.add_command(peers)
 omp.add_command(routes)
-
