@@ -22,7 +22,7 @@ class CatchAllExceptions(click.Group):
 
 
 class Viptela(object):
-    def __init__(self, host, username, password, tenant):
+    def __init__(self, host, username, password, tenant=None):
         self.host = host
         self.username = username
         self.password = password
@@ -53,7 +53,7 @@ class Viptela(object):
               help='vManage Tenant Name (env: VMANAGE_TENANT)',
               required=False)
 @click.pass_context
-def vmanage(ctx, host, username, password, tenant):
+def vmanage(ctx, host, username, password, tenant=None):
     ctx.obj = Viptela(host, username, password, tenant)
 
 
