@@ -93,8 +93,7 @@ class Authentication(object):
                     tenant_id = tenant_pair[self.tenant]
                     api = f'tenant/{tenant_id}/switch'
                     url = f'{self.base_url}{api}'
-                    response = self.session.post(url=url,
-                                                timeout=self.timeout)
+                    response = self.session.post(url=url, timeout=self.timeout)
 
                     if (response.status_code != 200 or response.text.startswith('<html>')):
                         raise Exception('Tenant login failed, check user credentials.')
