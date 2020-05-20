@@ -13,5 +13,5 @@ auth = Authentication(host=vmanage_host, user=vmanage_username,
                             password=vmanage_password).login()
 vmanage_device = Device(auth, vmanage_host)
 
-device_config_list = vmanage_device.get_device_config_list('all')
+device_config_list = vmanage_device.get_device_config_dict('all')
 pp.pprint(device_config_list)
