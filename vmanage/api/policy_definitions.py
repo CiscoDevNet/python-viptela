@@ -116,10 +116,34 @@ class PolicyDefinitions(object):
             url = self.base_url + api
             response = HttpMethods(self.session, url).request('GET')
 
-            try:
-                definition_type_titles = response['json']['header']['columns'][1]['keyvalue']
-            except:
-                raise Exception('Could not retrieve definition types')
+            definition_type_titles = [
+                { "key": "data", "value": "Data" },
+                { "key": "appRoute", "value": "App Route" },
+                { "key": "control", "value": "Custom Control" },
+                { "key": "cflowd", "value": "Cflowd" },
+                { "key": "mesh", "value": "Mesh" },
+                { "key": "hubAndSpoke", "value": "Hub and Spoke" },
+                { "key": "vpnMembershipGroup", "value": "VPN Membership" },
+                { "key": "qosMap", "value": "QoS Map" },
+                { "key": "rewriteRule", "value": "Rewrite Rule" },
+                { "key": "acl", "value": "Access Control List(IPv4)" },
+                { "key": "aclv6", "value": "Access Control List(IPv6)" },
+                { "key": "deviceAccessPolicy", "value": "Device Access Control List(IPv4)" },
+                { "key": "deviceAccessPolicyv6", "value": "Device Access Control List(IPv6)" },
+                { "key": "vedgeRoute", "value": "Route" },
+                { "key": "zoneBasedFW", "value": "Zone Based" },
+                { "key": "intrusionPrevention", "value": "IPS" },
+                { "key": "urlfiltering", "value": "IPS" },
+#                { "key": "advancedMalwareProtection", "value": "IPS" },
+                { "key": "dnssecurity", "value": "DNS Security" },
+                { "key": "ssldecryption", "value": "SSL Proxy" },
+                { "key": "fxoPort", "value": "FXO" },
+                { "key": "fxsPort", "value": "FXS" },
+                { "key": "fxsDidPort", "value": "FXS DID" },
+                { "key": "dialPeer", "value": "Dial Peer" },
+                { "key": "srstPhoneProfile", "value": "SRST Phone" }
+            ]
+
             for def_type in definition_type_titles:
                 definition_list_types.append(def_type['key'].lower())
             for def_type in definition_list_types:

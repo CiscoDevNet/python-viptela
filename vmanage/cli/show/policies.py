@@ -6,6 +6,7 @@ from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.data.policy_data import PolicyData
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
+from vmanage.api.security_policy import SecurityPolicy
 
 
 @click.command('list')
@@ -104,6 +105,29 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
         local_policy_list = policy_data.export_local_policy_list()
         pp.pprint(local_policy_list)
 
+@click.command()
+@click.argument('name', required=False, default=None)
+@click.option('--json/--no-json', default=False)
+@click.pass_obj
+def security(ctx, name, json):  #pylint: disable=unused-argument
+    """
+    Show security policy information
+    """
+    security_policy = SecurityPolicy(ctx.auth, ctx.host)
+    policy_data = PolicyData(ctx.auth, ctx.host)
+    pp = pprint.PrettyPrinter(indent=2)
+
+    if name:
+        security_policy_dict = security_policy.get_security_policy_dict()
+        if name in security_policy_dict:
+            if json:
+                pp.pprint(security_policy_dict[name])
+            else:
+                preview = security_policy.get_security_policy_preview(security_policy_dict[name]['policyId'])
+                pp.pprint(preview)
+    else:
+        security_policy_list = policy_data.export_security_policy_list()
+        pp.pprint(security_policy_list)
 
 @click.group()
 def policies():
@@ -116,3 +140,4 @@ policies.add_command(list_cmd)
 policies.add_command(definition)
 policies.add_command(central)
 policies.add_command(local)
+policies.add_command(security)
