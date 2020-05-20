@@ -91,18 +91,17 @@ class Authentication(object):
 
                 if self.tenant in tenant_pair:
                     tenant_id = tenant_pair[self.tenant]
+                    api = f'tenant/{tenant_id}/switch'
+                    url = f'{self.base_url}{api}'
+                    response = self.session.post(url=url,
+                                                timeout=self.timeout)
+
+                    if (response.status_code != 200 or response.text.startswith('<html>')):
+                        raise Exception('Tenant login failed, check user credentials.')
+
+                    self.session.headers["VSessionId"] = json.loads(response.content)['VSessionId']
                 else:
                     raise Exception('Tenant not found, check tenant name.')
-
-                api =  f'tenant/{tenant_id}/switch'
-                url = f'{self.base_url}{api}'
-                response = self.session.post(url=url,
-                                             timeout=self.timeout)
-
-                if (response.status_code != 200 or response.text.startswith('<html>')):
-                    raise Exception('Tenant login failed, check user credentials.')
-
-                self.session.headers["VSessionId"] = json.loads(response.content)['VSessionId']
 
         except requests.exceptions.RequestException as e:
             raise Exception(f'Could not connect to {self.host}: {e}')
