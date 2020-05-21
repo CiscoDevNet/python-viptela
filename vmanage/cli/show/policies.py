@@ -38,7 +38,35 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
               'definition_type',
               default='all',
               help="Definition type",
-              type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
+              type=click.Choice([
+                                "data",
+                                "approute",
+                                "control",
+                                "cflowd",
+                                "mesh",
+                                "hubandspoke",
+                                "vpnmembershipgroup",
+                                "qosmap",
+                                "rewriterule",
+                                "acl",
+                                "aclv6",
+                                "deviceaccesspolicy",
+                                "deviceaccesspolicyv6",
+                                "vedgeroute",
+                                "zonebasedfw",
+                                "intrusionprevention",
+                                "urlfiltering",
+                                "advancedMalwareProtection",
+                                "dnssecurity",
+                                "ssldecryption",
+                                "fxoport",
+                                "fxsport",
+                                "fxsdidport",
+                                "dialpeer",
+                                "srstphoneprofile",
+                                "all"
+                                ])
+            )
 @click.pass_obj
 def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """
@@ -51,12 +79,11 @@ def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argum
     if name:
         policy_definition_dict = policy_definitions.get_policy_definition_dict(definition_type)
         if name in policy_definition_dict:
-            policy_definition = policy_data.export_policy_definition(policy_definition_dict[name]['type'].lower(),
-                                                                     policy_definition_dict[name]['definitionId'])
+            policy_definition = policy_data.export_policy_definition_list(policy_definition_dict[name]['type'].lower())
             # list_keys(policy_definition['definition'])
             pp.pprint(policy_definition)
     else:
-        policy_definition_list = policy_data.export_policy_definition_list('all')
+        policy_definition_list = policy_data.export_policy_definition_list(definition_type)
         pp.pprint(policy_definition_list)
 
 
