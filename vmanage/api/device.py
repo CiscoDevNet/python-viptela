@@ -130,18 +130,35 @@ class Device(object):
         return {}
 
     def get_device_config_list(self, device_type):
-        """Get the config status of a list of devices
+        """Get the config status of a list of devices.  When 'all' is specified, it concatenats
+            the vedges and controller together to provide a single method to retrieve status
+            in the same way as get_device_status_list.
 
         Args:
-            device_type (str): vedge or controller
+            device_type (str): 'vedges', 'controllers', or 'all'
 
         Returns:
             result (list): All data associated with a response.
         """
 
+        if device_type.lower() == 'all':
+            # Get vedges
+            url = f"{self.base_url}system/device/vedges"
+            response = HttpMethods(self.session, url).request('GET')
+            vedge_results = ParseMethods.parse_data(response)
+
+            #Get controllers
+            url = f"{self.base_url}system/device/controllers"
+            response = HttpMethods(self.session, url).request('GET')
+            result = ParseMethods.parse_data(response)
+            controller_results = ParseMethods.parse_data(response)
+
+            return controller_results + vedge_results
+
         url = f"{self.base_url}system/device/{device_type}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
+
         return result
 
     def get_device_config_dict(self, device_type, key_name='host-name', remove_key=False):
