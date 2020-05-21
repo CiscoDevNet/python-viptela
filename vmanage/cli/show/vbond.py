@@ -12,6 +12,6 @@ def vbond(ctx):
     vmanage_settings = Settings(ctx.auth, ctx.host)
     result = vmanage_settings.get_vmanage_vbond()
     if 'domainIp' in result:
-        click.echo('{}:{}'.format(result['domainIp'],result['port']))
+        click.echo('{}:{}'.format(result['domainIp'], result['port']))
     else:
         click.echo("No vBond configured")

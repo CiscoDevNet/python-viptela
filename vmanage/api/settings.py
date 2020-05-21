@@ -4,7 +4,6 @@
 import json
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
-from vmanage.api.utilities import Utilities
 
 
 class Settings(object):
@@ -43,8 +42,7 @@ class Settings(object):
         result = ParseMethods.parse_data(response)
         if 'org' in result[0]:
             return result[0]['org']
-        else:
-            return None
+        return None
 
     def set_vmanage_org(self, org):
         """Set vManage organization
