@@ -1,7 +1,9 @@
 """Cisco vManage Certificate API Methods.
 """
 
+import json
 from vmanage.api.http_methods import HttpMethods
+from vmanage.data.parse_methods import ParseMethods
 from vmanage.api.utilities import Utilities
 
 
@@ -28,30 +30,45 @@ class Certificate(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/certificate/'
 
     def generate_csr(self, device_ip):
-        payload = {"deviceIP": device_ip}
-        response = self.request('/dataservice/certificate/generate/csr', method='POST', payload=payload)
+        """Generate CSR for device
 
-        if response.json:
-            try:
-                return response.json['data'][0]['deviceCSR']
-            except Exception:  # TODO: figure out correct type to catch
-                return None
-        else:
-            return None
+        Args:
+            device_ip (str): IP address of device.
+
+        Returns:
+            deviceCSR (str): The CSR for the device.
+        """
+
+        payload = {"deviceIP": device_ip}
+        url = f"{self.base_url}generate/csr"
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+        result = ParseMethods.parse_data(response)
+        return result[0]['deviceCSR']
 
     def install_device_cert(self, cert):
-        response = self.request('/dataservice/certificate/install/signedCert', method='POST', data=cert)
-        if response.json and 'id' in response.json:
-            self.waitfor_action_completion(response.json['id'])
+        """Install signed cert on vManage
+
+        Args:
+            cert (str): The certificate to install.
+
+        Returns:
+            id (str): The action ID of the install command.
+        """
+
+        url = f"{self.base_url}install/signedCert"
+        response = HttpMethods(self.session, url).request('POST', payload=cert)
+        utilities = Utilities(self.session, self.host)
+        if 'json' in response and 'id' in response['json']:
+            utilities.waitfor_action_completion(response['json']['id'])
         else:
-            self.fail_json(msg='Did not get action ID after attaching device to template.')
-        return response.json['id']
+            raise Exception('Did not get action ID after installing certificate.')
+        return response['json']['id']
 
     def push_certificates(self):
         """Push certificates to all controllers
 
         Returns:
-            result (str): The action ID of the push command.
+            id (str): The action ID of the push command.
         """
 
         url = f"{self.base_url}vedge/list?action=push"
@@ -63,3 +80,19 @@ class Certificate(object):
         else:
             raise Exception('Did not get action ID after pushing certificates.')
         return response['json']['id']
+
+    def get_vmanage_root_cert(self):
+        """Get vManage root certificate
+
+        Args:
+
+        Returns:
+            rootcertificate (str): The root certificate.
+        """
+
+        url = f"{self.base_url}rootcertificate"
+        response = HttpMethods(self.session, url).request('GET')
+        try:
+            return response['json']['rootcertificate']
+        except:
+            raise Exception('Error retrieving root certificate')

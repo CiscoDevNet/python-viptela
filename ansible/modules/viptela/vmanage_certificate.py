@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
+from vmanage.api.certificate import Certificate
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community'
 }
 
-from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
-from collections import OrderedDict
-
-
 def run_module():
     # define available arguments/parameters a user can pass to the module
-    argument_spec = viptela_argument_spec()
+    argument_spec = vmanage_argument_spec()
     argument_spec.update(organization=dict(type='str'),
                          vbond=dict(type='str'),
                          vbond_port=dict(type='int', default=12346),
@@ -37,16 +36,18 @@ def run_module():
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True,
                            )
-    viptela = viptelaModule(module)
-    viptela.result['what_changed'] = []
+    vmanage = Vmanage(module)
+    vmanage_certificate = Certificate(vmanage.auth, vmanage.host)
 
-    if viptela.params['push']:
-        viptela.push_certificates()
+    vmanage.result['what_changed'] = []
 
-    if viptela.result['what_changed']:
-        viptela.result['changed'] = True
+    if vmanage.params['push']:
+        vmanage_certificate.push_certificates()
 
-    viptela.exit_json(**viptela.result)
+    if vmanage.result['what_changed']:
+        vmanage.result['changed'] = True
+
+    vmanage.exit_json(**vmanage.result)
 
 
 def main():
