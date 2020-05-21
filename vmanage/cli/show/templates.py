@@ -32,7 +32,7 @@ def templates(ctx, template_type, diff, default, name, json):
         if template_type == 'device':
             template_list = template_data.export_device_template_list(name_list=[name])
         elif template_type == 'feature':
-            template_list = template_data.export_feature_template_list(name_list=[name])
+            template_list = feature_templates.get_feature_template_list(name_list=[name])
         else:
             raise click.ClickException("Must specify template type with name")
         template = template_list[0] if template_list else None
@@ -47,7 +47,7 @@ def templates(ctx, template_type, diff, default, name, json):
                     else:
                         click.secho(f"Cannot find device template {diff}", fg="red")
                 elif template_type == 'feature':
-                    diff_template_list = template_data.export_feature_template_list(name_list=[diff])
+                    diff_template_list = feature_templates.get_feature_template_list(name_list=[diff])
                     if diff_template_list:
                         diff_template = diff_template_list[0]
                     else:
@@ -56,7 +56,11 @@ def templates(ctx, template_type, diff, default, name, json):
                     # Should not get here
                     raise click.ClickException(f"Unknown template type {template_type}")
                 if diff_template:
-                    diff = dictdiffer.diff(template, diff_template)
+                    diff_ignore = set([
+                        'templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference',
+                        'templateName', 'attached_devices', 'input'
+                    ])
+                    diff = dictdiffer.diff(template, diff_template, ignore=diff_ignore)
                     pp.pprint(list(diff))
             else:
                 pp.pprint(template)
