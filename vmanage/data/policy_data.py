@@ -577,7 +577,8 @@ class PolicyData(object):
                 existing_policy = self.convert_policy_to_name(security_policy_dict[payload['policyName']])
                 diff_ignore = set([
                     'lastUpdated', 'policyVersion', 'createdOn', 'references', 'isPolicyActivated', '@rid', 'policyId',
-                    'createdBy', 'lastUpdatedBy', 'lastUpdatedOn'
+                    'createdBy', 'lastUpdatedBy', 'lastUpdatedOn', 'policyDefinitionEdit', 'mastersAttached',
+                    'devicesAttached', 'supportedDevices','virtualApplicationTemplates', 'policyUseCase'
                 ])
                 diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
                 if diff:
