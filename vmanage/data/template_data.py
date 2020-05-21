@@ -7,6 +7,7 @@ from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.utilities import Utilities
 from vmanage.api.device import Device
 from vmanage.api.local_policy import LocalPolicy
+from vmanage.api.security_policy import SecurityPolicy
 
 
 class TemplateData(object):
@@ -53,6 +54,15 @@ class TemplateData(object):
             else:
                 raise Exception(f"Could not find local policy {policy_id}")
 
+        if 'securityPolicyId' in device_template and device_template['securityPolicyId']:
+            security_policy_id = device_template['securityPolicyId']
+            vmanage_security_policy = SecurityPolicy(self.session, self.host, self.port)
+            security_policy_dict = vmanage_security_policy.get_security_policy_dict(key_name='policyId')
+            if security_policy_id in list(security_policy_dict.keys()):
+                device_template['securityPolicyName'] = security_policy_dict[security_policy_id]['policyName']
+            else:
+                raise Exception(f"Could not find security policy {security_policy_id}")
+
         if 'generalTemplates' in device_template:
             generalTemplates = []
             for old_template in device_template.pop('generalTemplates'):
@@ -93,6 +103,19 @@ class TemplateData(object):
                 device_template.pop('policyName')
             else:
                 raise Exception(f"Could not find local policy {device_template['policyName']}")
+        else:
+            device_template['policyId'] = ''
+
+        if 'securityPolicyName' in device_template:
+            vmanage_security_policy = SecurityPolicy(self.session, self.host, self.port)
+            security_policy_dict = vmanage_security_policy.get_security_policy_dict(key_name='policyName')
+            if device_template['securityPolicyName'] in security_policy_dict:
+                device_template['securityPolicyId'] = security_policy_dict[device_template['securityPolicyName']]['policyId']
+                device_template.pop('securityPolicyName')
+            else:
+                raise Exception(f"Could not find security policy {device_template['securityPolicyName']}")
+        else:
+            device_template['securityPolicyId'] = ''
 
         if 'generalTemplates' in device_template:
             device_template['generalTemplates'] = self.generalTemplates_to_id(device_template['generalTemplates'])
@@ -229,6 +252,8 @@ class TemplateData(object):
         for device_template in device_template_list:
             if 'policyId' in device_template:
                 device_template.pop('policyId')
+            if 'securityPolicyId' in device_template:
+                device_template.pop('securityPolicyId')
             if device_template['templateName'] in device_template_dict:
                 existing_template = self.convert_device_template_to_name(
                     device_template_dict[device_template['templateName']])
@@ -236,7 +261,7 @@ class TemplateData(object):
                 # Just check the things that we care about changing.
                 diff_ignore = set([
                     'templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName',
-                    'attached_devices', 'input'
+                    'attached_devices', 'input', 'securityPolicyId'
                 ])
                 diff = list(dictdiffer.diff(existing_template, device_template, ignore=diff_ignore))
                 if len(diff):
