@@ -11,3 +11,7 @@ def org(ctx):
 
     vmanage_settings = Settings(ctx.auth, ctx.host)
     result = vmanage_settings.get_vmanage_org()
+    if result:
+        click.echo(f'{result}')
+    else:
+        click.echo("No org configured")
