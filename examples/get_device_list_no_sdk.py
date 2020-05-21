@@ -1,6 +1,6 @@
 # The requests library is used to communicate with vManage.
 import requests
-# So that we can pull envionment variables instead of having credetials in code
+# So that we can pull environment variables instead of having credentials in code
 import os
 # pprint is used to make the output more readable.  It is mainly used for
 # illustration, but is also usefor for debugging and verbose presentation.
