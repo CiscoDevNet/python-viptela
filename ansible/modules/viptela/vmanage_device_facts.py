@@ -13,11 +13,13 @@ from vmanage.api.monitor_network import MonitorNetwork
 import ipaddress
 
 
+subset_options = ['config', 'omp', 'control']
+
 def run_module():
     # define available arguments/parameters a user can pass to the module
     argument_spec = vmanage_argument_spec()
     argument_spec.update(device=dict(type='str', aliases=['device', 'host-name']),
-                         gather_subset=dict(type='list', default=['config', 'omp', 'control']),
+                         gather_subset=dict(type='list', options=subset_options),
                          )    
 
     # seed the result dict in the object
@@ -56,10 +58,14 @@ def run_module():
             system_ip = device_status['system-ip']
 
         if device_status:
+            if vmanage.params['gather_subset']:
+                requested_subsets = vmanage.params['gather_subset']
+            else:
+                requested_subsets = subset_options
             device_facts['status'] = device_status
-            if 'config' in vmanage.params['gather_subset']:
+            if 'config' in requested_subsets:
                 device_facts['config'] = vmanage_device.get_device_config(device_status['device-type'], system_ip)
-            if 'omp' in vmanage.params['gather_subset']:
+            if 'omp' in requested_subsets:
                 omp_routes_received = vmanage_monitor.get_omp_routes_received(system_ip)
                 omp_routes_advertised = vmanage_monitor.get_omp_routes_advertised(system_ip)
                 omp_routes = {
@@ -70,7 +76,7 @@ def run_module():
                     'routes': omp_routes
                 }
                 device_facts['omp'] = omp
-            if 'control' in vmanage.params['gather_subset']:
+            if 'control' in requested_subsets:
                 control_connections = vmanage_monitor.get_control_connections(system_ip)
                 control_connections_history = vmanage_monitor.get_control_connections_history(system_ip)
                 control = {
@@ -80,6 +86,8 @@ def run_module():
                 device_facts['control'] = control
         vmanage.result['device_facts'] = device_facts
     else:
+        if vmanage.params['gather_subset']:
+            vmanage.fail_json(msg="gather_subset argument can only be secified with device argument", **vmanage.result)
         # Otherwise, we return facts for all devices sorted by device type
         vmanage.result['vedges'] = vmanage_device.get_device_config_list('vedges')
         vmanage.result['controllers'] = vmanage_device.get_device_config_list('controllers')
