@@ -8,6 +8,33 @@ from vmanage.api.policy_lists import PolicyLists
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
 
+definition_types = [
+    "data",
+    "approute",
+    "control",
+    "cflowd",
+    "mesh",
+    "hubandspoke",
+    "vpnmembershipgroup",
+    "qosmap",
+    "rewriterule",
+    "acl",
+    "aclv6",
+    "deviceaccesspolicy",
+    "deviceaccesspolicyv6",
+    "vedgeroute",
+    "zonebasedfw",
+    "intrusionprevention",
+    "urlfiltering",
+    "advancedMalwareProtection",
+    "dnssecurity",
+    "ssldecryption",
+    "fxoport",
+    "fxsport",
+    "fxsdidport",
+    "dialpeer",
+    "srstphoneprofile"
+]
 
 class PolicyDefinitions(object):
     """vManage Policy Definitions API
@@ -108,45 +135,8 @@ class PolicyDefinitions(object):
         """
 
         if definition_type == 'all':
-            # Get a list of hub-and-spoke because it tells us the other definition types
-            # known by this server (hopefully) in the header section
             all_definitions_list = []
-            definition_list_types = []
-            api = "template/policy/definition/hubandspoke"
-            url = self.base_url + api
-            response = HttpMethods(self.session, url).request('GET')
-
-            definition_type_titles = [
-                { "key": "data", "value": "Data" },
-                { "key": "appRoute", "value": "App Route" },
-                { "key": "control", "value": "Custom Control" },
-                { "key": "cflowd", "value": "Cflowd" },
-                { "key": "mesh", "value": "Mesh" },
-                { "key": "hubAndSpoke", "value": "Hub and Spoke" },
-                { "key": "vpnMembershipGroup", "value": "VPN Membership" },
-                { "key": "qosMap", "value": "QoS Map" },
-                { "key": "rewriteRule", "value": "Rewrite Rule" },
-                { "key": "acl", "value": "Access Control List(IPv4)" },
-                { "key": "aclv6", "value": "Access Control List(IPv6)" },
-                { "key": "deviceAccessPolicy", "value": "Device Access Control List(IPv4)" },
-                { "key": "deviceAccessPolicyv6", "value": "Device Access Control List(IPv6)" },
-                { "key": "vedgeRoute", "value": "Route" },
-                { "key": "zoneBasedFW", "value": "Zone Based" },
-                { "key": "intrusionPrevention", "value": "IPS" },
-                { "key": "urlfiltering", "value": "IPS" },
-#                { "key": "advancedMalwareProtection", "value": "IPS" },
-                { "key": "dnssecurity", "value": "DNS Security" },
-                { "key": "ssldecryption", "value": "SSL Proxy" },
-                { "key": "fxoPort", "value": "FXO" },
-                { "key": "fxsPort", "value": "FXS" },
-                { "key": "fxsDidPort", "value": "FXS DID" },
-                { "key": "dialPeer", "value": "Dial Peer" },
-                { "key": "srstPhoneProfile", "value": "SRST Phone" }
-            ]
-
-            for def_type in definition_type_titles:
-                definition_list_types.append(def_type['key'].lower())
-            for def_type in definition_list_types:
+            for def_type in definition_types:
                 definition_list = self.get_policy_definition_list(def_type)
                 if definition_list:
                     all_definitions_list.extend(definition_list)
@@ -154,7 +144,10 @@ class PolicyDefinitions(object):
 
         definition_list = []
 
-        url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
+        if definition_type == "advancedMalwareProtection":
+            url = f"{self.base_url}template/policy/definition/{definition_type}"
+        else:
+            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         for definition in result:
