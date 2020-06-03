@@ -3,7 +3,7 @@ from vmanage.api.certificate import Certificate
 
 
 @click.command('install')
-@click.option('--cert', '-c', help="Certificate to install.")
+@click.option('--file', '-f', help="File containing the certificate to install.", required=True)
 @click.pass_obj
 def install(ctx, cert):
     """
