@@ -166,7 +166,6 @@ class TemplateData(object):
                     subTemplates = []
                     for sub_template in template['subTemplates']:
                         if sub_template['templateName'] in feature_templates and 'subTemplates' in sub_template:
-                            print("Test")
                             subsubTemplates = []
                             for sub_sub_template in sub_template['subTemplates']:
                                 if sub_sub_template['templateName'] in feature_templates:
