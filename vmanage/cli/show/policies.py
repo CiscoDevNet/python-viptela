@@ -39,34 +39,11 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
               default='all',
               help="Definition type",
               type=click.Choice([
-                                "data",
-                                "approute",
-                                "control",
-                                "cflowd",
-                                "mesh",
-                                "hubandspoke",
-                                "vpnmembershipgroup",
-                                "qosmap",
-                                "rewriterule",
-                                "acl",
-                                "aclv6",
-                                "deviceaccesspolicy",
-                                "deviceaccesspolicyv6",
-                                "vedgeroute",
-                                "zonebasedfw",
-                                "intrusionprevention",
-                                "urlfiltering",
-                                "advancedMalwareProtection",
-                                "dnssecurity",
-                                "ssldecryption",
-                                "fxoport",
-                                "fxsport",
-                                "fxsdidport",
-                                "dialpeer",
-                                "srstphoneprofile",
-                                "all"
-                                ])
-            )
+                  "data", "approute", "control", "cflowd", "mesh", "hubandspoke", "vpnmembershipgroup", "qosmap",
+                  "rewriterule", "acl", "aclv6", "deviceaccesspolicy", "deviceaccesspolicyv6", "vedgeroute",
+                  "zonebasedfw", "intrusionprevention", "urlfiltering", "advancedMalwareProtection", "dnssecurity",
+                  "ssldecryption", "fxoport", "fxsport", "fxsdidport", "dialpeer", "srstphoneprofile", "all"
+              ]))
 @click.pass_obj
 def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """
@@ -132,6 +109,7 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
         local_policy_list = policy_data.export_local_policy_list()
         pp.pprint(local_policy_list)
 
+
 @click.command()
 @click.argument('name', required=False, default=None)
 @click.option('--json/--no-json', default=False)
@@ -155,6 +133,7 @@ def security(ctx, name, json):  #pylint: disable=unused-argument
     else:
         security_policy_list = policy_data.export_security_policy_list()
         pp.pprint(security_policy_list)
+
 
 @click.group()
 def policies():

@@ -556,7 +556,12 @@ class PolicyData(object):
 
         return export_policy_list
 
-    def import_security_policy_list(self, security_policy_list, update=False, push=False, check_mode=False, force=False):
+    def import_security_policy_list(self,
+                                    security_policy_list,
+                                    update=False,
+                                    push=False,
+                                    check_mode=False,
+                                    force=False):
         """Import Security Policies into vManage.  Object names are converted to IDs.
 
         Returns:
@@ -578,7 +583,7 @@ class PolicyData(object):
                 diff_ignore = set([
                     'lastUpdated', 'policyVersion', 'createdOn', 'references', 'isPolicyActivated', '@rid', 'policyId',
                     'createdBy', 'lastUpdatedBy', 'lastUpdatedOn', 'policyDefinitionEdit', 'mastersAttached',
-                    'devicesAttached', 'supportedDevices','virtualApplicationTemplates', 'policyUseCase'
+                    'devicesAttached', 'supportedDevices', 'virtualApplicationTemplates', 'policyUseCase'
                 ])
                 diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
                 if diff:

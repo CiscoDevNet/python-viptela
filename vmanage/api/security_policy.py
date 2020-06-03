@@ -8,6 +8,7 @@ from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
 
+
 class SecurityPolicy(object):
     """vManage Security Policy API
 

@@ -277,9 +277,9 @@ class Files(object):
                                                                          update=update,
                                                                          push=push)
         security_policy_updates = self.policy_data.import_security_policy_list(security_policy_data,
-                                                                             check_mode=check_mode,
-                                                                             update=update,
-                                                                             push=push)
+                                                                               check_mode=check_mode,
+                                                                               update=update,
+                                                                               push=push)
 
         return {
             'policy_list_updates': policy_list_updates,

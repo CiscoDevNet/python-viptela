@@ -83,14 +83,19 @@ class TemplateData(object):
                                     sub_sub_template['templateType']
                                 })
                             subTemplates.append({
-                                'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
-                                'templateType': sub_template['templateType'],
-                                'subTemplates': subsubTemplates
+                                'templateName':
+                                feature_template_dict[sub_template['templateId']]['templateName'],
+                                'templateType':
+                                sub_template['templateType'],
+                                'subTemplates':
+                                subsubTemplates
                             })
                         else:
                             subTemplates.append({
-                                'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
-                                'templateType': sub_template['templateType']
+                                'templateName':
+                                feature_template_dict[sub_template['templateId']]['templateName'],
+                                'templateType':
+                                sub_template['templateType']
                             })
                     new_template['subTemplates'] = subTemplates
                 generalTemplates.append(new_template)
@@ -123,7 +128,8 @@ class TemplateData(object):
             vmanage_security_policy = SecurityPolicy(self.session, self.host, self.port)
             security_policy_dict = vmanage_security_policy.get_security_policy_dict(key_name='policyName')
             if device_template['securityPolicyName'] in security_policy_dict:
-                device_template['securityPolicyId'] = security_policy_dict[device_template['securityPolicyName']]['policyId']
+                device_template['securityPolicyId'] = security_policy_dict[
+                    device_template['securityPolicyName']]['policyId']
                 device_template.pop('securityPolicyName')
             else:
                 raise Exception(f"Could not find security policy {device_template['securityPolicyName']}")
@@ -174,14 +180,19 @@ class TemplateData(object):
                                     self.fail_json(msg="There is no existing feature template named {0}".format(
                                         sub_sub_template['templateName']))
                             subTemplates.append({
-                                'templateId': feature_templates[sub_template['templateName']]['templateId'],
-                                'templateType': sub_template['templateType'],
-                                'subTemplates': subsubTemplates
-                            })                                        
+                                'templateId':
+                                feature_templates[sub_template['templateName']]['templateId'],
+                                'templateType':
+                                sub_template['templateType'],
+                                'subTemplates':
+                                subsubTemplates
+                            })
                         elif sub_template['templateName'] in feature_templates:
                             subTemplates.append({
-                                'templateId': feature_templates[sub_template['templateName']]['templateId'],
-                                'templateType': sub_template['templateType']
+                                'templateId':
+                                feature_templates[sub_template['templateName']]['templateId'],
+                                'templateType':
+                                sub_template['templateType']
                             })
                         else:
                             self.fail_json(msg="There is no existing feature template named {0}".format(

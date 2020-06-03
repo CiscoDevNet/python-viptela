@@ -9,32 +9,12 @@ from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
 
 definition_types = [
-    "data",
-    "approute",
-    "control",
-    "cflowd",
-    "mesh",
-    "hubandspoke",
-    "vpnmembershipgroup",
-    "qosmap",
-    "rewriterule",
-    "acl",
-    "aclv6",
-    "deviceaccesspolicy",
-    "deviceaccesspolicyv6",
-    "vedgeroute",
-    "zonebasedfw",
-    "intrusionprevention",
-    "urlfiltering",
-    "advancedMalwareProtection",
-    "dnssecurity",
-    "ssldecryption",
-    "fxoport",
-    "fxsport",
-    "fxsdidport",
-    "dialpeer",
-    "srstphoneprofile"
+    "data", "approute", "control", "cflowd", "mesh", "hubandspoke", "vpnmembershipgroup", "qosmap", "rewriterule",
+    "acl", "aclv6", "deviceaccesspolicy", "deviceaccesspolicyv6", "vedgeroute", "zonebasedfw", "intrusionprevention",
+    "urlfiltering", "advancedMalwareProtection", "dnssecurity", "ssldecryption", "fxoport", "fxsport", "fxsdidport",
+    "dialpeer", "srstphoneprofile"
 ]
+
 
 class PolicyDefinitions(object):
     """vManage Policy Definitions API
