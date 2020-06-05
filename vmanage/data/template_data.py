@@ -138,7 +138,7 @@ class TemplateData(object):
                     'templateType': template['templateType']
                 }
                 if 'subTemplates' in template:
-                    subTemplates = self.subTemplates_to_id(template,feature_template_dict)
+                    subTemplates = self.subTemplates_to_id(template, feature_template_dict)
                     template_item['subTemplates'] = subTemplates
                 converted_generalTemplates.append(template_item)
             else:
@@ -369,21 +369,16 @@ class TemplateData(object):
                         sub_sub_template['templateType']
                     })
                 subTemplates.append({
-                    'templateName':
-                    feature_template_dict[sub_template['templateId']]['templateName'],
-                    'templateType':
-                    sub_template['templateType'],
-                    'subTemplates':
-                    subsubTemplates
+                    'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
+                    'templateType': sub_template['templateType'],
+                    'subTemplates': subsubTemplates
                 })
             else:
                 subTemplates.append({
-                    'templateName':
-                    feature_template_dict[sub_template['templateId']]['templateName'],
-                    'templateType':
-                    sub_template['templateType']
+                    'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
+                    'templateType': sub_template['templateType']
                 })
-        return(subTemplates)
+        return (subTemplates)
 
     def subTemplates_to_id(self, template, feature_template_dict):
         """Convert a Sub Template objects from IDs to Names.
@@ -411,21 +406,16 @@ class TemplateData(object):
                         self.fail_json(msg="There is no existing feature template named {0}".format(
                             sub_sub_template['templateName']))
                 subTemplates.append({
-                    'templateId':
-                    feature_template_dict[sub_template['templateName']]['templateId'],
-                    'templateType':
-                    sub_template['templateType'],
-                    'subTemplates':
-                    subsubTemplates
+                    'templateId': feature_template_dict[sub_template['templateName']]['templateId'],
+                    'templateType': sub_template['templateType'],
+                    'subTemplates': subsubTemplates
                 })
             elif sub_template['templateName'] in feature_template_dict:
                 subTemplates.append({
-                    'templateId':
-                    feature_template_dict[sub_template['templateName']]['templateId'],
-                    'templateType':
-                    sub_template['templateType']
+                    'templateId': feature_template_dict[sub_template['templateName']]['templateId'],
+                    'templateType': sub_template['templateType']
                 })
             else:
-                self.fail_json(msg="There is no existing feature template named {0}".format(
-                    sub_template['templateName']))
-        return(subTemplates)
+                self.fail_json(
+                    msg="There is no existing feature template named {0}".format(sub_template['templateName']))
+        return (subTemplates)
