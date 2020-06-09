@@ -1,6 +1,6 @@
 
 from vmanage.api.authentication import Authentication
-from vmanage.api.device import Device
+from vmanage.api.monitor_network import MonitorNetwork
 import pprint
 import os
 
@@ -11,7 +11,7 @@ pp = pprint.PrettyPrinter(indent=2)
 
 auth = Authentication(host=vmanage_host, user=vmanage_username,
                             password=vmanage_password).login()
-vmanage_device = Device(auth, vmanage_host)
+vmanage_monitor = MonitorNetwork(auth, vmanage_host)
 
-device_config_list = vmanage_device.get_device_config_list('all')
-pp.pprint(device_config_list)
+omp_routes_received = vmanage_monitor.get_omp_routes_received('1.1.3.1')
+pp.pprint(omp_routes_received)

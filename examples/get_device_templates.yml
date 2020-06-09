@@ -1,0 +1,9 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Get device facts from vManage
+      vmanage_device_template_facts:
+      register: device_template_facts
+
+    - debug:
+        var: device_template_facts
