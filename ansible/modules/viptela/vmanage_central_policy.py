@@ -11,7 +11,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
 from vmanage.api.central_policy import CentralPolicy
 from vmanage.data.policy_data import PolicyData
-
+from vmanage.api.utilities import Utilities
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
@@ -46,6 +46,7 @@ def run_module():
     vmanage = Vmanage(module)
     vmanage_central_policy = CentralPolicy(vmanage.auth, vmanage.host)
     policy_data = PolicyData(vmanage.auth, vmanage.host)
+    vmanage_utils = Utilities(vmanage.auth, vmanage.host)
 
     # Always as an aggregate... make a list if just given a single entry
     if vmanage.params['aggregate']:
@@ -95,7 +96,7 @@ def run_module():
                                                                                central_policy_dict[vmanage.params['name']]['policyId'])
                     if action_id:
                         if vmanage.params['wait']:
-                            vmanage_central_policy.waitfor_action_completion(action_id)
+                            vmanage_utils.waitfor_action_completion(action_id)
                     else:
                         vmanage.fail_json(msg='Did not get action ID after attaching device to template.')
 
