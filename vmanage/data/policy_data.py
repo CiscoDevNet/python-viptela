@@ -7,6 +7,7 @@ from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
 from vmanage.api.device_templates import DeviceTemplates
+from vmanage.api.security_policy import SecurityPolicy
 
 
 class PolicyData(object):
@@ -31,6 +32,7 @@ class PolicyData(object):
         self.policy_definitions = PolicyDefinitions(self.session, self.host, self.port)
         self.local_policy = LocalPolicy(self.session, self.host, self.port)
         self.central_policy = CentralPolicy(self.session, self.host, self.port)
+        self.security_policy = SecurityPolicy(self.session, self.host, self.port)
 
     #pylint: disable=unused-argument
     def import_policy_list_list(self, policy_list_list, push=False, update=False, check_mode=False, force=False):
@@ -99,7 +101,7 @@ class PolicyData(object):
         """
         if isinstance(name_list, dict):
             for key, value in list(name_list.items()):
-                if key.endswith('List'):
+                if key.endswith('List') and key != "signatureWhiteList":
                     t = key[0:len(key) - 4]
                     policy_list = self.policy_lists.get_policy_list_by_name(value, policy_list_type=t)
                     if policy_list:
@@ -164,7 +166,7 @@ class PolicyData(object):
         """
         if isinstance(id_list, dict):
             for key, value in list(id_list.items()):
-                if key.endswith('List'):
+                if key.endswith('List') and key != "signatureWhiteList":
                     t = key[0:len(key) - 4]
                     val = value
                     if isinstance(value, list):
@@ -536,3 +538,65 @@ class PolicyData(object):
                     converted_payload = self.convert_policy_to_id(payload)
                     self.central_policy.add_central_policy(converted_payload)
         return central_policy_updates
+
+    def export_security_policy_list(self):
+        """Export Security Policies from vManage, converting IDs to names.
+
+        Returns:
+            response (dict): A list of all policy lists currently
+                in vManage.
+
+        """
+
+        export_policy_list = []
+        security_policy_list = self.security_policy.get_security_policy_list()
+        for security_policy in security_policy_list:
+            converted_policy_definition = self.convert_policy_to_name(security_policy)
+            export_policy_list.append(converted_policy_definition)
+
+        return export_policy_list
+
+    def import_security_policy_list(self,
+                                    security_policy_list,
+                                    update=False,
+                                    push=False,
+                                    check_mode=False,
+                                    force=False):
+        """Import Security Policies into vManage.  Object names are converted to IDs.
+
+        Returns:
+            response (dict): A list of all policy lists currently
+                in vManage.
+
+        """
+        security_policy_dict = self.security_policy.get_security_policy_dict(remove_key=False)
+        diff = []
+        security_policy_updates = []
+        for security_policy in security_policy_list:
+            payload = {'policyName': security_policy['policyName']}
+            payload['policyDescription'] = security_policy['policyDescription']
+            payload['policyType'] = security_policy['policyType']
+            payload['policyDefinition'] = security_policy['policyDefinition']
+            if payload['policyName'] in security_policy_dict:
+                # A policy by that name already exists
+                existing_policy = self.convert_policy_to_name(security_policy_dict[payload['policyName']])
+                diff_ignore = set([
+                    'lastUpdated', 'policyVersion', 'createdOn', 'references', 'isPolicyActivated', '@rid', 'policyId',
+                    'createdBy', 'lastUpdatedBy', 'lastUpdatedOn', 'policyDefinitionEdit', 'mastersAttached',
+                    'devicesAttached', 'supportedDevices', 'virtualApplicationTemplates', 'policyUseCase'
+                ])
+                diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
+                if diff:
+                    security_policy_updates.append({'name': security_policy['policyName'], 'diff': diff})
+                    # Convert list and definition names to template IDs
+                    converted_payload = self.convert_policy_to_id(payload)
+                    if not check_mode and update:
+                        self.security_policy.update_security_policy(converted_payload, existing_policy['policyId'])
+            else:
+                diff = list(dictdiffer.diff({}, payload['policyDefinition']))
+                security_policy_updates.append({'name': security_policy['policyName'], 'diff': diff})
+                if not check_mode:
+                    # Convert list and definition names to template IDs
+                    converted_payload = self.convert_policy_to_id(payload)
+                    self.security_policy.add_security_policy(converted_payload)
+        return security_policy_updates

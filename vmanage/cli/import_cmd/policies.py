@@ -40,3 +40,8 @@ def policies(ctx, input_file, check, update, push, diff):
         for diff_item in result['local_policy_updates']:
             click.echo(f"{diff_item['name']}:")
             pp.pprint(diff_item['diff'])
+    print(f"Security Policy Updates: {len(result['security_policy_updates'])}")
+    if diff:
+        for diff_item in result['security_policy_updates']:
+            click.echo(f"{diff_item['name']}:")
+            pp.pprint(diff_item['diff'])

@@ -3,9 +3,11 @@ import pprint
 import click
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
+from vmanage.api.policy_definitions import definition_types
 from vmanage.data.policy_data import PolicyData
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
+from vmanage.api.security_policy import SecurityPolicy
 
 
 @click.command('list')
@@ -37,7 +39,7 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
               'definition_type',
               default='all',
               help="Definition type",
-              type=click.Choice(['hubandspoke', 'zonebasedfw', 'all']))
+              type=click.Choice(definition_types + ['all']))
 @click.pass_obj
 def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """
@@ -50,12 +52,11 @@ def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argum
     if name:
         policy_definition_dict = policy_definitions.get_policy_definition_dict(definition_type)
         if name in policy_definition_dict:
-            policy_definition = policy_data.export_policy_definition(policy_definition_dict[name]['type'].lower(),
-                                                                     policy_definition_dict[name]['definitionId'])
+            policy_definition = policy_data.export_policy_definition_list(policy_definition_dict[name]['type'].lower())
             # list_keys(policy_definition['definition'])
             pp.pprint(policy_definition)
     else:
-        policy_definition_list = policy_data.export_policy_definition_list('all')
+        policy_definition_list = policy_data.export_policy_definition_list(definition_type)
         pp.pprint(policy_definition_list)
 
 
@@ -105,6 +106,31 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
         pp.pprint(local_policy_list)
 
 
+@click.command()
+@click.argument('name', required=False, default=None)
+@click.option('--json/--no-json', default=False)
+@click.pass_obj
+def security(ctx, name, json):  #pylint: disable=unused-argument
+    """
+    Show security policy information
+    """
+    security_policy = SecurityPolicy(ctx.auth, ctx.host)
+    policy_data = PolicyData(ctx.auth, ctx.host)
+    pp = pprint.PrettyPrinter(indent=2)
+
+    if name:
+        security_policy_dict = security_policy.get_security_policy_dict()
+        if name in security_policy_dict:
+            if json:
+                pp.pprint(security_policy_dict[name])
+            else:
+                preview = security_policy.get_security_policy_preview(security_policy_dict[name]['policyId'])
+                pp.pprint(preview)
+    else:
+        security_policy_list = policy_data.export_security_policy_list()
+        pp.pprint(security_policy_list)
+
+
 @click.group()
 def policies():
     """
@@ -116,3 +142,4 @@ policies.add_command(list_cmd)
 policies.add_command(definition)
 policies.add_command(central)
 policies.add_command(local)
+policies.add_command(security)

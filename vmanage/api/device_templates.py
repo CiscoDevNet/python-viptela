@@ -221,6 +221,11 @@ class DeviceTemplates(object):
             payload['policyId'] = device_template['policyId']
         else:
             payload['policyId'] = ''
+        if 'securityPolicyId' in device_template:
+            payload['securityPolicyId'] = device_template['securityPolicyId']
+        else:
+            payload['securityPolicyId'] = ''
+
         #
         # File templates are much easier in that they are just a bunch of CLI
         #
