@@ -1,7 +1,9 @@
+from os import path
 from setuptools import setup, find_namespace_packages
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 includes = [
     "vmanage",
@@ -13,7 +15,7 @@ includes = [
 
 setup(
     name="viptela",
-    version='0.3.0',
+    version='0.3.1',
     packages=find_namespace_packages(include=includes),
     description="Cisco DevNet SD-WAN vManage (Viptela) CLI/SDK",
     install_requires=['Click', 'requests', 'dictdiffer', 'PyYAML'],
@@ -21,4 +23,6 @@ setup(
         [console_scripts]
         vmanage=vmanage.__main__:vmanage
     ''',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
 )

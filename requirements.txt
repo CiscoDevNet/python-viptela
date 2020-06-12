@@ -8,3 +8,5 @@ sphinx-markdown==1.0.2
 sphinx-markdown-builder==0.5.4
 sphinx_rtd_theme==0.4.3
 m2r==0.2.1
+setuptools >= 38.6.0
+wheel >= 0.31.0
