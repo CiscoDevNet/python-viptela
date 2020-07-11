@@ -88,10 +88,10 @@ class PolicyDefinitions(object):
 
         """
 
-        if definition_type == "advancedMalwareProtection":
-            url = f"{self.base_url}template/policy/definition/{definition_type}"
+        if policy_definition == "advancedMalwareProtection":
+            url = f"{self.base_url}template/policy/definition/{policy_definition}"
         else:
-            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
+            url = f"{self.base_url}template/policy/definition/{policy_definition.lower()}"
 
         HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
 
