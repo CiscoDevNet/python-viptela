@@ -138,7 +138,6 @@ class PolicyDefinitions(object):
             return all_definitions_list
 
         definition_list = []
-        
         if definition_type == "advancedMalwareProtection":
             url = f"{self.base_url}template/policy/definition/{definition_type}"
         else:
