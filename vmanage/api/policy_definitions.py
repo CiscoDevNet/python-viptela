@@ -51,9 +51,9 @@ class PolicyDefinitions(object):
 
         """
         if definition_type == "advancedMalwareProtection":
-            url = f"{self.base_url}template/policy/definition/{definition_type}"
+            url = f"{self.base_url}template/policy/definition/{definition_type}/{definition_id}"
         else:
-            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
+            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
 
         HttpMethods(self.session, url).request('DELETE')
 
@@ -89,9 +89,9 @@ class PolicyDefinitions(object):
         """
 
         if policy_definition == "advancedMalwareProtection":
-            url = f"{self.base_url}template/policy/definition/{policy_definition}"
+            url = f"{self.base_url}template/policy/definition/{policy_definition}/{policy_definition_id}"
         else:
-            url = f"{self.base_url}template/policy/definition/{policy_definition.lower()}"
+            url = f"{self.base_url}template/policy/definition/{policy_definition.lower()}/{policy_definition_id}"
 
         HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
 
@@ -108,9 +108,9 @@ class PolicyDefinitions(object):
         """
 
         if definition_type == "advancedMalwareProtection":
-            url = f"{self.base_url}template/policy/definition/{definition_type}"
+            url = f"{self.base_url}template/policy/definition/{definition_type}/{definition_id}"
         else:
-            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}"
+            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
 
         response = HttpMethods(self.session, url).request('GET')
 
