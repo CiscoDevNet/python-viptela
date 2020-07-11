@@ -138,6 +138,7 @@ class PolicyDefinitions(object):
             return all_definitions_list
 
         definition_list = []
+        
         if definition_type == "advancedMalwareProtection":
             url = f"{self.base_url}template/policy/definition/{definition_type}"
         else:
@@ -146,7 +147,6 @@ class PolicyDefinitions(object):
         result = ParseMethods.parse_data(response)
         for definition in result:
             definition_detail = self.get_policy_definition(definition_type, definition['definitionId'])
-
             if definition_detail:
                 definition_list.append(definition_detail)
         return definition_list
