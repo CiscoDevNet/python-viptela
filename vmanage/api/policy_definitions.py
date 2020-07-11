@@ -69,10 +69,10 @@ class PolicyDefinitions(object):
 
         """
 
-        if policy_definition == "advancedMalwareProtection":
-            url = f"{self.base_url}template/policy/definition/{policy_definition}"
+        if policy_definition['type'] == 'advancedMalwareProtection':
+            url = f"{self.base_url}template/policy/definition/{policy_definition['type']}"
         else:
-            url = f"{self.base_url}template/policy/definition/{policy_definition.lower()}"
+            url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}"
 
         HttpMethods(self.session, url).request('POST', payload=json.dumps(policy_definition))
 
@@ -106,7 +106,6 @@ class PolicyDefinitions(object):
             result (dict): All data associated with a response.
 
         """
-
         if definition_type == "advancedMalwareProtection":
             url = f"{self.base_url}template/policy/definition/{definition_type}/{definition_id}"
         else:
