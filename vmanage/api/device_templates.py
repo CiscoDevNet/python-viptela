@@ -161,6 +161,7 @@ class DeviceTemplates(object):
 
         Args:
             template_id (string): Template ID
+            device_id_list (list): list of device UUID's to get input for
 
         Returns:
             result (dict): All data associated with a response.
@@ -310,7 +311,7 @@ class DeviceTemplates(object):
             raise Exception(f"Could not retrieve input for template {template_id}")
         return action_id
 
-    def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables):
+    def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables, isCli=False):
         """Attach a device to a template
 
         Args:
@@ -334,15 +335,23 @@ class DeviceTemplates(object):
             '//system/system-ip': system_ip,
             '//system/site-id': site_id,
         }
+        utils = Utilities(self.session, self.host, self.port)
         # Make sure they passed in the required variables and map
         # variable name -> property mapping
         template_variables = self.get_template_input(template_id)
-        for entry in template_variables['columns']:
-            if entry['variable']:
-                if entry['variable'] in variables:
-                    device_template_variables[entry['property']] = variables[entry['variable']]
+        if isCli:
+            for entry in template_variables['columns']:
+                if entry['property'] in variables:
+                    device_template_variables[entry['property']] = variables[entry['property']]
                 else:
-                    raise Exception(f"{entry['variable']} is missing for template {host_name}")
+                    raise Exception(f"{entry['property']} is missing for template {host_name}")
+        else:
+            for entry in template_variables['columns']:
+                if entry['variable']:
+                    if entry['variable'] in variables:
+                        device_template_variables[entry['property']] = variables[entry['variable']]
+                    else:
+                        raise Exception(f"{entry['variable']} is missing for template {host_name}")
 
         payload = {
             "deviceTemplateList": [{
@@ -352,10 +361,14 @@ class DeviceTemplates(object):
                 "isMasterEdited": False
             }]
         }
-        url = f"{self.base_url}template/device/config/attachfeature"
+        if isCli:
+            url = f"{self.base_url}template/device/config/attachcli"
+        else:
+            url = f"{self.base_url}template/device/config/attachfeature"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         if 'json' in response and 'id' in response['json']:
             action_id = response['json']['id']
+            utils.waitfor_action_completion(action_id)
         else:
             raise Exception('Did not get action ID after attaching device to template.')
 
