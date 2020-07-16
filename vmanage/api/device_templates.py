@@ -273,7 +273,7 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
         return ParseMethods.parse_data(response)
 
-    def reattach_device_template(self, template_id, isCli=False, updated=True):
+    def reattach_device_template(self, template_id, isCli=False):
         """Re-Attach a template to the devices it it attached to.
 
         Args:
@@ -293,8 +293,8 @@ class DeviceTemplates(object):
                 "deviceTemplateList": [{
                     "templateId": template_id,
                     "device": template_input['data'],
-                    "isEdited": updated,
-                    "isMasterEdited": updated
+                    "isEdited": True,
+                    "isMasterEdited": True
                 }]
             }
             if isCli:
