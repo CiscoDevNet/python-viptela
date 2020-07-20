@@ -6,6 +6,7 @@ import time
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 
+
 class PolicyUpdates(object):
     """vManage Policy Updates API
 
@@ -61,14 +62,9 @@ class PolicyUpdates(object):
 
         """
 
-        payload = {
-                    'templateId': template_id,
-                    'deviceIds': device_ids,
-                    'isEdited': True,
-                    'isMasterEdited': False
-                  }
+        payload = {"templateId": template_id, "deviceIds": device_ids, "isEdited": True, "isMasterEdited": False}
 
-        api = "template/device/config/input" 
+        api = "template/device/config/input"
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         result = ParseMethods.parse_data(response)
@@ -78,7 +74,7 @@ class PolicyUpdates(object):
 
         return result
 
-    def get_policy_id(self, policy_type,policy_name):
+    def get_policy_id(self, policy_type, policy_name):
         """GET vSmart device ids from vManage.
 
         Args:
@@ -103,7 +99,7 @@ class PolicyUpdates(object):
 
         return policy_id
 
-    def get_policy_definition(self, policy_type,policy_id):
+    def get_policy_definition(self, policy_type, policy_id):
         """GET vSmart device ids from vManage.
 
         Args:
@@ -115,7 +111,7 @@ class PolicyUpdates(object):
 
         """
 
-        api = "template/policy/definition/%s/%s"%(policy_type,policy_id)
+        api = "template/policy/definition/%s/%s" % (policy_type, policy_id)
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
 
@@ -141,16 +137,16 @@ class PolicyUpdates(object):
                         if item3["field"] == 'preferredColor':
                             item3["value"] = new_color
 
-        # Update policy app route policy 
+        # Update policy app route policy
 
         payload = {
-                    "name": policy_def["name"] ,
-                    "type": policy_def["type"],
-                    "description": policy_def["description"] ,
-                    "sequences": policy_def["sequences"]
-                  }
-        
-        api = "template/policy/definition/%s/%s"%(policy_type,policy_id)
+            "name": policy_def["name"],
+            "type": policy_def["type"],
+            "description": policy_def["description"],
+            "sequences": policy_def["sequences"]
+        }
+
+        api = "template/policy/definition/%s/%s" % (policy_type, policy_id)
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(payload))
 
@@ -167,19 +163,13 @@ class PolicyUpdates(object):
 
         for template_id in master_templates_affected:
             device_ids = self.get_device_ids(template_id)
-            device_inputs = self.get_device_inputs(template_id,device_ids)
+            device_inputs = self.get_device_inputs(template_id, device_ids)
             inputs.append((template_id, device_inputs))
 
         device_template_list = []
 
         for (template_id, device_input) in inputs:
-            device_template_list.append(
-                                        {
-                                            'templateId': template_id,
-                                            'isEdited': True,
-                                            'device': device_input
-                                        }
-                                        )
+            device_template_list.append({'templateId': template_id, 'isEdited': True, 'device': device_input})
 
         #api for CLI template 'template/device/config/attachcli'
 
@@ -187,7 +177,7 @@ class PolicyUpdates(object):
 
         url = self.base_url + api
 
-        payload = { 'deviceTemplateList': device_template_list }
+        payload = {'deviceTemplateList': device_template_list}
 
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
@@ -198,11 +188,11 @@ class PolicyUpdates(object):
             result = response['details']
             raise Exception(f'{error}: {result}')
 
-        api = 'device/action/status/' + process_id  
+        api = 'device/action/status/' + process_id
 
         url = self.base_url + api
 
-        while(1):
+        while (1):
             time.sleep(10)
             response = HttpMethods(self.session, url).request('GET')
             if response['status_code'] == 200:
