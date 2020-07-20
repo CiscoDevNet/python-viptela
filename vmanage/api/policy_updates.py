@@ -73,8 +73,8 @@ class PolicyUpdates(object):
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         result = ParseMethods.parse_data(response)
 
-        for input in result:
-            input['csv-templateId'] = template_id
+        for item in result:
+            item['csv-templateId'] = template_id
 
         return result
 
@@ -210,10 +210,8 @@ class PolicyUpdates(object):
                     if 'Success' in response['json']['summary']['count']:
                         print("\nUpdated App route policy successfully")
                     elif 'Failure' in response['json']['summary']['count']:
-                        print("\nFailed to App route policy")
+                        print("\nFailed to update App route policy")
                     break
-                else:
-                    continue
             else:
                 error = response['error']
                 result = response['details']
