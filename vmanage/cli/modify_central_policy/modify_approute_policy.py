@@ -4,7 +4,7 @@ from vmanage.api.policy_updates import PolicyUpdates
 
 @click.command('modify-approute-policy')
 @click.option('--name', '-n', help="Approute policy name")
-@click.option('--pref_color', '-prefcolor', help="Preferred color")
+@click.option('--pref-color', '-prefcolor', help="Preferred color")
 @click.pass_obj
 def modify_approute_policy(ctx, name, pref_color):
     """
