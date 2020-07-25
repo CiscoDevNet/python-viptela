@@ -36,7 +36,7 @@ VEDGE_LIST = ['vedge-cloud', 'vedge-100', 'vedge-100-B',
 class MonitorNetwork(object):
     """vManage Monitor Networks API
 
-    Responsible for GET methods against vManage Real Time MonitoringI
+    Responsible for GET methods against vManage Real Time Monitoring
     for network devices.
 
     """
@@ -59,12 +59,14 @@ class MonitorNetwork(object):
         url = f"{self.base_url}device"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        device_model = [device['device-model'] for device in result if system_ip in device['system-ip']][0]
+        device_model = [device['device-model'] for device in result
+                        if system_ip in device['system-ip']][0]
 
         url = f"{self.base_url}device/models"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        device_type = [device['templateClass'] for device in result if device_model in device['name']][0]
+        device_type = [device['templateClass'] for device in result
+                       if device_model in device['name']][0]
         return device_type
 
     def get_arp_table(self, system_ip):
@@ -459,7 +461,7 @@ class MonitorNetwork(object):
         Returns:
             result (dict): All data associated with a response.
         """
-        
+
         device_type = self._get_device_type(system_ip)
         if device_type == 'cedge':
             url = f"{self.base_url}device/ip/ipRoutes?deviceId={system_ip}"
