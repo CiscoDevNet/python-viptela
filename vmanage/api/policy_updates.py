@@ -117,7 +117,7 @@ class PolicyUpdates(object):
 
         return response['json']
 
-    def update_policy_definition(self, policy_type, policy_id, policy_def, new_color):
+    def update_policy_definition(self, policy_type, name, policy_id, policy_def, new_color, seq_name=None):
         """update policy definition
 
         Args:
@@ -131,11 +131,19 @@ class PolicyUpdates(object):
         """
 
         for item1 in policy_def["sequences"]:
-            for item2 in item1["actions"]:
-                if item2['type'] == 'slaClass':
-                    for item3 in item2['parameter']:
-                        if item3["field"] == 'preferredColor':
-                            item3["value"] = new_color
+            if item1["sequenceName"] == seq_name:
+                for item2 in item1["actions"]:
+                    if item2['type'] == 'slaClass':
+                        for item3 in item2['parameter']:
+                            if item3["field"] == 'preferredColor':
+                                item3["value"] = new_color
+            elif seq_name == None:
+                for item2 in item1["actions"]:
+                    if item2['type'] == 'slaClass':
+                        for item3 in item2['parameter']:
+                            if item3["field"] == 'preferredColor':
+                                item3["value"] = new_color
+
 
         # Update policy app route policy
 
@@ -152,6 +160,11 @@ class PolicyUpdates(object):
 
         if response['status_code'] == 200:
             master_templates_affected = response['json']['masterTemplatesAffected']
+            if master_templates_affected:
+                print("\nMaster templates affected: %s"%master_templates_affected)
+            else:
+                print("\nUpdated %s App Route policy successfully"%(name))
+                exit()
         else:
             error = response['error']
             result = response['details']
@@ -198,7 +211,7 @@ class PolicyUpdates(object):
             if response['status_code'] == 200:
                 if response['json']['summary']['status'] == "done":
                     if 'Success' in response['json']['summary']['count']:
-                        print("\nUpdated App route policy successfully")
+                        print("\nUpdated %s App Route policy successfully"%(name))
                     elif 'Failure' in response['json']['summary']['count']:
                         print("\nFailed to update App route policy")
                     break
