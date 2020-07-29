@@ -26,7 +26,7 @@ class HttpMethods(object):
         self.session = session
         self.url = url
 
-    def request(self, method, headers=None, payload=None, files=None):
+    def request(self, method, headers=None, payload=None, files=None, timeout=STANDARD_TIMEOUT):
         """Performs HTTP REST API Call.
 
         Args:
@@ -75,7 +75,7 @@ class HttpMethods(object):
                                             headers=headers,
                                             files=files,
                                             data=data,
-                                            timeout=STANDARD_TIMEOUT)
+                                            timeout=timeout)
 
         except requests.exceptions.ConnectionError as e:
             raise Exception(f'Connection error to {self.url}: {e}')

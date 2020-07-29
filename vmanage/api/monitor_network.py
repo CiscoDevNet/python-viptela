@@ -56,16 +56,11 @@ class MonitorNetwork(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
     def _get_device_type(self, system_ip):
-        url = f"{self.base_url}device"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        device_model = [device['device-model'] for device in result
-                        if system_ip in device['system-ip']][0]
-
+        device_model = self.get_device_system_info(system_ip)[0]['device-model']
         url = f"{self.base_url}device/models"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        device_type = [device['templateClass'] for device in result
+        device_type = [device['deviceClass'] for device in result
                        if device_model in device['name']][0]
         return device_type
 
@@ -79,7 +74,7 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/arp/sessions?deviceId={system_ip}"
+        url = f"{self.base_url}device/arp?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -452,7 +447,7 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_ip_routetable(self, system_ip):
+    def get_ip_route_table(self, system_ip):
         """Provides OMP peers for device.
 
         Args:
@@ -463,11 +458,11 @@ class MonitorNetwork(object):
         """
 
         device_type = self._get_device_type(system_ip)
-        if device_type == 'cedge':
+        if device_type == 'cisco-router':
             url = f"{self.base_url}device/ip/ipRoutes?deviceId={system_ip}"
-        elif device_type == 'vedge':
+        elif device_type == 'viptela-router':
             url = f"{self.base_url}device/ip/routetable?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
 
