@@ -4,34 +4,6 @@
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 
-CEDGE_LIST = ['vedge-CSR-1000v', 'vedge-ISR-4331',
-              'vedge-ISR-4431', 'vedge-ISR-4461',
-              'vedge-ISR-4451-X', 'vedge-IR-1101',
-              'vedge-ISRv', 'vedge-ISR-4321',
-              'vedge-ISR-4351', 'vedge-ISR-4221',
-              'vedge-ISR-4221X', 'vedge-ASR-1001-X',
-              'vedge-ASR-1002-X', 'vedge-ASR-1002-HX',
-              'vedge-ASR-1001-HX', 'vedge-C1101-4P',
-              'vedge-C1101-4PLTEP', 'vedge-C1111-4P',
-              'vedge-C1161X-8P', 'vedge-C1111-8P',
-              'vedge-C1121X-8P', 'vedge-C1111X-8P',
-              'vedge-C1111-8PW', 'vedge-C1111-8PLTEEA',
-              'vedge-C1121-8PLTEPW', 'vedge-C1111-8PLTELAW',
-              'vedge-C1111-8PLTEEAW', 'vedge-C1111-8PLTELA',
-              'vedge-C1111-4PLTEEA', 'vedge-C1101-4PLTEPW',
-              'vedge-C1109-4PLTE2PW', 'vedge-C1109-4PLTE2P',
-              'vedge-C1121X-8PLTE', 'vedge-C1161X-8PLTEP',
-              'vedge-C1113-8PMLTEEA', 'vedge-C1111-4PLTELA',
-              'vedge-C1116-4P', 'vedge-C1116-4PLTEEA',
-              'vedge-C1117-4P', 'vedge-C1117-4PM',
-              'vedge-C1117-4PLTEEA', 'vedge-C1126X-8PLTEP',
-              'vedge-C1127X-8PLTEP', 'vedge-C1127X-8PMLTEP',
-              'vedge-C1117-4PLTELA', 'vedge-C1117-4PMLTEEA']
-VEDGE_LIST = ['vedge-cloud', 'vedge-100', 'vedge-100-B',
-              'vedge-100-WM', 'vedge-100-M', 'vedge-1000',
-              'vedge-2000', 'vedge-5000', 'vedge-ISR1100-4G',
-              'vedge-ISR1100-4GLTE', 'vedge-ISR1100-6G']
-
 
 class MonitorNetwork(object):
     """vManage Monitor Networks API
@@ -165,7 +137,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/bgp/routes?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
 
@@ -448,7 +420,7 @@ class MonitorNetwork(object):
         return result
 
     def get_ip_route_table(self, system_ip):
-        """Provides OMP peers for device.
+        """Provides route table for device.
 
         Args:
             system_ip (str): Device System IP
@@ -462,6 +434,9 @@ class MonitorNetwork(object):
             url = f"{self.base_url}device/ip/ipRoutes?deviceId={system_ip}"
         elif device_type == 'viptela-router':
             url = f"{self.base_url}device/ip/routetable?deviceId={system_ip}"
+        else:
+            raise Exception(f"Could not retrieve device "
+                            f"type {device_type} for {system_ip}")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -492,7 +467,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/omp/routes/received?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
 
@@ -508,7 +483,7 @@ class MonitorNetwork(object):
 
         url = f"{self.base_url}" \
               f"device/omp/routes/advertised?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
 
@@ -632,7 +607,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/ospf/routes?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
 
@@ -713,7 +688,7 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_eigrp_interface(self, system_ip):
+    def get_eigrp_interfaces(self, system_ip):
         """Provides EIGRP interface for device.
 
         Args:
@@ -728,7 +703,7 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_eigrp_route(self, system_ip):
+    def get_eigrp_routes(self, system_ip):
         """Provides EIGRP route for device.
 
         Args:
@@ -739,7 +714,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/eigrp/route?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
 
