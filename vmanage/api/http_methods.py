@@ -70,12 +70,7 @@ class HttpMethods(object):
             headers = None
 
         try:
-            response = self.session.request(method,
-                                            self.url,
-                                            headers=headers,
-                                            files=files,
-                                            data=data,
-                                            timeout=timeout)
+            response = self.session.request(method, self.url, headers=headers, files=files, data=data, timeout=timeout)
 
         except requests.exceptions.ConnectionError as e:
             raise Exception(f'Connection error to {self.url}: {e}')
