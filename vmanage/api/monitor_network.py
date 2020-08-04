@@ -32,8 +32,7 @@ class MonitorNetwork(object):
         url = f"{self.base_url}device/models"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        device_type = [device['deviceClass'] for device in result
-                       if device_model in device['name']][0]
+        device_type = [device['deviceClass'] for device in result if device_model in device['name']][0]
         return device_type
 
     def get_arp_table(self, system_ip):
@@ -435,8 +434,7 @@ class MonitorNetwork(object):
         elif device_type == 'viptela-router':
             url = f"{self.base_url}device/ip/routetable?deviceId={system_ip}"
         else:
-            raise Exception(f"Could not retrieve device "
-                            f"type {device_type} for {system_ip}")
+            raise Exception(f"Could not retrieve device type {device_type} for {system_ip}")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
