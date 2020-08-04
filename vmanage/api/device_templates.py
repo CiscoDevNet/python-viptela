@@ -436,4 +436,3 @@ class DeviceTemplates(object):
         url = f"{self.base_url}template/config/running/{uuid}"
         response = HttpMethods(self.session, url).request('GET')
         return ParseMethods.parse_config(response)
-
