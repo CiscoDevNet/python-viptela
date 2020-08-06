@@ -320,6 +320,7 @@ class DeviceTemplates(object):
             system_ip (str): The System IP of the system to attach
             host_name (str): The host-name of the device to attach
             variables (dict): The variables needed by the template
+            isCli (bool): Determines if the template is CLI or feature based
 
         Returns:
             action_id (str): Returns the action id of the attachment
