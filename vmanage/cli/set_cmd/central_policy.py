@@ -8,9 +8,10 @@ from vmanage.api.policy_updates import PolicyUpdates
 @click.option('--pref-color', '-prefcolor', help="Preferred color", required=True)
 @click.option('--seq-name', '-seqname', help="Approute policy sequence name", required=False, default=None)
 @click.pass_obj
+# pylint: disable=redefined-builtin
 def central_policy(ctx, type, name, pref_color, seq_name):
     """
-    Change policy statements
+    Set Policy sequence statements
     """
 
     vmanage_policy_updates = PolicyUpdates(ctx.auth, ctx.host)
