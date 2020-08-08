@@ -7,7 +7,6 @@ from vmanage.cli.import_cmd import import_cmd
 from vmanage.cli.clean import clean
 from vmanage.cli.certificate import certificate
 from vmanage.cli.set_cmd import set_cmd
-from vmanage.cli.modify_central_policy import modify_central_policy
 from vmanage.api.authentication import Authentication
 
 # from vmanage.api.big import vmanage_session
@@ -54,7 +53,6 @@ def vmanage(ctx, host, username, password):
 
 
 vmanage.add_command(activate)
-vmanage.add_command(modify_central_policy)
 vmanage.add_command(deactivate)
 vmanage.add_command(show)
 vmanage.add_command(export)

@@ -28,5 +28,5 @@ vmanage set vbond --ip 10.0.0.11
 vmanage set ca-type --type enterprise
 vmanage import root-cert --file myCA.pem
 vmanage import policies -f vmanage-approute-policies.yml
-vmanage modify-central-policy modify-approute-policy -n Outlook-AAR-Policy -prefcolor public-internet -seqname Outlook
-vmanage modify-central-policy modify-approute-policy -n Outlook-AAR-Policy -prefcolor biz-internet
+vmanage set central-policy -t approute -n Outlook-AAR-Policy -prefcolor public-internet -seqname Outlook
+vmanage set central-policy -t approute -n Outlook-AAR-Policy -prefcolor biz-internet
