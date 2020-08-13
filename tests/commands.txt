@@ -27,6 +27,6 @@ vmanage certificate generate-csr --ip 1.1.1.3 --file /tmp/test.csr
 vmanage set vbond --ip 10.0.0.11
 vmanage set ca-type --type enterprise
 vmanage import root-cert --file myCA.pem
-vmanage import policies -f vmanage-approute-policies.yml
-vmanage set central-policy -t approute -n Outlook-AAR-Policy -prefcolor public-internet -seqname Outlook
-vmanage set central-policy -t approute -n Outlook-AAR-Policy -prefcolor biz-internet
+vmanage import policies --file tests/vmanage-approute-policies.yml
+vmanage set central-policy --type approute --name Outlook-AAR-Policy --pref-color public-internet --seq-name Outlook
+vmanage set central-policy --type approute --name Outlook-AAR-Policy --pref-color biz-internet
