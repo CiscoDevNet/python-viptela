@@ -320,7 +320,7 @@ class Files(object):
                     template_id = device_template_dict[device_config['template']]['templateId']
                 else:
                     raise Exception(f"Could not find ID for template {device_config['template']}")
-                if name_list == [] or device_config['host-name'] in name_list:
+                if name_list == [] or device_config.get('host-name') in name_list:
                     variable_dict = {}
                     template_input = self.device_templates.get_template_input(template_id,
                                                                               device_id_list=[device_config['uuid']])
@@ -328,11 +328,11 @@ class Files(object):
                     for column in template_input['columns']:
                         variable_dict[column['variable']] = data[column['property']]
                     entry = {
-                        'host_name': device_config['host-name'],
+                        'host_name': device_config.get('host-name'),
                         'device_type': device_config['deviceType'],
                         'uuid': device_config['chasisNumber'],
                         'system_ip': device_config['deviceIP'],
-                        'site_id': device_config['site-id'],
+                        'site_id': device_config.get('site-id'),
                         'template': device_config['template'],
                         'variables': variable_dict
                     }
