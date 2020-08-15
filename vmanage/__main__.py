@@ -42,7 +42,7 @@ class Viptela(object):
 # @click.group(cls=CatchAllExceptions)
 @click.group()
 @click.option('--host', envvar='VMANAGE_HOST', help='vManage Host (env: VMANAGE_HOST)', required=True)
-@click.option('--port', envvar='VMANAGE_PORT', help='vManage Port (env: VMANAGE_PORT)', default=443, required=False)
+@click.option('--port', envvar='VMANAGE_PORT', help='vManage Port (env: VMANAGE_PORT, default=443)', default=443, required=False)
 @click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password',
               envvar='VMANAGE_PASSWORD',
