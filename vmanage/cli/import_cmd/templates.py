@@ -21,7 +21,7 @@ def templates(ctx, input_file, check, update, diff, name, template_type):
     """
     Import templates from file
     """
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     click.echo(f'Importing templates from {input_file}')

@@ -19,7 +19,7 @@ def attachments(ctx, input_file, check, update, name, template_type):
     """
     Import attachments from file
     """
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
 
     click.echo(f'Importing attachments from {input_file}')
     result = vmanage_files.import_attachments_from_file(input_file,

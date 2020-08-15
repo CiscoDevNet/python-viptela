@@ -14,6 +14,6 @@ def policies(ctx, export_file):
     Export policies to file
     """
 
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
     click.echo(f'Exporting policies to {export_file}')
     vmanage_files.export_policy_to_file(export_file)
