@@ -299,6 +299,7 @@ class TemplateData(object):
                         raise Exception(f"Cannot find UUID for {attachment['host_name']}")
 
                 template_id = device_template_dict[attachment['template']]['templateId']
+                config_type = device_template_dict[attachment['template']]['configType']
                 attached_uuid_list = self.device_templates.get_attachments(template_id, key='uuid')
                 if device_uuid in attached_uuid_list:
                     # The device is already attached to the template.  We need to see if any of
@@ -316,7 +317,7 @@ class TemplateData(object):
                             changed = True
                     if changed:
                         if not check_mode and update:
-                            action_id = self.device_templates.attach_to_template(template_id, device_uuid,
+                            action_id = self.device_templates.attach_to_template(template_id, config_type, device_uuid,
                                                                                  attachment['system_ip'],
                                                                                  attachment['host_name'],
                                                                                  attachment['site_id'],
@@ -324,7 +325,7 @@ class TemplateData(object):
                             action_id_list.append(action_id)
                 else:
                     if not check_mode:
-                        action_id = self.device_templates.attach_to_template(template_id, device_uuid,
+                        action_id = self.device_templates.attach_to_template(template_id, config_type, device_uuid,
                                                                              attachment['system_ip'],
                                                                              attachment['host_name'],
                                                                              attachment['site_id'],

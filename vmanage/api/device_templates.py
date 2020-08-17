@@ -306,7 +306,7 @@ class DeviceTemplates(object):
             raise Exception(f"Could not retrieve input for template {template_id}")
         return action_id
 
-    def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables):
+    def attach_to_template(self, template_id, config_type, uuid, system_ip, host_name, site_id, variables):
         """Attach and device to a template
 
         Args:
@@ -348,7 +348,13 @@ class DeviceTemplates(object):
                 "isMasterEdited": False
             }]
         }
-        url = f"{self.base_url}template/device/config/attachfeature"
+        if config_type == 'file':
+            url = f"{self.base_url}template/device/config/attachcli"
+        elif config_type == 'template':
+            url = f"{self.base_url}template/device/config/attachfeature"
+        else:
+            raise Exception('Got invalid Config Type')
+
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         if 'json' in response and 'id' in response['json']:
             action_id = response['json']['id']
