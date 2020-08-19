@@ -15,8 +15,8 @@ def connections(ctx, device, json):
     Show control connections
     """
 
-    vmanage_device = Device(ctx.auth, ctx.host)
-    mn = MonitorNetwork(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
+    mn = MonitorNetwork(ctx.auth, ctx.host, ctx.port)
 
     if device:
         # Check to see if we were passed in a device IP address or a device name
@@ -66,8 +66,8 @@ def connections_history(ctx, device, json):
     Show control connections history
     """
 
-    vmanage_device = Device(ctx.auth, ctx.host)
-    mn = MonitorNetwork(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
+    mn = MonitorNetwork(ctx.auth, ctx.host, ctx.port)
 
     # Check to see if we were passed in a device IP address or a device name
     try:

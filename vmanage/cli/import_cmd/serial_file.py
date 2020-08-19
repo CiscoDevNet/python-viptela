@@ -9,7 +9,7 @@ def serial_file(ctx, input_file):
     """
     Import serial file
     """
-    vmanage_utilities = Utilities(ctx.auth, ctx.host)
+    vmanage_utilities = Utilities(ctx.auth, ctx.host, ctx.port)
 
     click.echo(f'Uploading serial file... {input_file}')
     result = vmanage_utilities.upload_file(input_file)

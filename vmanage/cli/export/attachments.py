@@ -17,7 +17,7 @@ def attachments(ctx, device_type, name, output_file):
     Export attachments to file
     """
     num = 0
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
     if device_type == 'controllers':
         if name:
             click.echo(f'Exporting controller attachment(s) {",".join(name)} to {output_file}')

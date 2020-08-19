@@ -16,7 +16,7 @@ def templates(ctx, template_type, name, export_file):
     """
     Export templates to file
     """
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
 
     if template_type == 'device':
         if name:

@@ -11,7 +11,7 @@ def generate_csr(ctx, ip, csr_file):
     Generate CSR for a device
     """
 
-    vmanage_certificate = Certificate(ctx.auth, ctx.host)
+    vmanage_certificate = Certificate(ctx.auth, ctx.host, ctx.port)
     csr = vmanage_certificate.generate_csr(ip)
     with open(csr_file, 'w') as outfile:
         outfile.write(csr)
