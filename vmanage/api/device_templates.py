@@ -190,8 +190,8 @@ class DeviceTemplates(object):
                         if match:
                             variable = match.groups('variable')[0]
                         else:
-                            # If the variable is not found, but is a default entry
-                            variable = None
+                            # If the variable is not found, use toolTip as variable name
+                            variable = column.get("toolTip")
 
                         entry = {'title': column['title'], 'property': column['property'], 'variable': variable}
                         return_dict['columns'].append(entry)
