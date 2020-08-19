@@ -3,7 +3,7 @@ import pprint
 import click
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
-from vmanage.api.policy_definitions import definition_types
+from vmanage.api.policy_definitions import all_definition_types
 from vmanage.data.policy_data import PolicyData
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
@@ -39,7 +39,7 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
               'definition_type',
               default='all',
               help="Definition type",
-              type=click.Choice(definition_types + ['all']))
+              type=click.Choice(all_definition_types + ['all']))
 @click.pass_obj
 def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """
