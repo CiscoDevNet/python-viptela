@@ -11,7 +11,7 @@ from vmanage.utils import list_to_dict
 
 definition_types_19_2_0 = [
     "data", "approute", "control", "cflowd", "mesh", "hubandspoke", "vpnmembershipgroup", "qosmap", "rewriterule",
-    "acl", "aclv6", "vedgeroute", "zonebasedfw", "intrusionprevention", "urlfiltering", "advancedMalwareProtection", 
+    "acl", "aclv6", "vedgeroute", "zonebasedfw", "intrusionprevention", "urlfiltering", "advancedMalwareProtection",
     "dnssecurity"
 ]
 
@@ -23,6 +23,7 @@ definition_types_19_3_0 = [
 ]
 
 all_definition_types = list(set(definition_types_19_2_0) | set(definition_types_19_3_0))
+
 
 class PolicyDefinitions(object):
     """vManage Policy Definitions API
