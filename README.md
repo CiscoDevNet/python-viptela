@@ -41,20 +41,21 @@ pip install -e .
 
 ## Environment Variables
 
-IP/DNS and credentials for the vManage server can be set for the SDK via environment variable
+IP/DNS, port and credentials for the vManage server can be set for the SDK via environment variable
 
 * `VMANAGE_HOST`
+* `VMANAGE_PORT`
 * `VMANAGE_USERNAME`
 * `VMANAGE_PASSWORD`
 
 ## vManage Command Line Interface
 
 ```bash
-$ vmanage --help
 Usage: vmanage [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --host TEXT      vManage Host (env: VMANAGE_HOST)  [required]
+  --port INTEGER   vManage Port (env: VMANAGE_PORT, default=443)
   --username TEXT  vManage Username (env: VMANAGE_USERNAME)  [required]
   --password TEXT  vManage Password (env: VMANAGE_PASSWORD)  [required]
   --help           Show this message and exit.
@@ -66,6 +67,7 @@ Commands:
   deactivate   Deactivate commands
   export       Export commands
   import       Import commands
+  set          vManage Settings set commands
   show         Show commands
 ```
 

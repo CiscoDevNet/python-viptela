@@ -19,7 +19,7 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
     """
     Show policy list information
     """
-    policy_lists = PolicyLists(ctx.auth, ctx.host)
+    policy_lists = PolicyLists(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -45,8 +45,8 @@ def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argum
     """
     Show policy definition information
     """
-    policy_definitions = PolicyDefinitions(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    policy_definitions = PolicyDefinitions(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -68,8 +68,8 @@ def central(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show central policy information
     """
-    central_policy = CentralPolicy(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    central_policy = CentralPolicy(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -93,8 +93,8 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show local policy information
     """
-    local_policy = LocalPolicy(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    local_policy = LocalPolicy(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -114,8 +114,8 @@ def security(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show security policy information
     """
-    security_policy = SecurityPolicy(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    security_policy = SecurityPolicy(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:

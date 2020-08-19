@@ -13,7 +13,7 @@ def table(ctx, device, json):
     """
     Show Interfaces
     """
-    vmanage_device = Device(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
 
     # Check to see if we were passed in a device IP address or a device name
     try:

@@ -15,7 +15,7 @@ def policies(ctx, input_file, check, update, push, diff):
     """
     Import policies from file
     """
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     click.echo(f"{'Checking' if check else 'Importing'} policies from {input_file}")

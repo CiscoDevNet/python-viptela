@@ -9,6 +9,6 @@ def root_cert(ctx):
     Get vManage root certificate
     """
 
-    vmanage_certificate = Certificate(ctx.auth, ctx.host)
+    vmanage_certificate = Certificate(ctx.auth, ctx.host, ctx.port)
     result = vmanage_certificate.get_vmanage_root_cert()
     click.echo(result)

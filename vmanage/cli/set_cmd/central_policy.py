@@ -13,7 +13,7 @@ def central_policy(ctx, type_, name, pref_color, seq_name):
     Set Policy sequence statements
     """
 
-    vmanage_policy_updates = PolicyUpdates(ctx.auth, ctx.host)
+    vmanage_policy_updates = PolicyUpdates(ctx.auth, ctx.host, ctx.port)
     policy_id = vmanage_policy_updates.get_policy_id(type_, name)
     policy_def = vmanage_policy_updates.get_policy_definition(type_, policy_id)
     vmanage_policy_updates.update_policy_definition(type_, name, policy_id, policy_def, pref_color, seq_name)

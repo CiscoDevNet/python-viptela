@@ -20,7 +20,7 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
     Show device status information
     """
 
-    vmanage_device = Device(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
     # output = mn.get_control_connections_history(sysip)
     # vmanage_session = ctx.obj
     pp = pprint.PrettyPrinter(indent=2)
@@ -80,7 +80,7 @@ def config(ctx, dev, device_type, json):
     """
     Show device config information
     """
-    vmanage_device = Device(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     #pylint: disable=too-many-nested-blocks

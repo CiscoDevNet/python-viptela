@@ -9,7 +9,7 @@ def clean(ctx, verify_clean):
     """
     Clean vManage
     """
-    clean_vmanage = CleanVmanage(ctx.auth, ctx.host)
+    clean_vmanage = CleanVmanage(ctx.auth, ctx.host, ctx.port)
 
     if verify_clean:
         clean_vmanage.clean_all()
