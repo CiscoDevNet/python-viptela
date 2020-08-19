@@ -35,8 +35,11 @@ class Viptela(object):
     @property
     def auth(self):
         if self.__auth is None:
-            self.__auth = Authentication(host=self.host, port=self.port, user=self.username,
-                                         password=self.password, tenant=self.tenant).login()
+            self.__auth = Authentication(host=self.host,
+                                         port=self.port,
+                                         user=self.username,
+                                         password=self.password,
+                                         tenant=self.tenant).login()
         return self.__auth
 
 
