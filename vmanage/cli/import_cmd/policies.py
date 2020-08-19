@@ -15,7 +15,7 @@ def policies(ctx, input_file, check, update, push, diff):
     """
     Import policies from file
     """
-    vmanage_files = Files(ctx.auth, ctx.host)
+    vmanage_files = Files(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     click.echo(f"{'Checking' if check else 'Importing'} policies from {input_file}")
@@ -38,5 +38,10 @@ def policies(ctx, input_file, check, update, push, diff):
     print(f"Local Policy Updates: {len(result['local_policy_updates'])}")
     if diff:
         for diff_item in result['local_policy_updates']:
+            click.echo(f"{diff_item['name']}:")
+            pp.pprint(diff_item['diff'])
+    print(f"Security Policy Updates: {len(result['security_policy_updates'])}")
+    if diff:
+        for diff_item in result['security_policy_updates']:
             click.echo(f"{diff_item['name']}:")
             pp.pprint(diff_item['diff'])

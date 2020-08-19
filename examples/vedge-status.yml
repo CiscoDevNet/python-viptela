@@ -1,0 +1,14 @@
+- name: Wait for vEdge Sync
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Get device facts
+      vmanage_device_facts:
+      register: device_facts
+
+    - debug:
+        msg: "vEdge in sync: {{ device_facts.vedges | selectattr('configStatusMessage', 'defined') | selectattr('configStatusMessage', 'equalto', 'In Sync') | map(attribute='host-name') | list }}"
+
+    - debug:
+        msg: "vEdge NOT in sync: {{ device_facts.vedges | selectattr('configStatusMessage', 'defined') | rejectattr('configStatusMessage', 'equalto', 'In Sync') | map(attribute='host-name') | list }}"

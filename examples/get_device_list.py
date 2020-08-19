@@ -1,17 +1,17 @@
-#!/usr/bin/env python
 
 from vmanage.api.authentication import Authentication
 from vmanage.api.device import Device
 import pprint
+import os
 
-username = 'admin'
-password = 'admin'
-host = 'XX.XX.XX.XX'
-
-auth = Authentication(host=host, user=username, password=password).login()
-vmanage_device = Device(auth, host)
-
-device_status_list = vmanage_device.get_device_status_list()
-
+vmanage_host = os.environ.get('VMANAGE_HOST')
+vmanage_username = os.environ.get('VMANAGE_USERNAME')
+vmanage_password = os.environ.get('VMANAGE_PASSWORD')
 pp = pprint.PrettyPrinter(indent=2)
-pp.pprint(device_status_list)
+
+auth = Authentication(host=vmanage_host, user=vmanage_username,
+                            password=vmanage_password).login()
+vmanage_device = Device(auth, vmanage_host)
+
+device_config_list = vmanage_device.get_device_config_list('all')
+pp.pprint(device_config_list)

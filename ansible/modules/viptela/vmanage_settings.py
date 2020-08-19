@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.viptela.vmanage import Vmanage, vmanage_argument_spec
+from vmanage.api.settings import Settings
+from vmanage.api.certificate import Certificate
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community'
 }
 
-from ansible.module_utils.basic import AnsibleModule, json
-from ansible.module_utils.viptela.viptela import viptelaModule, viptela_argument_spec
-from collections import OrderedDict
-
-
 def run_module():
     # define available arguments/parameters a user can pass to the module
-    argument_spec = viptela_argument_spec()
+    argument_spec = vmanage_argument_spec()
     argument_spec.update(organization=dict(type='str'),
                          vbond=dict(type='str'),
                          vbond_port=dict(type='str', default='12346'),
@@ -37,41 +37,43 @@ def run_module():
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True,
                            )
-    viptela = viptelaModule(module)
-    viptela.result['what_changed'] = []
+    vmanage = Vmanage(module)
+    vmanage_settings = Settings(vmanage.auth, vmanage.host)
+    vmanage_certificate = Certificate(vmanage.auth, vmanage.host)
+    vmanage.result['what_changed'] = []
 
-    if viptela.params['organization']:
-        current = viptela.get_vmanage_org()
-        if viptela.params['organization'] != current:
-            viptela.result['what_changed'].append('organization')
+    if vmanage.params['organization']:
+        current = vmanage_settings.get_vmanage_org()
+        if vmanage.params['organization'] != current:
+            vmanage.result['what_changed'].append('organization')
             if not module.check_mode:
-                viptela.set_vmanage_org(viptela.params['organization'])
+                vmanage_settings.set_vmanage_org(vmanage.params['organization'])
 
-    if viptela.params['vbond']:
-        current = viptela.get_vmanage_vbond()
-        if viptela.params['vbond'] != current['vbond'] or viptela.params['vbond_port'] != current['vbond_port']:
-            viptela.result['what_changed'].append('vbond')
+    if vmanage.params['vbond']:
+        current = vmanage_settings.get_vmanage_vbond()
+        if vmanage.params['vbond'] != current['domainIp'] or vmanage.params['vbond_port'] != current['port']:
+            vmanage.result['what_changed'].append('vbond')
             if not module.check_mode:
-                viptela.set_vmanage_vbond(viptela.params['vbond'], viptela.params['vbond_port'])
+                vmanage_settings.set_vmanage_vbond(vmanage.params['vbond'], vmanage.params['vbond_port'])
 
-    if viptela.params['ca_type']:
-        current = viptela.get_vmanage_ca_type()
-        if viptela.params['ca_type'] != current:
-            viptela.result['what_changed'].append('ca_type')
+    if vmanage.params['ca_type']:
+        current = vmanage_settings.get_vmanage_ca_type()
+        if vmanage.params['ca_type'] != current:
+            vmanage.result['what_changed'].append('ca_type')
             if not module.check_mode:
-                viptela.set_vmanage_ca_type(viptela.params['ca_type'])
+                vmanage_settings.set_vmanage_ca_type(vmanage.params['ca_type'])
 
-    if viptela.params['root_cert']:
-        current = viptela.get_vmanage_root_cert()
-        if viptela.params['root_cert'] not in current:
-            viptela.result['what_changed'].append('root_cert')
+    if vmanage.params['root_cert']:
+        current = vmanage_certificate.get_vmanage_root_cert()
+        if vmanage.params['root_cert'] not in current:
+            vmanage.result['what_changed'].append('root_cert')
             if not module.check_mode:
-                viptela.set_vmanage_root_cert(viptela.params['root_cert'])
+                vmanage_settings.set_vmanage_root_cert(vmanage.params['root_cert'])
 
-    if viptela.result['what_changed']:
-        viptela.result['changed'] = True
+    if vmanage.result['what_changed']:
+        vmanage.result['changed'] = True
 
-    viptela.exit_json(**viptela.result)
+    vmanage.exit_json(**vmanage.result)
 
 
 def main():

@@ -7,6 +7,7 @@ from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.utilities import Utilities
 from vmanage.api.device import Device
 from vmanage.api.local_policy import LocalPolicy
+from vmanage.api.security_policy import SecurityPolicy
 
 
 class TemplateData(object):
@@ -53,6 +54,15 @@ class TemplateData(object):
             else:
                 raise Exception(f"Could not find local policy {policy_id}")
 
+        if 'securityPolicyId' in device_template and device_template['securityPolicyId']:
+            security_policy_id = device_template['securityPolicyId']
+            vmanage_security_policy = SecurityPolicy(self.session, self.host, self.port)
+            security_policy_dict = vmanage_security_policy.get_security_policy_dict(key_name='policyId')
+            if security_policy_id in list(security_policy_dict.keys()):
+                device_template['securityPolicyName'] = security_policy_dict[security_policy_id]['policyName']
+            else:
+                raise Exception(f"Could not find security policy {security_policy_id}")
+
         if 'generalTemplates' in device_template:
             generalTemplates = []
             for old_template in device_template.pop('generalTemplates'):
@@ -61,14 +71,7 @@ class TemplateData(object):
                     'templateType': old_template['templateType']
                 }
                 if 'subTemplates' in old_template:
-                    subTemplates = []
-                    for sub_template in old_template['subTemplates']:
-                        subTemplates.append({
-                            'templateName':
-                            feature_template_dict[sub_template['templateId']]['templateName'],
-                            'templateType':
-                            sub_template['templateType']
-                        })
+                    subTemplates = self.subTemplates_to_name(old_template, feature_template_dict)
                     new_template['subTemplates'] = subTemplates
                 generalTemplates.append(new_template)
             device_template['generalTemplates'] = generalTemplates
@@ -93,6 +96,20 @@ class TemplateData(object):
                 device_template.pop('policyName')
             else:
                 raise Exception(f"Could not find local policy {device_template['policyName']}")
+        else:
+            device_template['policyId'] = ''
+
+        if 'securityPolicyName' in device_template:
+            vmanage_security_policy = SecurityPolicy(self.session, self.host, self.port)
+            security_policy_dict = vmanage_security_policy.get_security_policy_dict(key_name='policyName')
+            if device_template['securityPolicyName'] in security_policy_dict:
+                device_template['securityPolicyId'] = security_policy_dict[
+                    device_template['securityPolicyName']]['policyId']
+                device_template.pop('securityPolicyName')
+            else:
+                raise Exception(f"Could not find security policy {device_template['securityPolicyName']}")
+        else:
+            device_template['securityPolicyId'] = ''
 
         if 'generalTemplates' in device_template:
             device_template['generalTemplates'] = self.generalTemplates_to_id(device_template['generalTemplates'])
@@ -110,31 +127,19 @@ class TemplateData(object):
         """
 
         converted_generalTemplates = []
-        feature_templates = self.feature_templates.get_feature_template_dict(factory_default=True)
+        feature_template_dict = self.feature_templates.get_feature_template_dict(factory_default=True)
         for template in generalTemplates:
             if 'templateName' not in template:
                 self.result['generalTemplates'] = generalTemplates
                 self.fail_json(msg="Bad template")
-            if template['templateName'] in feature_templates:
+            if template['templateName'] in feature_template_dict:
                 template_item = {
-                    'templateId': feature_templates[template['templateName']]['templateId'],
+                    'templateId': feature_template_dict[template['templateName']]['templateId'],
                     'templateType': template['templateType']
                 }
                 if 'subTemplates' in template:
-                    subTemplates = []
-                    for sub_template in template['subTemplates']:
-                        if sub_template['templateName'] in feature_templates:
-                            subTemplates.append({
-                                'templateId':
-                                feature_templates[sub_template['templateName']]['templateId'],
-                                'templateType':
-                                sub_template['templateType']
-                            })
-                        else:
-                            self.fail_json(msg="There is no existing feature template named {0}".format(
-                                sub_template['templateName']))
+                    subTemplates = self.subTemplates_to_id(template, feature_template_dict)
                     template_item['subTemplates'] = subTemplates
-
                 converted_generalTemplates.append(template_item)
             else:
                 self.fail_json(msg="There is no existing feature template named {0}".format(template['templateName']))
@@ -229,6 +234,8 @@ class TemplateData(object):
         for device_template in device_template_list:
             if 'policyId' in device_template:
                 device_template.pop('policyId')
+            if 'securityPolicyId' in device_template:
+                device_template.pop('securityPolicyId')
             if device_template['templateName'] in device_template_dict:
                 existing_template = self.convert_device_template_to_name(
                     device_template_dict[device_template['templateName']])
@@ -236,7 +243,7 @@ class TemplateData(object):
                 # Just check the things that we care about changing.
                 diff_ignore = set([
                     'templateId', 'policyId', 'connectionPreferenceRequired', 'connectionPreference', 'templateName',
-                    'attached_devices', 'input'
+                    'attached_devices', 'input', 'securityPolicyId'
                 ])
                 diff = list(dictdiffer.diff(existing_template, device_template, ignore=diff_ignore))
                 if len(diff):
@@ -338,3 +345,77 @@ class TemplateData(object):
 
         result = {'updates': attachment_updates, 'failures': attachment_failures}
         return result
+
+    def subTemplates_to_name(self, old_template, feature_template_dict):
+        """Convert a Sub Template objects from IDs to Names.
+
+        Args:
+            old_template (dict): a device template
+            feature_template_dict (dict): dict of all the feature templates
+
+        Returns:
+            result (dict): Converted Device Template.
+        """
+
+        subTemplates = []
+        for sub_template in old_template['subTemplates']:
+            if 'subTemplates' in sub_template:
+                subsubTemplates = []
+                for sub_sub_template in sub_template['subTemplates']:
+                    subsubTemplates.append({
+                        'templateName':
+                        feature_template_dict[sub_sub_template['templateId']]['templateName'],
+                        'templateType':
+                        sub_sub_template['templateType']
+                    })
+                subTemplates.append({
+                    'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
+                    'templateType': sub_template['templateType'],
+                    'subTemplates': subsubTemplates
+                })
+            else:
+                subTemplates.append({
+                    'templateName': feature_template_dict[sub_template['templateId']]['templateName'],
+                    'templateType': sub_template['templateType']
+                })
+        return (subTemplates)
+
+    def subTemplates_to_id(self, template, feature_template_dict):
+        """Convert a Sub Template objects from IDs to Names.
+
+        Args:
+            template (dict): a device template
+            feature_template_dict (dict): dict of all the feature templates
+
+        Returns:
+            result (dict): Converted Device Template.
+        """
+        subTemplates = []
+        for sub_template in template['subTemplates']:
+            if sub_template['templateName'] in feature_template_dict and 'subTemplates' in sub_template:
+                subsubTemplates = []
+                for sub_sub_template in sub_template['subTemplates']:
+                    if sub_sub_template['templateName'] in feature_template_dict:
+                        subsubTemplates.append({
+                            'templateId':
+                            feature_template_dict[sub_sub_template['templateName']]['templateId'],
+                            'templateType':
+                            sub_sub_template['templateType']
+                        })
+                    else:
+                        self.fail_json(msg="There is no existing feature template named {0}".format(
+                            sub_sub_template['templateName']))
+                subTemplates.append({
+                    'templateId': feature_template_dict[sub_template['templateName']]['templateId'],
+                    'templateType': sub_template['templateType'],
+                    'subTemplates': subsubTemplates
+                })
+            elif sub_template['templateName'] in feature_template_dict:
+                subTemplates.append({
+                    'templateId': feature_template_dict[sub_template['templateName']]['templateId'],
+                    'templateType': sub_template['templateType']
+                })
+            else:
+                self.fail_json(
+                    msg="There is no existing feature template named {0}".format(sub_template['templateName']))
+        return (subTemplates)

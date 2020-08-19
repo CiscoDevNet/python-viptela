@@ -11,7 +11,7 @@ def central_policy(ctx, name, policy_id):
     deactivate Central Policy
     """
 
-    vmanage_central_policy = CentralPolicy(ctx.auth, ctx.host)
+    vmanage_central_policy = CentralPolicy(ctx.auth, ctx.host, ctx.port)
     central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=True)
     if policy_id:
         vmanage_central_policy.deactivate_central_policy(policy_id)

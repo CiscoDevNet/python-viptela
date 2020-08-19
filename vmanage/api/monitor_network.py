@@ -86,3 +86,48 @@ class MonitorNetwork(object):
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
+
+    def get_omp_routes_received(self, system_ip):
+        """Provides OMP received routes for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/omp/routes/received?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_omp_routes_advertised(self, system_ip):
+        """Provides OMP advertised routes for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/omp/routes/advertised?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_ip_routetable(self, system_ip):
+        """Provides OMP peers for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/ip/routetable?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result

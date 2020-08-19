@@ -1,17 +1,7 @@
 import click
-from vmanage.api.certificate import Certificate
-
-
-@click.command()
-@click.pass_obj
-def push(ctx):
-    """
-    Push certificates to all controllers
-    """
-
-    vmanage_certificate = Certificate(ctx.auth, ctx.host)
-    click.echo("Pushing certificates to controllers...")
-    vmanage_certificate.push_certificates()
+from vmanage.cli.certificate.push import push
+from vmanage.cli.certificate.generate_csr import generate_csr
+from vmanage.cli.certificate.install import install
 
 
 @click.group()
@@ -22,3 +12,5 @@ def certificate():
 
 
 certificate.add_command(push)
+certificate.add_command(generate_csr)
+certificate.add_command(install)

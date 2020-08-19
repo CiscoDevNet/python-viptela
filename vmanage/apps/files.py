@@ -12,6 +12,7 @@ from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
+from vmanage.api.security_policy import SecurityPolicy
 from vmanage.api.device import Device
 from vmanage.utils import list_to_dict
 
@@ -43,6 +44,7 @@ class Files(object):
         self.policy_definitions = PolicyDefinitions(self.session, self.host, self.port)
         self.local_policy = LocalPolicy(self.session, self.host, self.port)
         self.central_policy = CentralPolicy(self.session, self.host, self.port)
+        self.security_policy = SecurityPolicy(self.session, self.host, self.port)
         self.vmanage_device = Device(self.session, self.host, self.port)
 
     def export_templates_to_file(self, export_file, name_list=None, template_type=None):
@@ -188,12 +190,14 @@ class Files(object):
         policy_definitions_list = self.policy_data.export_policy_definition_list()
         central_policies_list = self.policy_data.export_central_policy_list()
         local_policies_list = self.local_policy.get_local_policy_list()
+        security_policies_list = self.policy_data.export_security_policy_list()
 
         policy_export = {
             'vmanage_policy_lists': policy_lists_list,
             'vmanage_policy_definitions': policy_definitions_list,
             'vmanage_central_policies': central_policies_list,
-            'vmanage_local_policies': local_policies_list
+            'vmanage_local_policies': local_policies_list,
+            'vmanage_security_policies': security_policies_list
         }
 
         if export_file.endswith('.json'):
@@ -220,6 +224,7 @@ class Files(object):
         policy_definition_updates = []
         central_policy_updates = []
         local_policy_updates = []
+        security_policy_updates = []
 
         # Read in the datafile
         if not os.path.exists(file):
@@ -247,6 +252,10 @@ class Files(object):
             local_policy_data = policy_data['vmanage_local_policies']
         else:
             local_policy_data = []
+        if 'vmanage_security_policies' in policy_data:
+            security_policy_data = policy_data['vmanage_security_policies']
+        else:
+            security_policy_data = []
 
         policy_list_updates = self.policy_data.import_policy_list_list(policy_list_data,
                                                                        check_mode=check_mode,
@@ -267,12 +276,17 @@ class Files(object):
                                                                          check_mode=check_mode,
                                                                          update=update,
                                                                          push=push)
+        security_policy_updates = self.policy_data.import_security_policy_list(security_policy_data,
+                                                                               check_mode=check_mode,
+                                                                               update=update,
+                                                                               push=push)
 
         return {
             'policy_list_updates': policy_list_updates,
             'policy_definition_updates': policy_definition_updates,
             'central_policy_updates': central_policy_updates,
-            'local_policy_updates': local_policy_updates
+            'local_policy_updates': local_policy_updates,
+            'security_policy_updates': security_policy_updates
         }
 
     def export_attachments_to_file(self, export_file, name_list=None, device_type=None):
@@ -306,7 +320,7 @@ class Files(object):
                     template_id = device_template_dict[device_config['template']]['templateId']
                 else:
                     raise Exception(f"Could not find ID for template {device_config['template']}")
-                if name_list == [] or device_config['host-name'] in name_list:
+                if name_list == [] or device_config.get('host-name') in name_list:
                     variable_dict = {}
                     template_input = self.device_templates.get_template_input(template_id,
                                                                               device_id_list=[device_config['uuid']])
@@ -314,11 +328,11 @@ class Files(object):
                     for column in template_input['columns']:
                         variable_dict[column['variable']] = data[column['property']]
                     entry = {
-                        'host_name': device_config['host-name'],
+                        'host_name': device_config.get('host-name'),
                         'device_type': device_config['deviceType'],
                         'uuid': device_config['chasisNumber'],
                         'system_ip': device_config['deviceIP'],
-                        'site_id': device_config['site-id'],
+                        'site_id': device_config.get('site-id'),
                         'template': device_config['template'],
                         'variables': variable_dict
                     }

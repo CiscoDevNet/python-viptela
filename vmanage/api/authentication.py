@@ -74,7 +74,7 @@ class Authentication(object):
             if (response.status_code != 200 or response.text.startswith('<html>')):
                 raise Exception('Login failed, check user credentials.')
 
-            version = Utilities(self.session, self.host).get_vmanage_version()
+            version = Utilities(self.session, self.host, self.port).get_vmanage_version()
 
             if version >= '19.2.0':
                 api = 'client/token'

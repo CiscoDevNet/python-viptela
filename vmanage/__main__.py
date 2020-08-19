@@ -6,6 +6,7 @@ from vmanage.cli.export import export
 from vmanage.cli.import_cmd import import_cmd
 from vmanage.cli.clean import clean
 from vmanage.cli.certificate import certificate
+from vmanage.cli.set_cmd import set_cmd
 from vmanage.api.authentication import Authentication
 
 # from vmanage.api.big import vmanage_session
@@ -22,10 +23,11 @@ class CatchAllExceptions(click.Group):
 
 
 class Viptela(object):
-    def __init__(self, host, username, password, tenant=None):
+    def __init__(self, host, port, username, password, tenant=None):
         self.host = host
         self.username = username
         self.password = password
+        self.port = port
         self.tenant = tenant
         self.__auth = None
 
@@ -33,14 +35,19 @@ class Viptela(object):
     @property
     def auth(self):
         if self.__auth is None:
-            self.__auth = Authentication(host=self.host, user=self.username, password=self.password,
-                                         tenant=self.tenant).login()
+            self.__auth = Authentication(host=self.host, port=self.port, user=self.username,
+                                         password=self.password, tenant=self.tenant).login()
         return self.__auth
 
 
 # @click.group(cls=CatchAllExceptions)
 @click.group()
 @click.option('--host', envvar='VMANAGE_HOST', help='vManage Host (env: VMANAGE_HOST)', required=True)
+@click.option('--port',
+              envvar='VMANAGE_PORT',
+              help='vManage Port (env: VMANAGE_PORT, default=443)',
+              default=443,
+              required=False)
 @click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password',
               envvar='VMANAGE_PASSWORD',
@@ -54,8 +61,8 @@ class Viptela(object):
               help='vManage Tenant Name (env: VMANAGE_TENANT)',
               required=False)
 @click.pass_context
-def vmanage(ctx, host, username, password, tenant=None):
-    ctx.obj = Viptela(host, username, password, tenant)
+def vmanage(ctx, host, port, username, password, tenant=None):
+    ctx.obj = Viptela(host, port, username, password, tenant)
 
 
 vmanage.add_command(activate)
@@ -65,3 +72,4 @@ vmanage.add_command(export)
 vmanage.add_command(import_cmd)
 vmanage.add_command(certificate)
 vmanage.add_command(clean)
+vmanage.add_command(set_cmd)
