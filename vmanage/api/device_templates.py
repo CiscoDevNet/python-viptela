@@ -273,11 +273,12 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
         return ParseMethods.parse_data(response)
 
-    def reattach_device_template(self, template_id, isCli=False):
+    def reattach_device_template(self, template_id, is_cli=False):
         """Re-Attach a template to the devices it it attached to.
 
         Args:
             template_id (str): The template ID to attach to
+            is_cli (bool): The type of template, CLI or Feature
 
         Returns:
             action_id (str): Returns the action id of the attachment
@@ -297,7 +298,7 @@ class DeviceTemplates(object):
                     "isMasterEdited": True
                 }]
             }
-            if isCli:
+            if is_cli:
                 url = f"{self.base_url}template/device/config/attachcli"
             else:
                 url = f"{self.base_url}template/device/config/attachfeature"
@@ -311,7 +312,7 @@ class DeviceTemplates(object):
             raise Exception(f"Could not retrieve input for template {template_id}")
         return action_id
 
-    def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables, isCli=False):
+    def attach_to_template(self, template_id, uuid, system_ip, host_name, site_id, variables, is_cli=False):
         """Attach a device to a template
 
         Args:
@@ -320,7 +321,7 @@ class DeviceTemplates(object):
             system_ip (str): The System IP of the system to attach
             host_name (str): The host-name of the device to attach
             variables (dict): The variables needed by the template
-            isCli (bool): Determines if the template is CLI or feature based
+            is_cli (bool): The type of template, CLI or Feature
 
         Returns:
             action_id (str): Returns the action id of the attachment
@@ -340,7 +341,7 @@ class DeviceTemplates(object):
         # Make sure they passed in the required variables and map
         # variable name -> property mapping
         template_variables = self.get_template_input(template_id)
-        if isCli:
+        if is_cli:
             for entry in template_variables['columns']:
                 if entry['property'] in variables:
                     device_template_variables[entry['property']] = variables[entry['property']]
@@ -362,7 +363,7 @@ class DeviceTemplates(object):
                 "isMasterEdited": False
             }]
         }
-        if isCli:
+        if is_cli:
             url = f"{self.base_url}template/device/config/attachcli"
         else:
             url = f"{self.base_url}template/device/config/attachfeature"
