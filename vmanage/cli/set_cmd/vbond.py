@@ -11,5 +11,5 @@ def vbond(ctx, ip, port):
     Set vBond
     """
 
-    vmanage_settings = Settings(ctx.auth, ctx.host)
+    vmanage_settings = Settings(ctx.auth, ctx.host, ctx.port)
     vmanage_settings.set_vmanage_vbond(ip, port)

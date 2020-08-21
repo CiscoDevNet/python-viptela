@@ -10,6 +10,6 @@ def install(ctx, cert):
     Install certificate
     """
 
-    vmanage_certificate = Certificate(ctx.auth, ctx.host)
+    vmanage_certificate = Certificate(ctx.auth, ctx.host, ctx.port)
     click.echo("Installing certificate...")
     vmanage_certificate.install_device_cert(cert)

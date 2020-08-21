@@ -23,9 +23,9 @@ def templates(ctx, template_type, diff, default, name, json):
     """
     Show template information
     """
-    device_templates = DeviceTemplates(ctx.auth, ctx.host)
-    feature_templates = FeatureTemplates(ctx.auth, ctx.host)
-    template_data = TemplateData(ctx.auth, ctx.host)
+    device_templates = DeviceTemplates(ctx.auth, ctx.host, ctx.port)
+    feature_templates = FeatureTemplates(ctx.auth, ctx.host, ctx.port)
+    template_data = TemplateData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
