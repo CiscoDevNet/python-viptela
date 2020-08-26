@@ -1,12 +1,21 @@
 language: python
 python:
-- '3.6'
-- '3.7'
-- '3.8'
+  - 3.6
+  - 3.7
+  - 3.8
 install:
-- pip install -r requirements.txt
+  - pip install -r requirements.txt
+  - pip install -e ./
 script:
-- "./test.bash"
+  - make check
+jobs:
+  include:
+    - stage: test-cli
+      python: 3.6
+      script:
+      - make sdwan
+      - make test-cli VERSION="19.2.1"
+      - make clean-sdwan
 deploy:
   provider: pypi
   on:
