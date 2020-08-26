@@ -99,7 +99,7 @@ clean-docs-markdown:
 	$(RM) -rf docs/build/markdown
 
 clean-sdwan:
-	@( \
+	-@( \
 	if [ -d $(TOPDIR)/sdwan-devops ] ; then \
 		cd $(TOPDIR)/sdwan-devops && \
 		./play.sh clean-virl.yml --tags="delete" && \
