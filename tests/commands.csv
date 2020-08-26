@@ -1,0 +1,32 @@
+19.2.1,vmanage show device status
+19.2.1,vmanage show device status --type edge
+19.2.1,vmanage show device status --type control
+19.2.1,vmanage show device config
+19.2.1,vmanage show device config --type edge
+19.2.1,vmanage show device config --type control
+19.2.1,vmanage show templates
+19.2.1,vmanage show templates --type feature
+19.2.1,vmanage show templates --type device
+19.2.1,vmanage show policies list
+19.2.1,vmanage show policies definition
+19.2.1,vmanage show policies local
+19.2.1,vmanage show policies central
+19.2.1,vmanage import root-cert --file myCA.pem
+19.2.1,vmanage import templates --file tests/vmanage-templates.yml
+19.2.1,vmanage export templates --file /tmp/vmanage-templates-cli.yml
+19.2.1,vmanage import policies --file tests/vmanage-policies.yml
+19.2.1,vmanage export policies --file /tmp/vmanage-policies-cli.yml
+19.2.1,vmanage import attachments --file tests/vmanage-attachments.yml
+19.2.1,vmanage export attachments --file /tmp/vmanage-attachments-cli.yml
+19.2.1,vmanage show root-cert
+19.2.1,vmanage show vbond
+19.2.1,vmanage show ca-type
+19.2.1,vmanage show org
+19.2.1,vmanage certificate push
+19.2.1,vmanage certificate generate-csr --ip 1.1.1.3 --file /tmp/test.csr
+19.2.1,vmanage set vbond --ip 10.0.0.11
+19.2.1,vmanage set ca-type --type enterprise
+19.2.1,vmanage import root-cert --file myCA.pem
+20.1,vmanage import policies --file tests/vmanage-approute-policies.yml
+20.1,vmanage set central-policy --type approute --name Outlook-AAR-Policy --pref-color public-internet --seq-name Outlook
+20.1,vmanage set central-policy --type approute --name Outlook-AAR-Policy --pref-color biz-internet
