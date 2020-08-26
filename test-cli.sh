@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-path=`dirname $_`
-input="${path}/commands.csv"
+input="./tests/commands.csv"
 if [[ $1 == "" ]]; then
     version="19.2.1"
 else

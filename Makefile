@@ -81,7 +81,7 @@ test: deps ## Run python-viptela tests
 	. $(VENV_BIN)/activate; pip install -U pip; pip install -r requirements.txt -r test-requirements.txt;tox -r
 
 test-cli: deps dev $(VENV)/bin/activate
-	. $(VENV_BIN)/activate; ./tests/cli.sh $(VERSION)
+	. $(VENV_BIN)/activate; ./test-cli.sh $(VERSION)
 
 clean: ## Clean python-viptela $(VENV)
 	$(RM) -rf $(VENV)
