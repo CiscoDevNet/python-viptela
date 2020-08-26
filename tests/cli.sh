@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 path=`dirname $_`
 input="${path}/commands.csv"
 if [[ $1 == "" ]]; then
