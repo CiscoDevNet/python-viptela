@@ -1,6 +1,7 @@
 # Miscellaneous
 *.json
 tester.py
+sdwan-devops
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -63,9 +63,25 @@ dist: build ## Creates the distribution.
 	$(VENV_BIN)/python setup.py sdist --formats gztar
 	$(VENV_BIN)/python setup.py bdist_wheel
 
+sdwan:
+	@( \
+	cd $(TOPDIR) ; \
+	rm -rf sdwan-devops ; \
+	git clone --recursive https://github.com/CiscoDevNet/sdwan-devops.git ; \
+	cd sdwan-devops && \
+	mkdir licenses && \
+	wget -O licenses/serialFile.viptela -L "https://www.dropbox.com/s/gyuxxn311peccwp/serialFile.viptela?dl=0" && \
+	./play.sh -i inventory/hq2 clean-virl.yml && \
+	./play.sh -i inventory/hq2 build-ca.yml && \
+	./play.sh -i inventory/hq2 build-virl.yml && \
+	./play.sh -i inventory/hq2 config-virl.yml \
+	)
 
 test: deps ## Run python-viptela tests
 	. $(VENV_BIN)/activate; pip install -U pip; pip install -r requirements.txt -r test-requirements.txt;tox -r
+
+test-cli: deps dev $(VENV)/bin/activate
+	. $(VENV_BIN)/activate; ./tests/cli.sh $(VERSION)
 
 clean: ## Clean python-viptela $(VENV)
 	$(RM) -rf $(VENV)
@@ -78,13 +94,25 @@ clean: ## Clean python-viptela $(VENV)
 
 clean-docs-html:
 	$(RM) -rf docs/build/html
+
 clean-docs-markdown:
 	$(RM) -rf docs/build/markdown
+
+clean-sdwan:
+	@( \
+	if [ -d $(TOPDIR)/sdwan-devops ] ; then \
+		cd $(TOPDIR)/sdwan-devops && \
+		./play.sh clean-virl.yml --tags="delete" && \
+		cd $(TOPDIR) && \
+		$(RM) -rf sdwan-devops ; \
+	fi \
+	)
 
 docs: docs-markdown docs-html ## Generate documentation in HTML and Markdown
 
 docs-markdown: clean-docs-markdown $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate Markdown documentation
 	. $(VENV_BIN)/activate ; $(MAKE) -C docs markdown
+
 docs-html: clean-docs-html $(SPHINX_DEPS) $(VENV)/bin/activate ## Generate HTML documentation
 	. $(VENV_BIN)/activate ; $(MAKE) -C docs html
 
