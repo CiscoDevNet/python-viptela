@@ -284,6 +284,7 @@ class TemplateData(object):
         action_id_list = []
         device_template_dict = self.device_templates.get_device_template_dict()
         vmanage_device = Device(self.session, self.host, self.port)
+        template_device_map = dict()
         for attachment in attachment_list:
             if attachment['template'] in device_template_dict:
                 if attachment['device_type'] == 'vedge':
@@ -299,6 +300,7 @@ class TemplateData(object):
                         raise Exception(f"Cannot find UUID for {attachment['host_name']}")
 
                 template_id = device_template_dict[attachment['template']]['templateId']
+                config_type = device_template_dict[attachment['template']]['configType']
                 attached_uuid_list = self.device_templates.get_attachments(template_id, key='uuid')
                 if device_uuid in attached_uuid_list:
                     # The device is already attached to the template.  We need to see if any of
@@ -316,32 +318,50 @@ class TemplateData(object):
                             changed = True
                     if changed:
                         if not check_mode and update:
-                            action_id = self.device_templates.attach_to_template(template_id, device_uuid,
-                                                                                 attachment['system_ip'],
-                                                                                 attachment['host_name'],
-                                                                                 attachment['site_id'],
-                                                                                 attachment['variables'])
-                            action_id_list.append(action_id)
+                            template_device_map.setdefault(template_id, []).append({
+                                "config_type": config_type,
+                                "variables": attachment['variables'],
+                                "host_name": attachment['host_name'],
+                                "site_id": attachment['site_id'],
+                                "system_ip": attachment['system_ip'],
+                                "device_uuid": device_uuid
+                            })
+
                 else:
                     if not check_mode:
-                        action_id = self.device_templates.attach_to_template(template_id, device_uuid,
-                                                                             attachment['system_ip'],
-                                                                             attachment['host_name'],
-                                                                             attachment['site_id'],
-                                                                             attachment['variables'])
-                        action_id_list.append(action_id)
+                        template_device_map.setdefault(template_id, []).append({
+                            "config_type": config_type,
+                            "variables": attachment['variables'],
+                            "host_name": attachment['host_name'],
+                            "site_id": attachment['site_id'],
+                            "system_ip": attachment['system_ip'],
+                            "device_uuid": device_uuid
+                        })
+
             else:
                 raise Exception(f"No template named {attachment['template']}")
+
+        for entry in template_device_map:
+            device_uuid = dict()
+            for item in template_device_map[entry]:
+                device_uuid.setdefault(item['device_uuid'], {})['host_name'] = item['host_name']
+                device_uuid[item['device_uuid']]['site_id'] = item['site_id']
+                device_uuid[item['device_uuid']]['variables'] = item['variables']
+                device_uuid[item['device_uuid']]['system_ip'] = item['system_ip']
+            action_id = self.device_templates.attach_to_template(entry, template_device_map[entry][0]['config_type'],
+                                                                 device_uuid)
+            action_id_list.append(action_id)
 
         utilities = Utilities(self.session, self.host)
         # Batch the waits so that the peocessing of the attachments is in parallel
         for action_id in action_id_list:
             result = utilities.waitfor_action_completion(action_id)
-            data = result['action_response']['data'][0]
-            if result['action_status'] == 'failure':
-                attachment_failures.update({data['uuid']: data['currentActivity']})
-            else:
-                attachment_updates.update({data['uuid']: data['currentActivity']})
+            data = result['action_response']['data']
+            for entry in data:
+                if result['action_status'] == 'failure':
+                    attachment_failures.update({entry['uuid']: entry['currentActivity']})
+                else:
+                    attachment_updates.update({entry['uuid']: entry['currentActivity']})
 
         result = {'updates': attachment_updates, 'failures': attachment_failures}
         return result
