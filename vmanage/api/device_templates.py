@@ -369,6 +369,7 @@ class DeviceTemplates(object):
         else:
             raise Exception('Got invalid Config Type')
 
+        utils = Utilities(self.session, self.host, self.port)
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         if 'json' in response and 'id' in response['json']:
             action_id = response['json']['id']
