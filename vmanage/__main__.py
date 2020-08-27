@@ -23,23 +23,30 @@ class CatchAllExceptions(click.Group):
 
 
 class Viptela(object):
-    def __init__(self, host, username, password):
+    def __init__(self, host, port, username, password):
         self.host = host
         self.username = username
         self.password = password
+        self.port = port
         self.__auth = None
 
     # use this to defer authentication until it's needed
     @property
     def auth(self):
         if self.__auth is None:
-            self.__auth = Authentication(host=self.host, user=self.username, password=self.password).login()
+            self.__auth = Authentication(host=self.host, port=self.port, user=self.username,
+                                         password=self.password).login()
         return self.__auth
 
 
 # @click.group(cls=CatchAllExceptions)
 @click.group()
 @click.option('--host', envvar='VMANAGE_HOST', help='vManage Host (env: VMANAGE_HOST)', required=True)
+@click.option('--port',
+              envvar='VMANAGE_PORT',
+              help='vManage Port (env: VMANAGE_PORT, default=443)',
+              default=443,
+              required=False)
 @click.option('--username', envvar='VMANAGE_USERNAME', help='vManage Username (env: VMANAGE_USERNAME)', required=True)
 @click.option('--password',
               envvar='VMANAGE_PASSWORD',
@@ -48,8 +55,8 @@ class Viptela(object):
               help='vManage Password (env: VMANAGE_PASSWORD)',
               required=True)
 @click.pass_context
-def vmanage(ctx, host, username, password):
-    ctx.obj = Viptela(host, username, password)
+def vmanage(ctx, host, port, username, password):
+    ctx.obj = Viptela(host, port, username, password)
 
 
 vmanage.add_command(activate)

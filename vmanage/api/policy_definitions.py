@@ -6,14 +6,23 @@ import json
 from vmanage.api.http_methods import HttpMethods
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.data.parse_methods import ParseMethods
+from vmanage.api.utilities import Utilities
 from vmanage.utils import list_to_dict
 
-definition_types = [
+definition_types_19_2_0 = [
+    "data", "approute", "control", "cflowd", "mesh", "hubandspoke", "vpnmembershipgroup", "qosmap", "rewriterule",
+    "acl", "aclv6", "vedgeroute", "zonebasedfw", "intrusionprevention", "urlfiltering", "advancedMalwareProtection",
+    "dnssecurity"
+]
+
+definition_types_19_3_0 = [
     "data", "approute", "control", "cflowd", "mesh", "hubandspoke", "vpnmembershipgroup", "qosmap", "rewriterule",
     "acl", "aclv6", "deviceaccesspolicy", "deviceaccesspolicyv6", "vedgeroute", "zonebasedfw", "intrusionprevention",
     "urlfiltering", "advancedMalwareProtection", "dnssecurity", "ssldecryption", "fxoport", "fxsport", "fxsdidport",
     "dialpeer", "srstphoneprofile"
 ]
+
+all_definition_types = list(set(definition_types_19_2_0) | set(definition_types_19_3_0))
 
 
 class PolicyDefinitions(object):
@@ -38,6 +47,24 @@ class PolicyDefinitions(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.policy_lists = PolicyLists(self.session, self.host, self.port)
+
+        version = Utilities(self.session, self.host, self.port).get_vmanage_version()
+        if version >= '19.3.0':
+            self.definition_types = definition_types_19_3_0
+        else:
+            self.definition_types = definition_types_19_2_0
+
+    def get_definition_types(self):
+        """Return the definition types for this version of vManage
+
+        Args:
+
+        Returns:
+            result (list): List of definition types
+
+        """
+
+        return self.definition_types
 
     def delete_policy_definition(self, definition_type, definition_id):
         """Delete a Policy Definition from vManage.
@@ -116,7 +143,7 @@ class PolicyDefinitions(object):
 
         if definition_type == 'all':
             all_definitions_list = []
-            for def_type in definition_types:
+            for def_type in self.definition_types:
                 definition_list = self.get_policy_definition_list(def_type)
                 if definition_list:
                     all_definitions_list.extend(definition_list)

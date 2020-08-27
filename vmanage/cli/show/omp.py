@@ -15,8 +15,8 @@ def peers(ctx, device, json):
     Show OMP peer information
     """
 
-    vmanage_device = Device(ctx.auth, ctx.host)
-    mn = MonitorNetwork(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
+    mn = MonitorNetwork(ctx.auth, ctx.host, ctx.port)
 
     # Check to see if we were passed in a device IP address or a device name
     try:
@@ -54,8 +54,8 @@ def received(ctx, device, json):
     Show OMP peer information
     """
 
-    vmanage_device = Device(ctx.auth, ctx.host)
-    mn = MonitorNetwork(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
+    mn = MonitorNetwork(ctx.auth, ctx.host, ctx.port)
 
     # Check to see if we were passed in a device IP address or a device name
     try:
@@ -92,8 +92,8 @@ def advertised(ctx, device, json):
     Show OMP peer information
     """
 
-    vmanage_device = Device(ctx.auth, ctx.host)
-    mn = MonitorNetwork(ctx.auth, ctx.host)
+    vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
+    mn = MonitorNetwork(ctx.auth, ctx.host, ctx.port)
 
     # Check to see if we were passed in a device IP address or a device name
     try:

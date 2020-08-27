@@ -349,13 +349,8 @@ class Files(object):
             raise Exception("File format not supported")
         return (len(attachments_list))
 
-    def import_attachments_from_file(self,
-                                     import_file,
-                                     update=False,
-                                     check_mode=False,
-                                     name_list=None,
-                                     template_type=None):
-        """Import policy from a file.  All object Names will be translated to IDs.
+    def import_attachments_from_file(self, import_file, update=False, check_mode=False, name_list=None):
+        """Import attachments from a file.  All object Names will be translated to IDs.
 
         Args:
             import_file (str): The name of the import file
@@ -374,10 +369,11 @@ class Files(object):
             else:
                 template_data = json.load(f)
 
+        imported_attachment_list = []
         if 'vmanage_attachments' in template_data:
-            imported_attachment_list = template_data['vmanage_attachments']
-        else:
-            imported_attachment_list = []
+            for attachment in template_data['vmanage_attachments']:
+                if name_list is None or attachment['host_name'] in name_list:
+                    imported_attachment_list.append(attachment)
 
         # Process the device templates
         result = self.template_data.import_attachment_list(imported_attachment_list,

@@ -10,7 +10,7 @@ def central_policy(ctx, name):
     Activate Central Policy
     """
 
-    vmanage_central_policy = CentralPolicy(ctx.auth, ctx.host)
+    vmanage_central_policy = CentralPolicy(ctx.auth, ctx.host, ctx.port)
     central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=True)
     if name in central_policy_dict:
         click.echo(f'Activating Central Policy {name}')

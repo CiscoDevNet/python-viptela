@@ -3,7 +3,7 @@ import pprint
 import click
 from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.policy_definitions import PolicyDefinitions
-from vmanage.api.policy_definitions import definition_types
+from vmanage.api.policy_definitions import all_definition_types
 from vmanage.data.policy_data import PolicyData
 from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
@@ -19,7 +19,7 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
     """
     Show policy list information
     """
-    policy_lists = PolicyLists(ctx.auth, ctx.host)
+    policy_lists = PolicyLists(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -39,14 +39,14 @@ def list_cmd(ctx, name, json, policy_list_type):  #pylint: disable=unused-argume
               'definition_type',
               default='all',
               help="Definition type",
-              type=click.Choice(definition_types + ['all']))
+              type=click.Choice(all_definition_types + ['all']))
 @click.pass_obj
 def definition(ctx, name, json, definition_type):  #pylint: disable=unused-argument
     """
     Show policy definition information
     """
-    policy_definitions = PolicyDefinitions(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    policy_definitions = PolicyDefinitions(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -68,8 +68,8 @@ def central(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show central policy information
     """
-    central_policy = CentralPolicy(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    central_policy = CentralPolicy(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -93,8 +93,8 @@ def local(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show local policy information
     """
-    local_policy = LocalPolicy(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    local_policy = LocalPolicy(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
@@ -114,8 +114,8 @@ def security(ctx, name, json):  #pylint: disable=unused-argument
     """
     Show security policy information
     """
-    security_policy = SecurityPolicy(ctx.auth, ctx.host)
-    policy_data = PolicyData(ctx.auth, ctx.host)
+    security_policy = SecurityPolicy(ctx.auth, ctx.host, ctx.port)
+    policy_data = PolicyData(ctx.auth, ctx.host, ctx.port)
     pp = pprint.PrettyPrinter(indent=2)
 
     if name:
