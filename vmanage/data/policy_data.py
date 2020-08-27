@@ -81,7 +81,8 @@ class PolicyData(object):
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
                                     # If told to push out the change, we need to reattach each template affected by the change
                                     for template_id in response['json']['masterTemplatesAffected']:
-                                        vmanage_device_templates.reattach_device_template(template_id)
+                                        obj = vmanage_device_templates.get_device_template_object(template_id)
+                                        vmanage_device_templates.reattach_device_template(template_id, obj['configType'])
                             else:
                                 raise Exception("Did not get a process id when updating policy list")
             else:

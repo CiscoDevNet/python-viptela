@@ -273,12 +273,12 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
         return ParseMethods.parse_data(response)
 
-    def reattach_device_template(self, template_id, is_cli=False, is_edited=True):
+    def reattach_device_template(self, template_id, config_type, is_edited=True):
         """Re-Attach a template to the devices it it attached to.
 
         Args:
             template_id (str): The template ID to attach to
-            is_cli (bool): The type of template, CLI or Feature
+            config_type (str): Type of template i.e. device or CLI template
 
         Returns:
             action_id (str): Returns the action id of the attachment
@@ -286,7 +286,6 @@ class DeviceTemplates(object):
         """
         device_list = self.get_template_attachments(template_id, key='uuid')
         template_input = self.get_template_input(template_id, device_list)
-        utils = Utilities(self.session, self.host, self.port)
 
         # Then we feed that to the attach
         if 'data' in template_input and template_input['data']:
@@ -298,10 +297,14 @@ class DeviceTemplates(object):
                     "isMasterEdited": is_edited
                 }]
             }
-            if is_cli:
+            if config_type == 'file':
                 url = f"{self.base_url}template/device/config/attachcli"
-            else:
+            elif config_type == 'template':
                 url = f"{self.base_url}template/device/config/attachfeature"
+            else:
+                raise Exception('Got invalid Config Type')
+
+            utils = Utilities(self.session, self.host, self.port)
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
             if 'json' in response and 'id' in response['json']:
                 action_id = response['json']['id']
