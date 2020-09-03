@@ -137,3 +137,22 @@ class Settings(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(payload))
         result = ParseMethods.parse_data(response)
         return result[0]
+
+    def get_vmanage_banner(self):
+        """Get vManage Banner
+
+                Args:
+
+                Returns:
+                    bannerDetail (str): The banner for vmanage.
+                """
+
+        # banner = self.get('settings/configuration/banner')
+        # if banner.status_code not in HTTP_SUCCESS_CODES:
+        #     return "Error retrieving banner.  Status: {0} Error: {1}".format(banner.status_code, banner.text)
+        # return banner.json()['data'][0]['bannerDetail']
+
+        url = f"{self.base_url}banner"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result[0]['bannerDetail']

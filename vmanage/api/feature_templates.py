@@ -88,7 +88,7 @@ class FeatureTemplates(object):
         return HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
 
     def update_feature_template(self, feature_template):
-        """Add a feature template to Vmanage.
+        """Update a feature template on Vmanage.
 
 
         Args:
@@ -151,3 +151,18 @@ class FeatureTemplates(object):
         feature_template_list = self.get_feature_template_list(factory_default=factory_default, name_list=name_list)
 
         return list_to_dict(feature_template_list, key_name, remove_key)
+
+    def get_device_templates_for_feature(self, templateId):
+        """Obtain a list of device templates for given feature template
+
+
+        Args:
+           templateId: (str)  Feature template ID to find device templates for
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        """
+        url = f"{self.base_url}template/feature/devicetemplates/{templateId}"
+        response = HttpMethods(self.session, url).request('GET')
+        return ParseMethods.parse_data(response)
