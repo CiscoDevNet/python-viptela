@@ -6,6 +6,7 @@ from vmanage.api.http_methods import HttpMethods
 from vmanage.api.policy_definitions import PolicyDefinitions
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
+from vmanage.api.utilities import Utilities
 
 
 class CentralPolicy(object):
@@ -30,6 +31,7 @@ class CentralPolicy(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.policy_definitions = PolicyDefinitions(self.session, self.host)
+        self.utilities = Utilities(self.session, self.host)
 
     def activate_central_policy(self, policy_name, policy_id):
         """Activates the current active centralized policy

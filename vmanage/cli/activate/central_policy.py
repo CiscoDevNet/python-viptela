@@ -15,6 +15,6 @@ def central_policy(ctx, name):
     if name in central_policy_dict:
         click.echo(f'Activating Central Policy {name}')
         action_id = vmanage_central_policy.activate_central_policy(name, central_policy_dict[name]['policyId'])
-        vmanage_central_policy.waitfor_action_completion(action_id)
+        vmanage_central_policy.utilities.waitfor_action_completion(action_id)
     else:
         click.secho(f'Cannot find Central Policy {name}', fg="red")
