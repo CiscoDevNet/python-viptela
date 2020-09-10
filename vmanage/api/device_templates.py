@@ -444,3 +444,17 @@ class DeviceTemplates(object):
         url = f"{self.base_url}template/config/running/{uuid}"
         response = HttpMethods(self.session, url).request('GET')
         return ParseMethods.parse_config(response)
+
+    def get_device_attached_config(self, uuid):
+        """
+        Get the attached configuration of a specific device.
+
+        Args:
+            uuid (str): UUID of device
+        Returns:
+            result (str): The running configuration of the specified device.
+        """
+        url = f"{self.base_url}template/config/attached/{uuid}"
+        response = HttpMethods(self.session, url).request('GET')
+        return ParseMethods.parse_config(response)
+
