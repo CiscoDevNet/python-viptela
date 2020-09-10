@@ -452,7 +452,7 @@ class DeviceTemplates(object):
         Args:
             uuid (str): UUID of device
         Returns:
-            result (str): The running configuration of the specified device.
+            result (str): The attached configuration of the specified device.
         """
         url = f"{self.base_url}template/config/attached/{uuid}"
         response = HttpMethods(self.session, url).request('GET')
