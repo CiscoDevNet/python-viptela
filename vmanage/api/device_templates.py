@@ -273,7 +273,7 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
         return ParseMethods.parse_data(response)
 
-    def reattach_device_template(self, template_id, config_type, is_edited=True):
+    def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True):
         """Re-Attach a template to the devices it it attached to.
 
         Args:
@@ -294,7 +294,7 @@ class DeviceTemplates(object):
                     "templateId": template_id,
                     "device": template_input['data'],
                     "isEdited": is_edited,
-                    "isMasterEdited": is_edited
+                    "isMasterEdited": is_master_edited
                 }]
             }
             if config_type == 'file':
