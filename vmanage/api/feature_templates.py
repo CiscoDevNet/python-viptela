@@ -141,6 +141,7 @@ class FeatureTemplates(object):
             factory_default (bool): Wheter to return factory default templates
             key_name (string): The name of the attribute to use as the dictionary key
             remove_key (boolean): remove the search key from the element
+            name_list (list of strings): A list of the template names to return
 
         Returns:
             result (dict): All data associated with a response.

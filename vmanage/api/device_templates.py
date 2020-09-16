@@ -70,6 +70,9 @@ class DeviceTemplates(object):
     def get_device_template_object(self, template_id):
         """Obtain a device template object.
 
+        Args:
+            template_id (str): Object ID for device template
+
         Returns:
             result (dict): All data associated with a response.
 
@@ -123,6 +126,7 @@ class DeviceTemplates(object):
             factory_default (bool): Wheter to return factory default templates
             key_name (string): The name of the attribute to use as the dictionary key
             remove_key (boolean): remove the search key from the element
+            name_list (list of strings): A list of template names to retreive.
 
         Returns:
             result (dict): All data associated with a response.
@@ -136,7 +140,6 @@ class DeviceTemplates(object):
 
     def get_template_attachments(self, template_id, key='host-name'):
         """Get the devices that a template is attached to.
-
 
         Args:
             template_id (string): Template ID
@@ -203,7 +206,6 @@ class DeviceTemplates(object):
     def add_device_template(self, device_template):
         """Add a single device template to Vmanage.
 
-
         Args:
             device_template (dict): Device Template
 
@@ -248,7 +250,6 @@ class DeviceTemplates(object):
     def update_device_template(self, device_template):
         """Update a single device template to Vmanage.
 
-
         Args:
             device_template (dict): Device Template
 
@@ -279,6 +280,9 @@ class DeviceTemplates(object):
         Args:
             template_id (str): The template ID to attach to
             config_type (str): Type of template i.e. device or CLI template
+            is_edited (bool): True if the template has been edited
+            is_master_edited (bool): For CLI device template needs to match is_edited.
+                    For device templates using feature templates needs to be set to False.
 
         Returns:
             action_id (str): Returns the action id of the attachment
