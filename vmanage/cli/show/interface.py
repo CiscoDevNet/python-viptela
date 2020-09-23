@@ -15,6 +15,8 @@ def list_interface(ctx, device, json):
     """
     vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
 
+    return something
+
     if device:
         # Check to see if we were passed in a device IP address or a device name
         try:
