@@ -150,9 +150,6 @@ class viptelaModule(object):
         if files is None:
             self.session.headers['Content-Type'] = 'application/json'
 
-        # {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
-        # self.session.headers.update(headers)
-
         if payload:
             self.result['payload'] = payload
             data = json.dumps(payload)
