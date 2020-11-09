@@ -23,6 +23,10 @@ class Device(object):
 
         """
 
+
+
+
+
         self.session = session
         self.host = host
         self.port = port
