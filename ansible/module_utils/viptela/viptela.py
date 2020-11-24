@@ -191,12 +191,12 @@ class viptelaModule(object):
 
         return attached_devices
 
-    def generaltemplates_to_id(self, generaltemplates):
-        converted_generaltemplates = []
+    def generalTemplates_to_id(self, generalTemplates):
+        converted_generalTemplates = []
         feature_templates = self.get_feature_template_dict(factory_default=True)
-        for template in generaltemplates:
+        for template in generalTemplates:
             if 'templateName' not in template:
-                self.result['generaltemplates'] = generaltemplates
+                self.result['generalTemplates'] = generalTemplates
                 self.fail_json(msg="Bad template")
             if template['templateName'] in feature_templates:
                 template_item = {
@@ -214,11 +214,11 @@ class viptelaModule(object):
                                 sub_template['templateName']))
                     template_item['subTemplates'] = subTemplates
 
-                converted_generaltemplates.append(template_item)
+                converted_generalTemplates.append(template_item)
             else:
                 self.fail_json(msg="There is no existing feature template named {0}".format(template['templateName']))
 
-        return converted_generaltemplates
+        return converted_generalTemplates
 
     def convert_sequences_to_id(self, sequence_list):
         for sequence in sequence_list:
@@ -257,9 +257,9 @@ class viptelaModule(object):
                     if not factory_default and object_value['factoryDefault']:
                         continue
 
-                    if 'generaltemplates' in object_value:
-                        generaltemplates = []
-                        for old_template in object_value.pop('generaltemplates'):
+                    if 'generalTemplates' in object_value:
+                        generalTemplates = []
+                        for old_template in object_value.pop('generalTemplates'):
                             new_template = {
                                 'templateName': feature_template_dict[old_template['templateId']]['templateName'],
                                 'templateType': old_template['templateType']}
@@ -270,8 +270,8 @@ class viptelaModule(object):
                                                          'templateType': sub_template['templateType']})
                                 new_template['subTemplates'] = subTemplates
 
-                            generaltemplates.append(new_template)
-                        object_value['generaltemplates'] = generaltemplates
+                            generalTemplates.append(new_template)
+                        object_value['generalTemplates'] = generalTemplates
 
                     object_value['templateId'] = device['templateId']
                     object_value['attached_devices'] = self.get_template_attachments(device['templateId'])
