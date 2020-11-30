@@ -10,7 +10,6 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
-
 def viptela_argument_spec():
     return dict(host=dict(type='str', required=True, fallback=(env_fallback, ['VMANAGE_HOST'])),
                 port=dict(type='str', required=False, fallback=(env_fallback, ['VMANAGE_PORT'])),
@@ -96,7 +95,7 @@ class viptelaModule(object):
         payload_key_diff = []
         for key, value in new_payload.items():
             if key in compare_values:
-                if key not in old_payload:
+                if key not in old_payload or new_payload[key] != old_payload[key]:
                     payload_key_diff.append(key)
         return payload_key_diff
 
@@ -351,7 +350,6 @@ class viptelaModule(object):
 
     def get_vmanage_vbond(self):
         response = self.request('/dataservice/settings/configuration/device')
-        vbond_port = None
         try:
             return {'vbond': response.json['data'][0]['domainIp'], 'vbond_port': response.json['data'][0]['port']}
         except:
@@ -359,8 +357,6 @@ class viptelaModule(object):
 
     def set_vmanage_vbond(self, vbond, vbond_port='12346'):
         payload = {'domainIp': vbond, 'port': vbond_port}
-        response = self.request('/dataservice/settings/configuration/device', method='POST', payload=payload)
-
         return
 
     def get_vmanage_ca_type(self):
@@ -372,7 +368,6 @@ class viptelaModule(object):
 
     def set_vmanage_ca_type(self, type):
         payload = {'certificateSigning': type, 'challengeAvailable': 'false'}
-        response = self.request('/dataservice/settings/configuration/certificate', method='POST', payload=payload)
         return
 
     def get_vmanage_root_cert(self):
@@ -384,7 +379,6 @@ class viptelaModule(object):
 
     def set_vmanage_root_cert(self, cert):
         payload = {'enterpriseRootCA': cert}
-        response = self.request('/dataservice/settings/configuration/certificate/enterpriserootca', method='PUT', payload=payload)
         return
 
     def install_device_cert(self, cert):
@@ -509,14 +503,6 @@ class viptelaModule(object):
         device_list = self.get_device_list()
 
         return self.list_to_dict(device_list, key_name=key_name, remove_key=remove_key)
-
-    def get_device_status(self, value, key='system-ip'):
-        response = self.request('/dataservice/device?{0}={1}'.format(key, value))
-
-        try:
-            return response.json['data'][0]
-        except:
-            return {}
 
     def get_device_vedges(self, key_name='host-name', remove_key=True):
         response = self.request('/dataservice/system/device/vedges')

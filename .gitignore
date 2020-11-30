@@ -486,3 +486,5 @@ MigrationBackup/
 viptela.egg-info/
 venv_python_viptela/
 .idea/
+
+.DS_Store
