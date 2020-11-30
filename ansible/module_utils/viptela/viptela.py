@@ -357,6 +357,7 @@ class viptelaModule(object):
 
     def set_vmanage_vbond(self, vbond, vbond_port='12346'):
         payload = {'domainIp': vbond, 'port': vbond_port}
+        self.request('/dataservice/settings/configuration/device', method='POST', payload=payload)
         return
 
     def get_vmanage_ca_type(self):
@@ -368,6 +369,7 @@ class viptelaModule(object):
 
     def set_vmanage_ca_type(self, type):
         payload = {'certificateSigning': type, 'challengeAvailable': 'false'}
+        self.request('/dataservice/settings/configuration/certificate', method='POST', payload=payload)
         return
 
     def get_vmanage_root_cert(self):
@@ -379,6 +381,7 @@ class viptelaModule(object):
 
     def set_vmanage_root_cert(self, cert):
         payload = {'enterpriseRootCA': cert}
+        self.request('/dataservice/settings/configuration/certificate/enterpriserootca', method='PUT', payload=payload)
         return
 
     def install_device_cert(self, cert):
