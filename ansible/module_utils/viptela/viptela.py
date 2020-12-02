@@ -1,5 +1,3 @@
-# from __future__ import absolute_import, division, generate_function
-# __metaclass__ = type
 import json
 import requests
 import re
@@ -77,7 +75,7 @@ class viptelaModule(object):
         return value
 
     def list_to_dict(self, list, key_name, remove_key=True):
-        dict = OrderedDict()
+        dict_value = OrderedDict()
         for item in list:
             if key_name in item:
                 if remove_key:
@@ -85,11 +83,11 @@ class viptelaModule(object):
                 else:
                     key = item[key_name]
 
-                dict[key] = item
+                dict_value[key] = item
             # else:
             #     self.fail_json(msg="key {0} not found in dictionary".format(key_name))
 
-        return dict
+        return dict_value
 
     @staticmethod
     def compare_payloads(new_payload, old_payload, compare_values=None):
@@ -99,8 +97,6 @@ class viptelaModule(object):
         for key, value in new_payload.items():
             if key in compare_values:
                 if key not in old_payload:
-                    payload_key_diff.append(key)
-                elif new_payload[key] != old_payload[key]:
                     payload_key_diff.append(key)
         return payload_key_diff
 
@@ -149,9 +145,6 @@ class viptelaModule(object):
         self.result['headers'] = self.session.headers.__dict__
         if files is None:
             self.session.headers['Content-Type'] = 'application/json'
-
-        # {'Connection': 'keep-alive', 'Content-Type': 'application/json'}
-        # self.session.headers.update(headers)
 
         if payload:
             self.result['payload'] = payload
@@ -245,6 +238,7 @@ class viptelaModule(object):
         try:
             return response.json['data'][0]
         except:
+            sys.exit()
             return {}
 
     def get_device_template_list(self, factory_default=False):
@@ -259,13 +253,13 @@ class viptelaModule(object):
             for device in device_body['data']:
                 object_response = self.request('/dataservice/template/device/object/{0}'.format(device['templateId']))
                 if object_response.json:
-                    object = object_response.json
-                    if not factory_default and object['factoryDefault']:
+                    object_value = object_response.json
+                    if not factory_default and object_value['factoryDefault']:
                         continue
 
-                    if 'generalTemplates' in object:
+                    if 'generalTemplates' in object_value:
                         generalTemplates = []
-                        for old_template in object.pop('generalTemplates'):
+                        for old_template in object_value.pop('generalTemplates'):
                             new_template = {
                                 'templateName': feature_template_dict[old_template['templateId']]['templateName'],
                                 'templateType': old_template['templateType']}
@@ -277,13 +271,13 @@ class viptelaModule(object):
                                 new_template['subTemplates'] = subTemplates
 
                             generalTemplates.append(new_template)
-                        object['generalTemplates'] = generalTemplates
+                        object_value['generalTemplates'] = generalTemplates
 
-                    object['templateId'] = device['templateId']
-                    object['attached_devices'] = self.get_template_attachments(device['templateId'])
-                    object['input'] = self.get_template_input(device['templateId'])
+                    object_value['templateId'] = device['templateId']
+                    object_value['attached_devices'] = self.get_template_attachments(device['templateId'])
+                    object_value['input'] = self.get_template_input(device['templateId'])
 
-                    return_list.append(object)
+                    return_list.append(object_value)
 
         return return_list
 
@@ -357,7 +351,6 @@ class viptelaModule(object):
 
     def get_vmanage_vbond(self):
         response = self.request('/dataservice/settings/configuration/device')
-        vbond = None
         vbond_port = None
         try:
             return {'vbond': response.json['data'][0]['domainIp'], 'vbond_port': response.json['data'][0]['port']}
