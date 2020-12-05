@@ -34,7 +34,8 @@ extensions = [
   "sphinx_rtd_theme",
   'sphinx.ext.todo',
   'sphinx.ext.viewcode',
-  'm2r'
+  'm2r',
+  'sphinx_click',
 ]
 
 extensions.append('autoapi.extension')
