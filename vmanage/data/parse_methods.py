@@ -52,3 +52,25 @@ class ParseMethods:
             result = response['status_code']
             raise Exception(f'{status}: {result}')
         return result
+
+    @staticmethod
+    def parse_config(response):
+        """Parse config and provide error handling for missing data.
+
+        Args:
+            response (obj): Requests response object
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        Raises:
+            Exception: Provides error message and details of issue.
+        """
+
+        if response['json'] and 'config' in response['json']:
+            result = response['json']['config']
+        else:
+            error = response['error']
+            result = response['details']
+            raise Exception(f'{error}: {result}')
+        return result

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to the Python Viptela SDK documentation!
-==========================================
+================================================
 
 `python-viptela` provides a Python SDK for interacting with Cisco SDWAN (formerly Viptela).
 
@@ -13,6 +13,8 @@ Welcome to the Python Viptela SDK documentation!
    :caption: Contents:
 
    autoapi/index.rst
+   cli
+
 
 Indices and tables
 ==================
