@@ -14,6 +14,7 @@ jobs:
     - stage: test-cli
       python: 3.6
       script:
+      - curl -X POST -H "x-api-key:$AWS_API_KEY" https://ux26sjz45i.execute-api.us-east-1.amazonaws.com/prod/travis-ci/sync/
       - make sdwan
       - make test-cli VERSION="19.2.1"
       - make clean-sdwan
