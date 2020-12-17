@@ -273,7 +273,7 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
         return ParseMethods.parse_data(response)
 
-    def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True):
+    def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True, wait=True):
         """Re-Attach a template to the devices it it attached to.
 
         Args:
@@ -308,14 +308,15 @@ class DeviceTemplates(object):
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
             if 'json' in response and 'id' in response['json']:
                 action_id = response['json']['id']
-                utils.waitfor_action_completion(action_id)
+                if wait:
+                    utils.waitfor_action_completion(action_id)
             else:
                 raise Exception(f"Did not get action ID after attaching device to template {template_id}.")
         else:
             raise Exception(f"Could not retrieve input for template {template_id}")
         return action_id
 
-    def attach_to_template(self, template_id, config_type, uuid):
+    def attach_to_template(self, template_id, config_type, uuid, wait=True):
         """Attach and device to a template
 
         Args:
@@ -376,7 +377,8 @@ class DeviceTemplates(object):
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         if 'json' in response and 'id' in response['json']:
             action_id = response['json']['id']
-            utils.waitfor_action_completion(action_id)
+            if wait:
+                utils.waitfor_action_completion(action_id)
         else:
             raise Exception('Did not get action ID after attaching device to template.')
 

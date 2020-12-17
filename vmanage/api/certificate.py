@@ -45,7 +45,7 @@ class Certificate(object):
         result = ParseMethods.parse_data(response)
         return result[0]['deviceCSR']
 
-    def install_device_cert(self, cert):
+    def install_device_cert(self, cert, wait=True):
         """Install signed cert on vManage
 
         Args:
@@ -59,12 +59,13 @@ class Certificate(object):
         response = HttpMethods(self.session, url).request('POST', payload=cert)
         utilities = Utilities(self.session, self.host)
         if 'json' in response and 'id' in response['json']:
-            utilities.waitfor_action_completion(response['json']['id'])
+                if wait:
+                    utilities.waitfor_action_completion(response['json']['id'])
         else:
             raise Exception('Did not get action ID after installing certificate.')
         return response['json']['id']
 
-    def push_certificates(self):
+    def push_certificates(self, wait=True):
         """Push certificates to all controllers
 
         Returns:
@@ -76,7 +77,8 @@ class Certificate(object):
         utilities = Utilities(self.session, self.host)
 
         if 'json' in response and 'id' in response['json']:
-            utilities.waitfor_action_completion(response['json']['id'])
+            if wait:
+                utilities.waitfor_action_completion(response['json']['id'])
         else:
             raise Exception('Did not get action ID after pushing certificates.')
         return response['json']['id']
