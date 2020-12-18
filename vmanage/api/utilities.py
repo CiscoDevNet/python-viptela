@@ -71,7 +71,7 @@ class Utilities(object):
             else:
                 action_status = status
         else:
-            raise Exception(msg="Unable to get action status: No response")        
+            raise Exception(msg="Unable to get action status: No response")
 
         return {
             'action_response': response['json'],
@@ -80,7 +80,6 @@ class Utilities(object):
             'action_activity': action_activity,
             'action_config': action_config
         }
-
 
     def waitfor_action_completion(self, action_id):
         status = 'in_progress'
