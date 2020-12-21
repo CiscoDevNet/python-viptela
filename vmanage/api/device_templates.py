@@ -352,7 +352,7 @@ class DeviceTemplates(object):
                 if entry['variable']:
                     if entry['variable'] in uuid[device_uuid]['variables']:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
-		    elif entry['property'] in uuid[device_uuid]['variables']:
+                elif entry['property'] in uuid[device_uuid]['variables']:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['property']]
                     else:
                         raise Exception(f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
