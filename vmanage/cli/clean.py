@@ -11,7 +11,5 @@ def clean(ctx, verify_clean):
     """
     clean_vmanage = CleanVmanage(ctx.auth, ctx.host, ctx.port)
 
-    if verify_clean:
-        clean_vmanage.clean_all()
-    elif click.confirm('This will DESTROY EVERYTHING! Do you want to continue?'):
+    if verify_clean or click.confirm('This will DESTROY EVERYTHING! Do you want to continue?'):
         clean_vmanage.clean_all()

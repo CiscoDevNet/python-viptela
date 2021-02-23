@@ -132,13 +132,7 @@ class PolicyUpdates(object):
         """
         #pylint: disable=too-many-nested-blocks
         for item1 in policy_def["sequences"]:
-            if item1["sequenceName"] == seq_name:
-                for item2 in item1["actions"]:
-                    if item2['type'] == 'slaClass':
-                        for item3 in item2['parameter']:
-                            if item3["field"] == 'preferredColor':
-                                item3["value"] = new_color
-            elif seq_name is None:
+            if item1["sequenceName"] == seq_name or seq_name is None:
                 for item2 in item1["actions"]:
                     if item2['type'] == 'slaClass':
                         for item3 in item2['parameter']:
