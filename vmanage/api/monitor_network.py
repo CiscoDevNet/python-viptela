@@ -66,17 +66,24 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_bfd_links(self, system_ip):
+    def get_bfd_links(self, system_ip, **kwargs):
         """Provides BFD links for device.
 
         Args:
             system_ip (str): Device System IP
+            state (str): State
 
         Returns:
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/bfd/links?deviceId={system_ip}"
+        url = f"{self.base_url}device/bfd/links"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'state' in kwargs:
+            query_params.append(('state', kwargs['state']))
+        if query_params:
+            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -111,17 +118,30 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_bfd_sessions(self, system_ip):
+    def get_bfd_sessions(self, system_ip, **kwargs):
         """Provides BFD sessions for device.
 
         Args:
             system_ip (str): Device System IP
+            remote_system_ip (str): Remote System IP
+            remote_color (str): Remote Color
+            local_color (str): Local Color
 
         Returns:
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/bfd/sessions?deviceId={system_ip}"
+        url = f"{self.base_url}device/bfd/sessions"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'remote_system_ip' in kwargs:
+            query_params.append(('system-ip', kwargs['remote_system_ip']))
+        if 'remote_color' in kwargs:
+            query_params.append(('color', kwargs['remote_color']))
+        if 'local_color' in kwargs:
+            query_params.append(('local-color', kwargs['local_color']))
+        if query_params:
+            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -172,10 +192,10 @@ class MonitorNetwork(object):
         query_params.append(('deviceId', system_ip))
         if 'vpn_id' in kwargs:
             query_params.append(('vpn-id', kwargs['vpn_id']))
-        if 'peer-addr' in kwargs:
-            query_params.append(('peer-addr', kwargs['peer-addr']))
-        if 'as' in kwargs:
-            query_params.append(('as', kwargs['as']))
+        if 'peer_addr' in kwargs:
+            query_params.append(('peer-addr', kwargs['peer_addr']))
+        if 'asn' in kwargs:
+            query_params.append(('as', kwargs['asn']))
         if query_params:
             url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
