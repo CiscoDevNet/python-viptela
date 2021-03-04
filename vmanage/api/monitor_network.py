@@ -3,6 +3,9 @@
 
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
+import urllib3
+import six
+from six.moves.urllib.parse import urlencode
 
 
 class MonitorNetwork(object):
@@ -125,17 +128,30 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_bgp_routes(self, system_ip):
+    def get_bgp_routes(self, system_ip, **kwargs):
         """Provides BGP routes for device.
 
         Args:
             system_ip (str): Device System IP
+            vpn-id (str): VPN ID
+            prefix (str): IP prefix
+            nexthop (str): Nexthop
 
         Returns:
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/bgp/routes?deviceId={system_ip}"
+        url = f"{self.base_url}device/bgp/routes"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'vpn_id' in kwargs:
+            query_params.append(('vpn-id', kwargs['vpn_id']))
+        if 'prefix' in kwargs:
+            query_params.append(('prefix', kwargs['prefix']))
+        if 'nexthop' in kwargs:
+            query_params.append(('nexthop', kwargs['nexthop']))
+        if query_params:
+            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -145,12 +161,25 @@ class MonitorNetwork(object):
 
         Args:
             system_ip (str): Device System IP
+            vpn-id (str): VPN ID
+            peer-addr (str): Peer address
+            as (str): ASN
 
         Returns:
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/bgp/neighbors?deviceId={system_ip}"
+        url = f"{self.base_url}device/bgp/neighbors"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'vpn_id' in kwargs:
+            query_params.append(('vpn-id', kwargs['vpn_id']))
+        if 'peer-addr' in kwargs:
+            query_params.append(('peer-addr', kwargs['peer-addr']))
+        if 'as' in kwargs:
+            query_params.append(('as', kwargs['as']))
+        if query_params:
+            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
