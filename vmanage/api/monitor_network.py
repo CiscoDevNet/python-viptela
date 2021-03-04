@@ -154,7 +154,7 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_bgp_neighbors(self, system_ip):
+    def get_bgp_neighbors(self, system_ip, **kwargs):
         """Provides BGP neighbors for device.
 
         Args:
