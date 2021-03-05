@@ -327,17 +327,24 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_control_links(self, system_ip):
+    def get_control_links(self, system_ip, **kwargs):
         """Provides control links for device.
 
         Args:
             system_ip (str): Device System IP
+            state (str): State
 
         Returns:
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/control/links?deviceId={system_ip}"
+        url = f"{self.base_url}device/control/links"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'state' in kwargs:
+            query_params.append(('state', kwargs['state']))
+        if query_params:
+            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
