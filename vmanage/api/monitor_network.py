@@ -721,21 +721,6 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_ospf_interfaces(self, system_ip):
-        """Provides OSPF interfaces for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/ospf/interface?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
     def get_ospf_routes(self, system_ip):
         """Provides OSPF routes for device.
 
@@ -795,13 +780,14 @@ class MonitorNetwork(object):
         device_type = self._get_device_type(system_ip)
         if device_type == 'viptela-router':
             url = f"{self.base_url}device/ospf/process?deviceId={system_ip}"
-            response = HttpMethods(self.session, url).request('GET')
-            result = ParseMethods.parse_data(response)
-            return result
         elif device_type == 'cisco-router':
             raise Exception(f"OSPF Interface API endpoint not supported for device type {device_type} for {system_ip}")
         else:
             raise Exception(f"Could not retrieve device type {device_type} for {system_ip}")
+
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
 
     def get_ospf_database_external(self, system_ip):
         """Provides OSPF database external for device.
