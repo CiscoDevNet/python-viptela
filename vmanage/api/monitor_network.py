@@ -798,6 +798,8 @@ class MonitorNetwork(object):
             response = HttpMethods(self.session, url).request('GET')
             result = ParseMethods.parse_data(response)
             return result
+        elif device_type == 'cisco-router':
+            raise Exception(f"OSPF Interface API endpoint not supported for device type {device_type} for {system_ip}")
         else:
             raise Exception(f"Could not retrieve device type {device_type} for {system_ip}")
 
