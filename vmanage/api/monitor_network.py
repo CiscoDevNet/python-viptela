@@ -429,7 +429,7 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/system/status?system-ip={system_ip}"
+        url = f"{self.base_url}device/system/status?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
