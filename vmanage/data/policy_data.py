@@ -124,7 +124,7 @@ class PolicyData(object):
                     name_list[key] = new_list
                 elif key.endswith('Zone'):
                     if value == 'Self Zone':
-                        id_list[key] = 'self'
+                        name_list[key] = 'self'
                     policy_list = self.policy_lists.get_policy_list_by_name(value, 'zone')
                     if policy_list:
                         name_list[key] = policy_list['listId']
