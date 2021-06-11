@@ -168,7 +168,8 @@ class PolicyData(object):
         """
         if isinstance(id_list, dict):
             for key, value in list(id_list.items()):
-                if key.endswith('List') and key != "signatureWhiteList" and key != "urlWhiteList" and key != "urlBlackList":
+                if key.endswith(
+                        'List') and key != "signatureWhiteList" and key != "urlWhiteList" and key != "urlBlackList":
                     t = key[0:len(key) - 4]
                     val = value
                     if isinstance(value, list):
