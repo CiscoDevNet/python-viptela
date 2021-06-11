@@ -103,7 +103,8 @@ class PolicyData(object):
         """
         if isinstance(name_list, dict):
             for key, value in list(name_list.items()):
-                if key.endswith('List') and key != "signatureWhiteList":
+                if key.endswith(
+                        'List') and key != "signatureWhiteList" and key != "urlWhiteList" and key != "urlBlackList":
                     t = key[0:len(key) - 4]
                     policy_list = self.policy_lists.get_policy_list_by_name(value, policy_list_type=t)
                     if policy_list:
@@ -122,6 +123,8 @@ class PolicyData(object):
                             raise Exception(f"Could not find id for list {list_name}, type {t}")
                     name_list[key] = new_list
                 elif key.endswith('Zone'):
+                    if value == 'Self Zone':
+                        id_list[key] = 'self'
                     policy_list = self.policy_lists.get_policy_list_by_name(value, 'zone')
                     if policy_list:
                         name_list[key] = policy_list['listId']
@@ -269,8 +272,10 @@ class PolicyData(object):
 
         """
         if 'assembly' in policy_definition and policy_definition['assembly']:
+            print(policy_definition['assembly'])
             for assembly_item in policy_definition['assembly']:
-                definition_name = assembly_item.pop('definitionName')
+                if assembly_item['definitionName']:
+                    definition_name = assembly_item.pop('definitionName')
                 policy_definition_dict = self.policy_definitions.get_policy_definition_dict(assembly_item['type'])
                 if definition_name in policy_definition_dict:
                     assembly_item['definitionId'] = policy_definition_dict[definition_name]['definitionId']
