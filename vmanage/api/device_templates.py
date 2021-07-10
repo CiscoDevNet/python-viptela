@@ -75,7 +75,6 @@ class DeviceTemplates(object):
 
         Returns:
             result (dict): All data associated with a response.
-
         """
 
         api = f"template/device/object/{template_id}"

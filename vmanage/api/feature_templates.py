@@ -106,7 +106,7 @@ class FeatureTemplates(object):
 
 
         Args:
-            factory_default (bool): Wheter to return factory default templates
+            factory_default (bool): Whether to return factory default templates
             name_list (list of strings): A list of the template names to return
 
         Returns:
@@ -138,9 +138,9 @@ class FeatureTemplates(object):
 
 
         Args:
-            factory_default (bool): Wheter to return factory default templates
+            factory_default (bool): Whether to return factory default templates
             key_name (string): The name of the attribute to use as the dictionary key
-            remove_key (boolean): remove the search key from the element
+            remove_key (boolean): Remove the search key from the element
             name_list (list of strings): A list of the template names to return
 
         Returns:
