@@ -148,7 +148,7 @@ class PolicyUpdates(object):
             "sequences": policy_def["sequences"]
         }
 
-        api = "template/policy/definition/%s/%s" % (policy_type, policy_id)
+        api = "template/policy/definition/%s/%s" % (policy_type.lower(), policy_id)
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(payload))
 
