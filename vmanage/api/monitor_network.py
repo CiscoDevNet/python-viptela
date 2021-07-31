@@ -79,9 +79,11 @@ class MonitorNetwork(object):
 
         url = f"{self.base_url}device/bfd/links"
         query_params = []
-        query_params.append(('deviceId', system_ip))
-        if 'state' in kwargs:
-            query_params.append(('state', kwargs['state']))
+        state = kwargs.pop('state', None)
+        if 'state' in ['up', 'down', 'not-available']:
+            query_params.append(('state', state))
+        else:
+            raise Exception(f"State should be up, down, or not-available.")
         if query_params:
             url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
