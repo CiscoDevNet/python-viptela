@@ -90,17 +90,27 @@ class MonitorNetwork(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_bfd_history(self, system_ip):
+    def get_bfd_history(self, system_ip, **kwargs):
         """Provides BFD history for device.
 
         Args:
             system_ip (str): Device System IP
+            remote_system_ip (str): Remote System IP
+            remote_color (str): Remote Color
 
         Returns:
             result (dict): All data associated with a response.
         """
 
         url = f"{self.base_url}device/bfd/history?deviceId={system_ip}"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'remote_system_ip' in kwargs:
+            query_params.append(('system-ip', kwargs['remote_system_ip']))
+        if 'remote_color' in kwargs:
+            query_params.append(('color', kwargs['remote_color']))
+        if query_params:
+            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
