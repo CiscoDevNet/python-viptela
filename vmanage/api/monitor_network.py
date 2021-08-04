@@ -1,6 +1,6 @@
 """Cisco vManage Monitor Networks API Methods.
 """
-
+import json
 from six.moves.urllib.parse import urlencode
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
@@ -876,3 +876,18 @@ class MonitorNetwork(object):
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
+
+    def get_wan_tloc(self, system_ip):
+        """Provides WAN TLOC information for device.
+
+        Args:
+            system_ip (str): Device System IP
+        
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}statistics/approute/aggregation"
+        payload = {"query":{"condition":"AND","rules":[{"value":["24"],"field":"entry_time","type":"date","operator":"last_n_hours"},{"value":["100"],"field":"loss_percentage","type":"number","operator":"less"},{"value":[f"{system_ip}"],"field":"vdevice_name","type":"string","operator":"in"}]},"aggregation":{"field":[{"property":"local_color","order":"asc","sequence":1}],"metrics":[{"property":"loss_percentage","type":"avg"},{"property":"latency","type":"avg"},{"property":"jitter","type":"avg"}]}}
+        response = HttpMethods(self.session, url).request("POST", payload=json.dumps(payload))
+        return response['json']['data']
