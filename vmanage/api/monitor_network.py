@@ -1356,7 +1356,7 @@ class MonitorNetwork(object):
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
-    
+
     def get_multicast_rpf(self, system_ip):
         """Provides multicast rpf for device.
 
@@ -1371,7 +1371,7 @@ class MonitorNetwork(object):
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
-    
+
     def get_multicast_topology(self, system_ip):
         """Provides multicast topology for device.
 
@@ -1685,7 +1685,7 @@ class MonitorNetwork(object):
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
-    
+
     def get_pim_neighbors(self, system_ip):
         """Provides PIM neighbors for device.
 
@@ -1700,7 +1700,7 @@ class MonitorNetwork(object):
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
-    
+
     def get_pim_rp_mapping(self, system_ip):
         """Provides PIM RP mapping for device.
 
