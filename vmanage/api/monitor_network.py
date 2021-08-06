@@ -43,47 +43,10 @@ class MonitorNetwork(object):
             system_ip (str): Device System IP
 
         Returns:
-            result (dict): All data associated with a response.
+            result (dict): Device ARP table data.
         """
 
         url = f"{self.base_url}device/arp?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_bfd_summary(self, system_ip):
-        """Provides BFD summary for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/bfd/summary?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_bfd_links(self, system_ip, **kwargs):
-        """Provides BFD links for device.
-
-        Args:
-            system_ip (str): Device System IP
-            state (str): State
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/bfd/links"
-        query_params = []
-        query_params.append(('deviceId', system_ip))
-        if 'state' in kwargs:
-            query_params.append(('state', kwargs['state']))
-        if query_params:
-            url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -93,29 +56,42 @@ class MonitorNetwork(object):
 
         Args:
             system_ip (str): Device System IP
-            remote_system_ip (str): Remote System IP
-            remote_color (str): Remote Color
+            remote_system_ip (str): (Optional) Remote System IP
+            remote_color (str): (Optional) Remote Color
 
         Returns:
-            result (dict): All data associated with a response.
+            result (dict): Device BFD history data.
         """
 
-        url = f"{self.base_url}device/bfd/history?deviceId={system_ip}"
+        url = f"{self.base_url}device/bfd/history"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'remote_system_ip' in kwargs:
+            query_params.append(('system-ip', kwargs['remote_system_ip']))
+        if 'remote_color' in kwargs:
+            query_params.append(('color', kwargs['remote_color']))
+        url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_bfd_tloc(self, system_ip):
-        """Provides BFD TLOC for device.
+    def get_bfd_links(self, system_ip, **kwargs):
+        """Provides BFD links for device.
 
         Args:
             system_ip (str): Device System IP
+            state (str): (Optional) State
 
         Returns:
-            result (dict): All data associated with a response.
+            result (dict): Device BFD links data.
         """
 
-        url = f"{self.base_url}device/bfd/tloc?deviceId={system_ip}"
+        url = f"{self.base_url}device/bfd/links"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'state' in kwargs:
+            query_params.append(('state', kwargs['state']))
+        url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -125,12 +101,12 @@ class MonitorNetwork(object):
 
         Args:
             system_ip (str): Device System IP
-            remote_system_ip (str): Remote System IP
-            remote_color (str): Remote Color
-            local_color (str): Local Color
+            remote_system_ip (str): (Optional) Remote System IP
+            remote_color (str): (Optional) Remote Color
+            local_color (str): (Optional) Local Color
 
         Returns:
-            result (dict): All data associated with a response.
+            result (dict): Device BFD sessions data.
         """
 
         url = f"{self.base_url}device/bfd/sessions"
@@ -142,8 +118,94 @@ class MonitorNetwork(object):
             query_params.append(('color', kwargs['remote_color']))
         if 'local_color' in kwargs:
             query_params.append(('local-color', kwargs['local_color']))
-        if query_params:
-            url += '?' + urlencode(query_params)
+        url += '?' + urlencode(query_params)
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_bfd_device_state(self, system_ip):
+        """Provides BFD state for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): Device BFD state data.
+        """
+
+        url = f"{self.base_url}/device/bfd/state/device?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_bfd_device_state_tloc(self, system_ip):
+        """Provides BFD state summary with TLOC for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): Device BFD state summary with TLOC data.
+        """
+
+        url = f"{self.base_url}/device/bfd/state/device/tloc?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_bfd_summary(self, system_ip):
+        """Provides BFD summary data for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): Device BFD summary data.
+        """
+
+        url = f"{self.base_url}device/bfd/summary?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_bfd_tloc(self, system_ip):
+        """Provides BFD TLOC for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): Device BFD TLOC data.
+        """
+
+        url = f"{self.base_url}device/bfd/tloc?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_bgp_neighbors(self, system_ip, **kwargs):
+        """Provides BGP neighbors for device.
+
+        Args:
+            system_ip (str): Device System IP
+            vpn-id (str): VPN ID
+            peer-addr (str): Peer address
+            as (str): ASN
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/bgp/neighbors"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'vpn_id' in kwargs:
+            query_params.append(('vpn-id', kwargs['vpn_id']))
+        if 'peer_addr' in kwargs:
+            query_params.append(('peer-addr', kwargs['peer_addr']))
+        if 'asn' in kwargs:
+            query_params.append(('as', kwargs['asn']))
+        url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -170,37 +232,8 @@ class MonitorNetwork(object):
             query_params.append(('prefix', kwargs['prefix']))
         if 'nexthop' in kwargs:
             query_params.append(('nexthop', kwargs['nexthop']))
-        if query_params:
-            url += '?' + urlencode(query_params)
+        url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET', timeout=60)
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_bgp_neighbors(self, system_ip, **kwargs):
-        """Provides BGP neighbors for device.
-
-        Args:
-            system_ip (str): Device System IP
-            vpn-id (str): VPN ID
-            peer-addr (str): Peer address
-            as (str): ASN
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/bgp/neighbors"
-        query_params = []
-        query_params.append(('deviceId', system_ip))
-        if 'vpn_id' in kwargs:
-            query_params.append(('vpn-id', kwargs['vpn_id']))
-        if 'peer_addr' in kwargs:
-            query_params.append(('peer-addr', kwargs['peer_addr']))
-        if 'asn' in kwargs:
-            query_params.append(('as', kwargs['asn']))
-        if query_params:
-            url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -215,176 +248,6 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/bgp/summary?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_summary(self, system_ip):
-        """Provides current control summary for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/control/summary?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_connections(self, system_ip, **kwargs):
-        """Provides current control connections for device.
-
-        Args:
-            system_ip (str): Device System IP
-            peer_type (str): Peer type (vedge, vsmart, vmanage, vbond)
-            peer_system_ip (str): Peer System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/control/connections"
-        query_params = []
-        query_params.append(('deviceId', system_ip))
-        if 'peer_type' in kwargs:
-            query_params.append(('peer-type', kwargs['peer_type']))
-        if 'peer_system_ip' in kwargs:
-            query_params.append(('system-ip', kwargs['peer_system_ip']))
-        if query_params:
-            url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_connections_history(self, system_ip, **kwargs):
-        """Provides control connections history for device.
-
-        Args:
-            system_ip (str): Device System IP
-            peer_type (str): Peer type (vedge, vsmart, vmanage, vbond)
-            peer_system_ip (str): Peer System IP
-            local_color (str): Local Color
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/control/connectionshistory"
-        query_params = []
-        query_params.append(('deviceId', system_ip))
-        if 'peer_type' in kwargs:
-            query_params.append(('peer-type', kwargs['peer_type']))
-        if 'peer_system_ip' in kwargs:
-            query_params.append(('system-ip', kwargs['peer_system_ip']))
-        if 'local_color' in kwargs:
-            query_params.append(('local-color', kwargs['local_color']))
-        if query_params:
-            url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_valid_vsmarts(self, system_ip):
-        """Provides control valid vsmarts for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}" \
-              f"device/control/validvsmarts?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_valid_devices(self, system_ip):
-        """Provides control valid devices for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}" \
-              f"device/control/validdevices?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_wan_interface(self, system_ip):
-        """Provides current control wan interface for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}" \
-              f"device/control/waninterface?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_local_properties(self, system_ip):
-        """Provides control local properties history for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}" \
-              f"device/control/localproperties?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_links(self, system_ip, **kwargs):
-        """Provides control links for device.
-
-        Args:
-            system_ip (str): Device System IP
-            state (str): State
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/control/links"
-        query_params = []
-        query_params.append(('deviceId', system_ip))
-        if 'state' in kwargs:
-            query_params.append(('state', kwargs['state']))
-        if query_params:
-            url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_control_wan_interface_color(self, system_ip):
-        """Provides current control wan interface for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}" \
-              f"device/control/waninterface/color?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -417,6 +280,188 @@ class MonitorNetwork(object):
 
         url = f"{self.base_url}" \
               f"device/control/affinity/status?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_connections(self, system_ip, **kwargs):
+        """Provides current control connections for device.
+
+        Args:
+            system_ip (str): Device System IP
+            peer_type (str): Peer type (vedge, vsmart, vmanage, vbond)
+            peer_system_ip (str): Peer System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/control/connections"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'peer_type' in kwargs:
+            query_params.append(('peer-type', kwargs['peer_type']))
+        if 'peer_system_ip' in kwargs:
+            query_params.append(('system-ip', kwargs['peer_system_ip']))
+        url += '?' + urlencode(query_params)
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_connections_history(self, system_ip, **kwargs):
+        """Provides control connections history for device.
+
+        Args:
+            system_ip (str): Device System IP
+            peer_type (str): Peer type (vedge, vsmart, vmanage, vbond)
+            peer_system_ip (str): Peer System IP
+            local_color (str): Local Color
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/control/connectionshistory"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'peer_type' in kwargs:
+            query_params.append(('peer-type', kwargs['peer_type']))
+        if 'peer_system_ip' in kwargs:
+            query_params.append(('system-ip', kwargs['peer_system_ip']))
+        if 'local_color' in kwargs:
+            query_params.append(('local-color', kwargs['local_color']))
+        url += '?' + urlencode(query_params)
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_count(self):
+        """Provides current control count for device.
+
+        Args:
+            None (None):
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/control/count"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_links(self, system_ip, **kwargs):
+        """Provides control links for device.
+
+        Args:
+            system_ip (str): Device System IP
+            state (str): State
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/control/links"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'state' in kwargs:
+            query_params.append(('state', kwargs['state']))
+        url += '?' + urlencode(query_params)
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_local_properties(self, system_ip):
+        """Provides control local properties history for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}" \
+              f"device/control/localproperties?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_summary(self, system_ip):
+        """Provides current control summary for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/control/summary?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_valid_devices(self, system_ip):
+        """Provides control valid devices for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}" \
+              f"device/control/validdevices?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_valid_vsmarts(self, system_ip):
+        """Provides control valid vsmarts for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}" \
+              f"device/control/validvsmarts?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_wan_interface(self, system_ip):
+        """Provides current control wan interface for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}" \
+              f"device/control/waninterface?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_control_wan_interface_color(self, system_ip):
+        """Provides current control wan interface for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}" \
+              f"device/control/waninterface/color?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -476,7 +521,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/dhcp/interfaces?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/dhcp/interfaces?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -491,13 +540,103 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/dhcp/servers?deviceId={system_ip}"
+        url = f"{self.base_url}device/dhcp/server?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
+    def get_eigrp_interfaces(self, system_ip):
+        """Provides EIGRP interface for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'cisco-router':
+            url = f"{self.base_url}device/eigrp/interface?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_eigrp_routes(self, system_ip):
+        """Provides EIGRP route for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'cisco-router':
+            url = f"{self.base_url}device/eigrp/route?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_eigrp_topology(self, system_ip):
+        """Provides EIGRP topology for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'cisco-router':
+            url = f"{self.base_url}device/eigrp/topology?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_ip_fib(self, system_ip, **kwargs):
+        """Provides IP FIB for device.
+
+        Args:
+            system_ip (str): Device System IP
+            vpn_id (str): VPN ID
+            address_family (str): Address Family
+            destination_prefix (str): Destination Prefix
+            tloc (str): TLOC
+            color (str): TLOC color
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/ip/fib"
+        query_params = []
+        query_params.append(('deviceId', system_ip))
+        if 'vpn_id' in kwargs:
+            query_params.append(('routing-instance-name', kwargs['vpn_id']))
+        if 'address_family' in kwargs:
+            query_params.append(('rib-address-family', kwargs['address_family']))
+        if 'destination_prefix' in kwargs:
+            query_params.append(('route-destination-prefix', kwargs['destination_prefix']))
+        if 'tloc' in kwargs:
+            query_params.append(('tloc', kwargs['tloc']))
+        if 'color' in kwargs:
+            query_params.append(('color', kwargs['color']))
+        url += '?' + urlencode(query_params)
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        result = ParseMethods.parse_data(response)
+        return result
+
     def get_ip_route_table(self, system_ip, **kwargs):
-        """Provides route table for device.
+        """Provides IP route table for device.
 
         Args:
             system_ip (str): Device System IP
@@ -513,10 +652,10 @@ class MonitorNetwork(object):
         """
 
         device_type = self._get_device_type(system_ip)
+        query_params = []
+        query_params.append(('deviceId', system_ip))
         if device_type == 'cisco-router':
             url = f"{self.base_url}device/ip/ipRoutes"
-            query_params = []
-            query_params.append(('deviceId', system_ip))
             if 'vpn_id' in kwargs:
                 query_params.append(('routing-instance-name', kwargs['vpn_id']))
             if 'address_family' in kwargs:
@@ -531,8 +670,6 @@ class MonitorNetwork(object):
                 query_params.append(('next-hop-outgoing-interface', kwargs['next_hop_oif']))
         elif device_type == 'viptela-router':
             url = f"{self.base_url}device/ip/routetable"
-            query_params = []
-            query_params.append(('deviceId', system_ip))
             if 'vpn_id' in kwargs:
                 query_params.append(('vpn-id', kwargs['vpn_id']))
             if 'address_family' in kwargs:
@@ -543,8 +680,37 @@ class MonitorNetwork(object):
                 query_params.append(('protocol', kwargs['source_protocol']))
         else:
             raise Exception(f"Could not retrieve device type {device_type} for {system_ip}")
-        if query_params:
-            url += '?' + urlencode(query_params)
+        url += '?' + urlencode(query_params)
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_ip_nat_translations(self, system_ip):
+        """Provides IP NAT translations for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/ip/nat/translation?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_ip_nat64_translations(self, system_ip):
+        """Provides IP NAT64 translations for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/ip/nat64/translation?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -583,8 +749,7 @@ class MonitorNetwork(object):
             query_params.append(('vpn-id', kwargs['vpn_id']))
         if 'prefix' in kwargs:
             query_params.append(('prefix', kwargs['prefix']))
-        if query_params:
-            url += '?' + urlencode(query_params)
+        url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -608,8 +773,7 @@ class MonitorNetwork(object):
             query_params.append(('vpn-id', kwargs['vpn_id']))
         if 'prefix' in kwargs:
             query_params.append(('prefix', kwargs['prefix']))
-        if query_params:
-            url += '?' + urlencode(query_params)
+        url += '?' + urlencode(query_params)
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -733,7 +897,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/ospf/routes?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/ospf/routes?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -748,7 +916,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/ospf/database?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/ospf/database?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -763,8 +935,12 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}" \
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}" \
               f"device/ospf/databasesummary?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -782,11 +958,8 @@ class MonitorNetwork(object):
         device_type = self._get_device_type(system_ip)
         if device_type == 'viptela-router':
             url = f"{self.base_url}device/ospf/process?deviceId={system_ip}"
-        elif device_type == 'cisco-router':
-            raise Exception(f"OSPF Interface API endpoint not supported for device type {device_type} for {system_ip}")
         else:
-            raise Exception(f"Could not retrieve device type {device_type} for {system_ip}")
-
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -801,8 +974,72 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}" \
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}" \
               f"device/ospf/databaseexternal?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_security_information(self, system_ip):
+        """Provides security information for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/security/information?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_umbrella_sig_tunnels(self, system_ip):
+        """Provides Cisco Umbrella SIG tunnels for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/sig/umbrella/tunnels?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_zscaler_sig_tunnels(self, system_ip):
+        """Provides Cisco zScaler SIG tunnels for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/sig/zscaler/tunnels?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_software(self, system_ip):
+        """Provides software for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/software?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -818,51 +1055,6 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/vrrp?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_eigrp_interfaces(self, system_ip):
-        """Provides EIGRP interface for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/eigrp/interface?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET')
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_eigrp_routes(self, system_ip):
-        """Provides EIGRP route for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/eigrp/route?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_eigrp_topology(self, system_ip):
-        """Provides EIGRP topology for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/eigrp/topology?deviceId={system_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
