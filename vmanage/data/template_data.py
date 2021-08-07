@@ -208,9 +208,8 @@ class TemplateData(object):
                 if not factory_default and obj['factoryDefault']:
                     continue
                 obj['templateId'] = device_template['templateId']
-
-                # obj['attached_devices'] = self.get_template_attachments(device['templateId'])
-                # obj['input'] = self.get_template_input(device['templateId'])
+                obj['attached_devices'] = self.device_templates.get_template_attachments(device_template['templateId'])
+                obj['input'] = self.device_templates.get_template_input(device_template['templateId'])
                 converted_device_template = self.convert_device_template_to_name(obj)
                 return_list.append(converted_device_template)
         return return_list
