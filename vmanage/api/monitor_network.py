@@ -1,6 +1,7 @@
 """Cisco vManage Monitor Networks API Methods.
 """
 
+import requests
 from six.moves.urllib.parse import urlencode
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
@@ -1352,7 +1353,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/mulitcast/replicator?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/mulitcast/replicator?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -1367,7 +1372,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/mulitcast/rpf?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/mulitcast/rpf?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -1382,7 +1391,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/mulitcast/topology?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/mulitcast/topology?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
@@ -1397,7 +1410,11 @@ class MonitorNetwork(object):
             result (dict): All data associated with a response.
         """
 
-        url = f"{self.base_url}device/mulitcast/tunnel?deviceId={system_ip}"
+        device_type = self._get_device_type(system_ip)
+        if device_type == 'viptela-router':
+            url = f"{self.base_url}device/mulitcast/tunnel?deviceId={system_ip}"
+        else:
+            raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
         response = HttpMethods(self.session, url).request('GET', timeout=60)
         result = ParseMethods.parse_data(response)
         return result
