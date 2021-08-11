@@ -88,7 +88,7 @@ class Cluster(object):
         return result
 
     def get_cluster_ip_addresses_dict(self):
-        """Obtain vManage cluster IP list
+        """Obtain vManage cluster IP addresses
 
         Args:
             None (None):
@@ -124,7 +124,7 @@ class Cluster(object):
         return result
 
     def get_cluster_node_properties(self):
-        """Obtain vManage cluster node properties
+        """Obtain connected vManage cluster node properties
 
         Args:
             None (None):
@@ -155,7 +155,7 @@ class Cluster(object):
         return result
 
     def get_cluster_vmanage_details_list(self, vmanage_cluster_ip):
-        """Obtain vManage cluster vManage details using cluster interface IP
+        """Obtain vManage cluster specific vManage details using cluster interface IP
 
         Args:
             vmanage_cluster_ip (str): vManage cluster interface IP address
