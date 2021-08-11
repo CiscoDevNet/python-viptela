@@ -103,7 +103,8 @@ class PolicyData(object):
         """
         if isinstance(name_list, dict):
             for key, value in list(name_list.items()):
-                if key.endswith('List') and key != "signatureWhiteList":
+                if key.endswith(
+                        'List') and key != "signatureWhiteList" and key != "urlWhiteList" and key != "urlBlackList":
                     t = key[0:len(key) - 4]
                     policy_list = self.policy_lists.get_policy_list_by_name(value, policy_list_type=t)
                     if policy_list:
@@ -122,6 +123,8 @@ class PolicyData(object):
                             raise Exception(f"Could not find id for list {list_name}, type {t}")
                     name_list[key] = new_list
                 elif key.endswith('Zone'):
+                    if value == 'Self Zone':
+                        name_list[key] = 'self'
                     policy_list = self.policy_lists.get_policy_list_by_name(value, 'zone')
                     if policy_list:
                         name_list[key] = policy_list['listId']
@@ -168,7 +171,8 @@ class PolicyData(object):
         """
         if isinstance(id_list, dict):
             for key, value in list(id_list.items()):
-                if key.endswith('List') and key != "signatureWhiteList":
+                if key.endswith(
+                        'List') and key != "signatureWhiteList" and key != "urlWhiteList" and key != "urlBlackList":
                     t = key[0:len(key) - 4]
                     val = value
                     if isinstance(value, list):
@@ -190,11 +194,14 @@ class PolicyData(object):
                             raise Exception(f"Could not find name for list id {list_id}, type {t}")
                     id_list[key] = new_list
                 elif key.endswith('Zone'):
-                    policy_list = self.policy_lists.get_policy_list_by_id(value, 'zone')
-                    if policy_list:
-                        id_list[key] = policy_list['name']
+                    if value == 'self':
+                        id_list[key] = 'Self Zone'
                     else:
-                        raise Exception(f"Could not find name for list {value}, type zone")
+                        policy_list = self.policy_lists.get_policy_list_by_id(value, 'zone')
+                        if policy_list:
+                            id_list[key] = policy_list['name']
+                        else:
+                            raise Exception(f"Could not find name for list {value}, type zone")
                 elif key == 'ref':
                     policy_list = self.policy_lists.get_policy_list_by_id(id_list['ref'])
                     if policy_list:
@@ -266,7 +273,8 @@ class PolicyData(object):
         """
         if 'assembly' in policy_definition and policy_definition['assembly']:
             for assembly_item in policy_definition['assembly']:
-                definition_name = assembly_item.pop('definitionName')
+                if assembly_item['definitionName']:
+                    definition_name = assembly_item.pop('definitionName')
                 policy_definition_dict = self.policy_definitions.get_policy_definition_dict(assembly_item['type'])
                 if definition_name in policy_definition_dict:
                     assembly_item['definitionId'] = policy_definition_dict[definition_name]['definitionId']
@@ -468,7 +476,6 @@ class PolicyData(object):
                 ])
                 diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
                 if diff:
-                    print(diff)
                     local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
                     if 'policyDefinition' in payload:
                         self.convert_definition_name_to_id(payload['policyDefinition'])
