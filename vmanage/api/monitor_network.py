@@ -1176,7 +1176,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/ip/nat/translation?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1191,7 +1191,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/ip/nat64/translation?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1214,11 +1214,26 @@ class MonitorNetwork(object):
         if 'remote_tloc_address' in kwargs:
             query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
         if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
         if 'local_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
         url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_ipsec_localsa(self, system_ip):
+        """Provides IPSec localsa for device.
+
+        Args:
+            system_ip (str): Device System IP
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}device/ipsec/localsa?deviceId={system_ip}"
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1240,24 +1255,9 @@ class MonitorNetwork(object):
         if 'remote_tloc_address' in kwargs:
             query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
         if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
         url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
-        result = ParseMethods.parse_data(response)
-        return result
-
-    def get_ipsec_localsa(self, system_ip):
-        """Provides IPSec localsa for device.
-
-        Args:
-            system_ip (str): Device System IP
-
-        Returns:
-            result (dict): All data associated with a response.
-        """
-
-        url = f"{self.base_url}device/ipsec/localsa?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1280,11 +1280,11 @@ class MonitorNetwork(object):
         if 'remote_tloc_address' in kwargs:
             query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
         if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
         if 'local_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
         url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1307,11 +1307,11 @@ class MonitorNetwork(object):
         if 'remote_tloc_address' in kwargs:
             query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
         if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
         if 'local_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
         url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1334,11 +1334,11 @@ class MonitorNetwork(object):
         if 'remote_tloc_address' in kwargs:
             query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
         if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
         if 'local_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
         url += '?' + urlencode(query_params)
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1357,7 +1357,7 @@ class MonitorNetwork(object):
             url = f"{self.base_url}device/mulitcast/replicator?deviceId={system_ip}"
         else:
             raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1376,7 +1376,7 @@ class MonitorNetwork(object):
             url = f"{self.base_url}device/mulitcast/rpf?deviceId={system_ip}"
         else:
             raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1395,7 +1395,7 @@ class MonitorNetwork(object):
             url = f"{self.base_url}device/mulitcast/topology?deviceId={system_ip}"
         else:
             raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1414,7 +1414,7 @@ class MonitorNetwork(object):
             url = f"{self.base_url}device/mulitcast/tunnel?deviceId={system_ip}"
         else:
             raise Exception(f"Device type {device_type} for {system_ip} is not valid for this API endpoint.")
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1698,7 +1698,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/pim/interface?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1713,7 +1713,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/pim/neighbor?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1728,7 +1728,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/pim/rp-mapping?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
@@ -1743,7 +1743,7 @@ class MonitorNetwork(object):
         """
 
         url = f"{self.base_url}device/pim/statistics?deviceId={system_ip}"
-        response = HttpMethods(self.session, url).request('GET', timeout=60)
+        response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
 
