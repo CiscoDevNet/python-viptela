@@ -36,6 +36,15 @@ class MonitorNetwork(object):
         device_type = [device['deviceClass'] for device in result if device_model in device['name']][0]
         return device_type
 
+    def _ipsec_query_params(self, query_params, **kwargs):
+        if 'remote_tloc_address' in kwargs:
+            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
+        if 'remote_tloc_color' in kwargs:
+            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
+        if 'local_tloc_color' in kwargs:
+            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
+        return query_params
+
     def get_aaa_users(self, system_ip):
         """Provides AAA users for device.
 
@@ -1211,13 +1220,7 @@ class MonitorNetwork(object):
         url = f"{self.base_url}device/ipsec/inbound"
         query_params = []
         query_params.append(('deviceId', system_ip))
-        if 'remote_tloc_address' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
-        if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
-        if 'local_tloc_color' in kwargs:
-            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
-        url += '?' + urlencode(query_params)
+        url += '?' + urlencode(self._ipsec_query_params(query_params, **kwargs))
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -1277,13 +1280,7 @@ class MonitorNetwork(object):
         url = f"{self.base_url}device/ipsec/pwk/inbound"
         query_params = []
         query_params.append(('deviceId', system_ip))
-        if 'remote_tloc_address' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
-        if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
-        if 'local_tloc_color' in kwargs:
-            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
-        url += '?' + urlencode(query_params)
+        url += '?' + urlencode(self._ipsec_query_params(query_params, **kwargs))
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -1304,13 +1301,7 @@ class MonitorNetwork(object):
         url = f"{self.base_url}device/ipsec/pwk/localsa"
         query_params = []
         query_params.append(('deviceId', system_ip))
-        if 'remote_tloc_address' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
-        if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
-        if 'local_tloc_color' in kwargs:
-            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
-        url += '?' + urlencode(query_params)
+        url += '?' + urlencode(self._ipsec_query_params(query_params, **kwargs))
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
@@ -1331,13 +1322,7 @@ class MonitorNetwork(object):
         url = f"{self.base_url}device/ipsec/pwk/outbound"
         query_params = []
         query_params.append(('deviceId', system_ip))
-        if 'remote_tloc_address' in kwargs:
-            query_params.append(('remote-tloc-address', kwargs['remote_tloc_address']))
-        if 'remote_tloc_color' in kwargs:
-            query_params.append(('remote-tloc-color', kwargs['remote_tloc_color']))
-        if 'local_tloc_color' in kwargs:
-            query_params.append(('local-tloc-color', kwargs['local_tloc_color']))
-        url += '?' + urlencode(query_params)
+        url += '?' + urlencode(self._ipsec_query_params(query_params, **kwargs))
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
