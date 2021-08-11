@@ -1,7 +1,6 @@
 """Cisco vManage Monitor Networks API Methods.
 """
 
-import requests
 from six.moves.urllib.parse import urlencode
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
