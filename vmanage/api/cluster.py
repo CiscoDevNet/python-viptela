@@ -86,7 +86,7 @@ class Cluster(object):
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
-    
+
     def get_cluster_ip_addresses_dict(self):
         """Obtain vManage cluster IP list
 
