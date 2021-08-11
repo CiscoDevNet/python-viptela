@@ -2,6 +2,7 @@ Click
 dictdiffer
 PyYAML
 requests
+six==1.15.0
 sphinx>=2.1.2,<3.0
 sphinx-autoapi==1.3.0
 sphinx-click>=1.3.0

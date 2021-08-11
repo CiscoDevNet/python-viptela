@@ -272,7 +272,6 @@ class PolicyData(object):
 
         """
         if 'assembly' in policy_definition and policy_definition['assembly']:
-            print(policy_definition['assembly'])
             for assembly_item in policy_definition['assembly']:
                 if assembly_item['definitionName']:
                     definition_name = assembly_item.pop('definitionName')
@@ -477,7 +476,6 @@ class PolicyData(object):
                 ])
                 diff = list(dictdiffer.diff(existing_policy, payload, ignore=diff_ignore))
                 if diff:
-                    print(diff)
                     local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
                     if 'policyDefinition' in payload:
                         self.convert_definition_name_to_id(payload['policyDefinition'])

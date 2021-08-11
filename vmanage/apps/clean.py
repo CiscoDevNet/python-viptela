@@ -14,7 +14,7 @@ from vmanage.api.policy_lists import PolicyLists
 
 
 class CleanVmanage(object):
-    """Reset all configuratios on a vManage instance.
+    """Reset all configurations on a vManage instance.
 
     Executes the necessary REST calls in specific order to remove
     configurations applied to a vManage instance.
