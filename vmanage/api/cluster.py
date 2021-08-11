@@ -27,14 +27,14 @@ class Cluster(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    def get_cluster_connected_devices(self, vmanage_cluster_ip):
+    def get_cluster_connected_devices_list(self, vmanage_cluster_ip):
         """Obtain vManage cluster connected devices
 
         Args:
             vmanage_cluster_ip (str): vManage cluster interface IP address
 
         Returns:
-            result (dict): All data associated with a response.
+            result (list): All data associated with a response.
         """
 
         url = f"{self.base_url}clusterManagement/connectedDevices/{vmanage_cluster_ip}"
@@ -42,14 +42,14 @@ class Cluster(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_cluster_health_details(self):
+    def get_cluster_health_details_list(self):
         """Obtain vManage cluster health details
 
         Args:
             None (None):
 
         Returns:
-            result (dict): All data associated with a response.
+            result (list): All data associated with a response.
         """
 
         url = f"{self.base_url}clusterManagement/health/details"
@@ -57,14 +57,14 @@ class Cluster(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def get_cluster_health_status(self):
+    def get_cluster_health_status_list(self):
         """Obtain vManage cluster health status
 
         Args:
             None (None):
 
         Returns:
-            result (dict): All data associated with a response.
+            result (list): All data associated with a response.
         """
 
         url = f"{self.base_url}clusterManagement/health/status"
@@ -79,16 +79,16 @@ class Cluster(object):
             None (None):
 
         Returns:
-            result (dict): All data associated with a response.
+            result (list): All data associated with a response.
         """
 
         url = f"{self.base_url}clusterManagement/list"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
-
-    def get_cluster_ip_list(self):
-        """Obtain vManage cluster ip list from all vManages
+    
+    def get_cluster_ip_addresses_dict(self):
+        """Obtain vManage cluster IP list
 
         Args:
             None (None):
@@ -97,12 +97,74 @@ class Cluster(object):
             result (dict): All data associated with a response.
         """
 
-        cluster_list = self.get_cluster_list()
         result = {}
-        for vmanage in cluster_list[0]['data']:
+        vmanages = self.get_cluster_list()
+        for vmanage in vmanages[0]['data']:
             vmanage_id = vmanage['vmanageID']
             url = f"{self.base_url}clusterManagement/iplist/{vmanage_id}"
             response = HttpMethods(self.session, url).request('GET')
-            cluster_ip_list = ParseMethods.parse_data(response)
-            result[vmanage_id] = cluster_ip_list
+            # result = ParseMethods.parse_data(response)
+            result[vmanage_id] = response['json']
+        return result
+
+    def get_cluster_ready_state(self):
+        """Obtain vManage cluster ready state
+
+        Args:
+            None (None):
+
+        Returns:
+            result (bool): All data associated with a response.
+        """
+
+        url = f"{self.base_url}clusterManagement/isready"
+        response = HttpMethods(self.session, url).request('GET')
+        result = response['json']['isReady']
+        # result = ParseMethods.parse_data(response)
+        return result
+
+    def get_cluster_node_properties(self):
+        """Obtain vManage cluster node properties
+
+        Args:
+            None (None):
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}clusterManagement/nodeProperties"
+        response = HttpMethods(self.session, url).request('GET')
+        result = response['json']
+        # result = ParseMethods.parse_data(response)
+        return result
+
+    def get_cluster_tenancy_mode(self):
+        """Obtain vManage cluster tenancy mode
+
+        Args:
+            None (None):
+
+        Returns:
+            result (dict): All data associated with a response.
+        """
+
+        url = f"{self.base_url}clusterManagement/tenancy/mode"
+        response = HttpMethods(self.session, url).request('GET')
+        result = ParseMethods.parse_data(response)
+        return result
+
+    def get_cluster_vmanage_details_list(self, vmanage_cluster_ip):
+        """Obtain vManage cluster vManage details using cluster interface IP
+
+        Args:
+            vmanage_cluster_ip (str): vManage cluster interface IP address
+
+        Returns:
+            result (list): All data associated with a response.
+        """
+
+        url = f"{self.base_url}clusterManagement/vManage/details/{vmanage_cluster_ip}"
+        response = HttpMethods(self.session, url).request('GET', timeout=30)
+        result = ParseMethods.parse_data(response)
         return result
