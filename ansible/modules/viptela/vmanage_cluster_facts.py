@@ -38,7 +38,7 @@ def run_module():
 
     vmanage_cluster_list = vmanage_cluster.get_cluster_list()
     vmanage.result['vmanage_cluster'] = vmanage_cluster_list[0]['data']
-    vmanage.result['vmanage_cluster_health_status'] = vmanage_cluster.get_cluster_health_status_list()
+    vmanage.result['vmanage_cluster_status'] = vmanage_cluster.get_cluster_health_status_list()
     vmanage.result['vmanage_cluster_tenancy'] = vmanage_cluster.get_cluster_tenancy_mode()
 
     vmanage.exit_json(**vmanage.result)
