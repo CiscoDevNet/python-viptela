@@ -110,8 +110,8 @@ class PolicyDefinitions(object):
 
         url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}/{policy_definition_id}"
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
-        ParseMethods.parse_status(response)
-        return response
+        result = ParseMethods.parse_status(response)
+        return result
 
     def get_policy_definition(self, definition_type, definition_id):
         """Get a Policy Definition from vManage.
