@@ -388,9 +388,24 @@ class PolicyData(object):
                     converted_definition = self.convert_policy_definition_to_id(definition)
                     policy_definition_updates.append({'name': converted_definition['name'], 'diff': diff})
                     if not check_mode and update:
-                        self.policy_definitions.update_policy_definition(
+                        response = self.policy_definitions.update_policy_definition(
                             converted_definition, policy_definition_dict[converted_definition['name']]['definitionId'])
-                    policy_definition_updates.append({'name': converted_definition['name'], 'diff': diff})
+
+                        if response['json']:
+                            # Updating the policy defin returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise Exception(response['json']['error']['message'])
+                            elif 'processId' in response['json']:
+                                if push:
+                                    vmanage_device_templates = DeviceTemplates(self.session, self.host)
+                                    # If told to push out the change, we need to reattach each template affected by the change
+                                    for template_id in response['json']['masterTemplatesAffected']:
+                                        obj = vmanage_device_templates.get_device_template_object(template_id)
+                                        vmanage_device_templates.reattach_device_template(
+                                            template_id, obj['configType'])
+                            else:
+                                raise Exception("Did not get a process id when updating policy list")
             else:
                 # Policy definition does not exist
                 diff = list(dictdiffer.diff({}, payload))
