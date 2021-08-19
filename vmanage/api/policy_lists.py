@@ -259,5 +259,6 @@ class PolicyLists(object):
         policy_list_id = policy_list['listId']
         url = f"{self.base_url}template/policy/list/{policy_list_type}/{policy_list_id}"
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_list))
+        #i dont believe this next line is doing anything, i think it can be removed - craigers521
         ParseMethods.parse_status(response)
         return response
