@@ -146,7 +146,7 @@ class TemplateData(object):
 
         return converted_generalTemplates
 
-    def import_feature_template_list(self, feature_template_list, check_mode=False, update=False):
+    def import_feature_template_list(self, feature_template_list, push=False, check_mode=False, update=False):
         """Import a list of feature templates from list to vManage.  Object Names are converted to IDs.
 
 
@@ -173,7 +173,23 @@ class TemplateData(object):
                 if len(diff):
                     feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                     if not check_mode and update:
-                        self.feature_templates.update_feature_template(feature_template)
+                        response = self.feature_templates.update_feature_template(feature_template)
+
+                        if response['json']:
+                            # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise Exception(response['json']['error']['message'])
+                            elif 'processId' in response['json']:
+                                if push:
+                                    vmanage_device_templates = DeviceTemplates(self.session, self.host)
+                                    # If told to push out the change, we need to reattach each template affected by the change
+                                    for template_id in response['json']['masterTemplatesAffected']:
+                                        obj = vmanage_device_templates.get_device_template_object(template_id)
+                                        vmanage_device_templates.reattach_device_template(
+                                            template_id, obj['configType'])
+                            else:
+                                raise Exception("Did not get a process id when updating policy list")
             else:
                 diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
                 feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})

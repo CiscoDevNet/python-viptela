@@ -99,7 +99,8 @@ class FeatureTemplates(object):
 
         """
         url = f"{self.base_url}template/feature/{feature_template['templateId']}"
-        return HttpMethods(self.session, url).request('PUT', payload=json.dumps(feature_template))
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(feature_template))
+        return response
 
     def get_feature_template_list(self, factory_default=False, name_list=None):
         """Obtain a list of all configured feature templates.

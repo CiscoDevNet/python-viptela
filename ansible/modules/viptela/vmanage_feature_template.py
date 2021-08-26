@@ -26,6 +26,7 @@ def run_module():
                          url=dict(type='bool', alias='templateUrl'),
                          update=dict(type='bool', default=True),
                          aggregate=dict(type='list'),
+                         push=dict(type='bool', default=False)
                          )
 
     # seed the result dict in the object
@@ -86,7 +87,8 @@ def run_module():
         feature_template_updates = vmanage_template_data.import_feature_template_list(
             feature_template_list,
             check_mode=module.check_mode,
-            update=vmanage.params['update']
+            update=vmanage.params['update'],
+            push=vmanage.params['push']
         )
         if feature_template_updates:
             vmanage.result['changed'] = True
