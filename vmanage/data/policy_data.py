@@ -553,7 +553,18 @@ class PolicyData(object):
                     # Convert list and definition names to template IDs
                     converted_payload = self.convert_policy_to_id(payload)
                     if not check_mode and update:
-                        self.central_policy.update_central_policy(converted_payload, existing_policy['policyId'])
+                        response = self.central_policy.update_central_policy(converted_payload, existing_policy['policyId'])
+
+                        if response['json']:
+                            # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise Exception(response['json']['error']['message'])
+                            elif 'deviceId' in response['json'][0]:
+                                if push:
+                                    self.central_policy.reactivate_central_policy(existing_policy['policyId'])
+                            else:
+                                raise Exception("Did not get a deviceid when updating central policy")
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
