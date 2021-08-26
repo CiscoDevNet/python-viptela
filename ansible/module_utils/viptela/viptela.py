@@ -238,7 +238,6 @@ class viptelaModule(object):
         try:
             return response.json['data'][0]
         except:
-            sys.exit()
             return {}
 
     def get_device_template_list(self, factory_default=False):
