@@ -1,7 +1,6 @@
 import json
 import requests
 import re
-import sys
 import time
 from ansible.module_utils.basic import AnsibleModule, json, env_fallback
 from collections import OrderedDict
@@ -238,7 +237,6 @@ class viptelaModule(object):
         try:
             return response.json['data'][0]
         except:
-            sys.exit()
             return {}
 
     def get_device_template_list(self, factory_default=False):
