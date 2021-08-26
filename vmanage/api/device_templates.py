@@ -447,3 +447,54 @@ class DeviceTemplates(object):
         url = f"{self.base_url}template/config/running/{uuid}"
         response = HttpMethods(self.session, url).request('GET')
         return ParseMethods.parse_config(response)
+
+    def reattach_multi_device_templates(self, template_ids):
+        """Re-Attach a template to the devices it it attached to.
+
+        Args:
+            template_id (str): The template ID to attach to
+            config_type (str): Type of template i.e. device or CLI template
+            is_edited (bool): True if the template has been edited
+            is_master_edited (bool): For CLI device template needs to match is_edited.
+                    For device templates using feature templates needs to be set to False.
+
+        Returns:
+            action_id (str): Returns the action id of the attachment
+
+        """
+
+        payload = self.get_multi_attach_payload(template_ids)
+
+        if payload['deviceTemplateList'][0]['device']:
+            url = f"{self.base_url}template/device/config/attachfeature"
+
+            utils = Utilities(self.session, self.host, self.port)
+            response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+            if 'json' in response and 'id' in response['json']:
+                action_id = response['json']['id']
+                utils.waitfor_action_completion(action_id)
+            else:
+                raise Exception(f"Did not get action ID after attaching device to template {template_ids}.")
+        else:
+            raise Exception(f"Could not retrieve input for template {template_ids}")
+        return action_id
+
+    def get_multi_attach_payload(self, template_ids):
+
+        return_dict = {"deviceTemplateList": []}
+        i = 0
+        for template_id in template_ids:
+            return_dict['deviceTemplateList'].append({"templateId": template_id, "device":[], "isEdited": True, "isMasterEdited": False})
+            #attach_resp = session.get(url=baseurl+'template/device/config/attached/'+template_id, proxies=proxydict)
+            url =  f"{self.base_url}template/device/config/attached{template_id}"
+            attach_resp = HttpMethods(self.session, url).request('GET')
+            device_list = attach_resp.json()['data']
+            for device in device_list:
+                payload = {"templateId": template_id, "deviceIds": [device['uuid']], "isEdited": False, "isMasterEdited": False }
+                #input_resp = session.post(url=baseurl+'template/device/config/input', proxies=proxydict, data=json.dumps(payload))
+                url = f"{self.base_url}template/device/config/input"
+                input_resp = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+                return_dict['deviceTemplateList'][i]['device'].append(input_resp.json()['data'][0])
+            i += 1
+        
+        return return_dict
