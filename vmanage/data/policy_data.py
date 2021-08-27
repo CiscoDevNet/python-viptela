@@ -253,8 +253,12 @@ class PolicyData(object):
         """
         if 'assembly' in policy_definition and policy_definition['assembly']:
             for assembly_item in policy_definition['assembly']:
-                policy_definition_detail = self.policy_definitions.get_policy_definition(
-                    assembly_item['type'].lower(), assembly_item['definitionId'])
+                if assembly_item['type'] == "advancedMalwareProtection":
+                    policy_definition_detail = self.policy_definitions.get_policy_definition(
+                        assembly_item['type'], assembly_item['definitionId'])
+                else:
+                    policy_definition_detail = self.policy_definitions.get_policy_definition(
+                        assembly_item['type'].lower(), assembly_item['definitionId'])
                 definition_id = assembly_item.pop('definitionId')
                 if policy_definition_detail:
                     assembly_item['definitionName'] = policy_definition_detail['name']

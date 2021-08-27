@@ -77,8 +77,11 @@ class PolicyDefinitions(object):
             result (dict): All data associated with a response.
 
         """
+        if definition_type == "advancedMalwareProtection":
+            url = f"{self.base_url}template/policy/definition/{definition_type}/{definition_id}"
+        else:
+            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
 
-        url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
         HttpMethods(self.session, url).request('DELETE')
 
     def add_policy_definition(self, policy_definition):
@@ -93,7 +96,11 @@ class PolicyDefinitions(object):
 
         """
 
-        url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}"
+        if policy_definition['type'] == 'advancedMalwareProtection':
+            url = f"{self.base_url}template/policy/definition/{policy_definition['type']}"
+        else:
+            url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}"
+
         HttpMethods(self.session, url).request('POST', payload=json.dumps(policy_definition))
 
     def update_policy_definition(self, policy_definition, policy_definition_id):
@@ -108,7 +115,11 @@ class PolicyDefinitions(object):
 
         """
 
-        url = f"{self.base_url}template/policy/definition/{policy_definition['type'].lower()}/{policy_definition_id}"
+        if policy_definition == "advancedMalwareProtection":
+            url = f"{self.base_url}template/policy/definition/{policy_definition}/{policy_definition_id}"
+        else:
+            url = f"{self.base_url}template/policy/definition/{policy_definition.lower()}/{policy_definition_id}"
+
         HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy_definition))
 
     def get_policy_definition(self, definition_type, definition_id):
@@ -122,8 +133,11 @@ class PolicyDefinitions(object):
             result (dict): All data associated with a response.
 
         """
+        if definition_type == "advancedMalwareProtection":
+            url = f"{self.base_url}template/policy/definition/{definition_type}/{definition_id}"
+        else:
+            url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
 
-        url = f"{self.base_url}template/policy/definition/{definition_type.lower()}/{definition_id}"
         response = HttpMethods(self.session, url).request('GET')
 
         policy_definition = response["json"]
@@ -150,7 +164,6 @@ class PolicyDefinitions(object):
             return all_definitions_list
 
         definition_list = []
-
         if definition_type == "advancedMalwareProtection":
             url = f"{self.base_url}template/policy/definition/{definition_type}"
         else:
