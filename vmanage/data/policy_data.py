@@ -495,7 +495,20 @@ class PolicyData(object):
                     if 'policyDefinition' in payload:
                         self.convert_definition_name_to_id(payload['policyDefinition'])
                     if not check_mode and update:
-                        self.local_policy.update_local_policy(payload, existing_policy['policyId'])
+                        response = self.local_policy.update_local_policy(payload, existing_policy['policyId'])
+
+                        if response['json']:
+                            # Updating the policy defin returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise Exception(response['json']['error']['message'])
+                            elif 'processId' in response['json']:
+                                if push:
+                                    vmanage_device_templates = DeviceTemplates(self.session, self.host)
+                                    # If told to push out the change, we need to reattach each template affected by the change
+                                    vmanage_device_templates.reattach_multi_device_templates(response['json']['masterTemplatesAffected'])
+                            else:
+                                raise Exception("Did not get a process id when updating policy list")
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
