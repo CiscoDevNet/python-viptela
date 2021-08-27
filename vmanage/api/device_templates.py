@@ -271,7 +271,8 @@ class DeviceTemplates(object):
         #else:
         url = f"{self.base_url}template/device/{device_template['templateId']}"
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
-        return ParseMethods.parse_data(response)
+        ParseMethods.parse_data(response)
+        return response
 
     def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True):
         """Re-Attach a template to the devices it it attached to.

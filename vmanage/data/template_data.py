@@ -227,7 +227,7 @@ class TemplateData(object):
                 return_list.append(converted_device_template)
         return return_list
 
-    def import_device_template_list(self, device_template_list, check_mode=False, update=False):
+    def import_device_template_list(self, device_template_list, check_mode=False, update=False, push=False):
         """Import a list of device templates from list to vManage.  Object Names are converted to IDs.
 
 
@@ -263,7 +263,20 @@ class TemplateData(object):
                     if not check_mode and update:
                         if not check_mode:
                             converted_device_template = self.convert_device_template_to_id(device_template)
-                            self.device_templates.update_device_template(converted_device_template)
+                            response = self.device_templates.update_device_template(converted_device_template)
+
+                        if response['json']:
+                            # Updating the policy defin returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise Exception(response['json']['error']['message'])
+                            elif 'processId' in response['json']['data']:
+                                if push:
+                                    # If told to push out the change, we need to reattach each template affected by the change
+                                    obj = self.device_templates.get_device_template_object(converted_device_template['templateId'])
+                                    self.device_templates.reattach_device_template(converted_device_template['templateId'], obj['configType'])
+                            else:
+                                raise Exception("Did not get a process id when updating policy list")
             else:
                 if 'generalTemplates' in device_template:
                     diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
