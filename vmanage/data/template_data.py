@@ -184,7 +184,8 @@ class TemplateData(object):
                                 if push:
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
                                     # If told to push out the change, we need to reattach each template affected by the change
-                                    vmanage_device_templates.reattach_multi_device_templates(response['json']['masterTemplatesAffected'])
+                                    vmanage_device_templates.reattach_multi_device_templates(
+                                        response['json']['masterTemplatesAffected'])
                             else:
                                 raise Exception("Did not get a process id when updating policy list")
             else:
@@ -273,8 +274,10 @@ class TemplateData(object):
                             elif 'processId' in response['json']['data']:
                                 if push:
                                     # If told to push out the change, we need to reattach each template affected by the change
-                                    obj = self.device_templates.get_device_template_object(converted_device_template['templateId'])
-                                    self.device_templates.reattach_device_template(converted_device_template['templateId'], obj['configType'])
+                                    obj = self.device_templates.get_device_template_object(
+                                        converted_device_template['templateId'])
+                                    self.device_templates.reattach_device_template(
+                                        converted_device_template['templateId'], obj['configType'])
                             else:
                                 raise Exception("Did not get a process id when updating policy list")
             else:

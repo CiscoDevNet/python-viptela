@@ -59,8 +59,10 @@ class PolicyData(object):
                                                                       cache=False)
             if policy_list['name'] in policy_list_dict:
                 existing_list = policy_list_dict[policy_list['name']]
-                diff_ignore = set(
-                    ['listId', 'referenceCount', 'references', 'owner', 'lastUpdated', 'activatedId', 'policyId', 'isActivatedByVsmart'])
+                diff_ignore = set([
+                    'listId', 'referenceCount', 'references', 'owner', 'lastUpdated', 'activatedId', 'policyId',
+                    'isActivatedByVsmart'
+                ])
                 diff = list(dictdiffer.diff(existing_list, policy_list, ignore=diff_ignore))
                 if diff:
                     policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
@@ -506,7 +508,8 @@ class PolicyData(object):
                                 if push:
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
                                     # If told to push out the change, we need to reattach each template affected by the change
-                                    vmanage_device_templates.reattach_multi_device_templates(response['json']['masterTemplatesAffected'])
+                                    vmanage_device_templates.reattach_multi_device_templates(
+                                        response['json']['masterTemplatesAffected'])
                             else:
                                 raise Exception("Did not get a process id when updating policy list")
             else:
@@ -566,7 +569,8 @@ class PolicyData(object):
                     # Convert list and definition names to template IDs
                     converted_payload = self.convert_policy_to_id(payload)
                     if not check_mode and update:
-                        response = self.central_policy.update_central_policy(converted_payload, existing_policy['policyId'])
+                        response = self.central_policy.update_central_policy(converted_payload,
+                                                                             existing_policy['policyId'])
 
                         if response['json']:
                             # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
