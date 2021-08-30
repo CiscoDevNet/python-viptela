@@ -353,7 +353,8 @@ class DeviceTemplates(object):
                     if entry['variable'] in uuid[device_uuid]['variables']:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
                     else:
-                        raise RuntimeError(f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
+                        raise RuntimeError(
+                            f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
 
             device_template_var_list.append(device_template_variables)
 
