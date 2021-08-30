@@ -50,7 +50,7 @@ class ParseMethods:
         else:
             status = response['status']
             result = response['status_code']
-            raise Exception(f'{status}: {result}')
+            raise RuntimeError(f'{status}: {result}')
         return result
 
     @staticmethod
@@ -72,7 +72,7 @@ class ParseMethods:
         else:
             error = response['error']
             result = response['details']
-            raise Exception(f'{error}: {result}')
+            raise RuntimeError(f'{error}: {result}')
         return result
 
     @staticmethod
@@ -94,5 +94,5 @@ class ParseMethods:
         else:
             error = response['error']
             result = response['details']
-            raise Exception(f'{error}: {result}')
+            raise RuntimeError(f'{error}: {result}')
         return result

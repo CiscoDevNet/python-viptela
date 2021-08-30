@@ -306,14 +306,14 @@ class DeviceTemplates(object):
             elif config_type == 'template':
                 url = f"{self.base_url}template/device/config/attachfeature"
             else:
-                raise Exception('Got invalid Config Type')
+                raise RuntimeError('Got invalid Config Type')
 
             utils = Utilities(self.session, self.host, self.port)
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
             action_id = ParseMethods.parse_id(response)
             utils.waitfor_action_completion(action_id)
         else:
-            raise Exception(f"Could not retrieve input for template {template_id}")
+            raise RuntimeError(f"Could not retrieve input for template {template_id}")
         return action_id
 
     def attach_to_template(self, template_id, config_type, uuid):
@@ -353,7 +353,7 @@ class DeviceTemplates(object):
                     if entry['variable'] in uuid[device_uuid]['variables']:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
                     else:
-                        raise Exception(f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
+                        raise RuntimeError(f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
 
             device_template_var_list.append(device_template_variables)
 
@@ -371,7 +371,7 @@ class DeviceTemplates(object):
         elif config_type == 'template':
             url = f"{self.base_url}template/device/config/attachfeature"
         else:
-            raise Exception('Got invalid Config Type')
+            raise RuntimeError('Got invalid Config Type')
 
         utils = Utilities(self.session, self.host, self.port)
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
@@ -465,7 +465,7 @@ class DeviceTemplates(object):
             action_id = ParseMethods.parse_id(response)
             utils.waitfor_action_completion(action_id)
         else:
-            raise Exception(f"Could not retrieve input for template {template_ids}")
+            raise RuntimeError(f"Could not retrieve input for template {template_ids}")
         return action_id
 
     def get_multi_attach_payload(self, template_ids):

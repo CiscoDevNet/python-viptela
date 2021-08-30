@@ -77,7 +77,7 @@ class PolicyData(object):
                             # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
                             # that lists the templates affected by the change.
                             if 'error' in response['json']:
-                                raise Exception(response['json']['error']['message'])
+                                raise RuntimeError(response['json']['error']['message'])
                             elif 'processId' in response['json']:
                                 if push:
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
@@ -87,7 +87,7 @@ class PolicyData(object):
                                         vmanage_device_templates.reattach_device_template(
                                             template_id, obj['configType'])
                             else:
-                                raise Exception("Did not get a process id when updating policy list")
+                                raise RuntimeError("Did not get a process id when updating policy list")
             else:
                 diff = list(dictdiffer.diff({}, policy_list))
                 policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
@@ -112,7 +112,7 @@ class PolicyData(object):
                     if policy_list:
                         name_list[key] = policy_list['listId']
                     else:
-                        raise Exception(f"Could not find id for list {value}, type {t}")
+                        raise RuntimeError(f"Could not find id for list {value}, type {t}")
                 elif key.endswith('Lists'):
                     t = key[0:len(key) - 5]
                     new_list = []
@@ -122,7 +122,7 @@ class PolicyData(object):
                             list_id = policy_list['listId']
                             new_list.append(list_id)
                         else:
-                            raise Exception(f"Could not find id for list {list_name}, type {t}")
+                            raise RuntimeError(f"Could not find id for list {list_name}, type {t}")
                     name_list[key] = new_list
                 elif key.endswith('Zone'):
                     if value == 'Self Zone':
@@ -131,32 +131,32 @@ class PolicyData(object):
                     if policy_list:
                         name_list[key] = policy_list['listId']
                     else:
-                        raise Exception(f"Could not find id for list {value}, type zone")
+                        raise RuntimeError(f"Could not find id for list {value}, type zone")
                 elif key == 'listName':
                     if 'listType' in name_list:
                         policy_list = self.policy_lists.get_policy_list_by_name(name_list['listName'],
                                                                                 policy_list_type=name_list['listType'])
                     else:
-                        raise Exception(f"Could not find type for list {name_list['listName']}")
+                        raise RuntimeError(f"Could not find type for list {name_list['listName']}")
                     if policy_list and 'listId' in policy_list:
                         name_list['ref'] = policy_list['listId']
                         name_list.pop('listName')
                         name_list.pop('listType')
                     else:
-                        raise Exception(
+                        raise RuntimeError(
                             f"Could not find id for list {name_list['listName']}, type {name_list['listType']}")
                 elif key == 'className':
                     if 'classType' in name_list:
                         policy_list = self.policy_lists.get_policy_list_by_name(name_list['className'],
                                                                                 policy_list_type=name_list['classType'])
                     else:
-                        raise Exception(f"Could not find type for list {name_list['className']}")
+                        raise RuntimeError(f"Could not find type for list {name_list['className']}")
                     if policy_list and 'listId' in policy_list:
                         name_list['class'] = policy_list['listId']
                         name_list.pop('className')
                         name_list.pop('classType')
                     else:
-                        raise Exception(
+                        raise RuntimeError(
                             f"Could not find id for list {name_list['className']}, type {name_list['classType']}")
                 else:
                     self.convert_list_name_to_id(value)
@@ -183,7 +183,7 @@ class PolicyData(object):
                     if policy_list:
                         id_list[key] = policy_list['name']
                     else:
-                        raise Exception(f"Could not find name for list id {val}, type {t}")
+                        raise RuntimeError(f"Could not find name for list id {val}, type {t}")
                 elif key.endswith('Lists'):
                     t = key[0:len(key) - 5]
                     new_list = []
@@ -193,7 +193,7 @@ class PolicyData(object):
                             list_name = policy_list['name']
                             new_list.append(list_name)
                         else:
-                            raise Exception(f"Could not find name for list id {list_id}, type {t}")
+                            raise RuntimeError(f"Could not find name for list id {list_id}, type {t}")
                     id_list[key] = new_list
                 elif key.endswith('Zone'):
                     if value == 'self':
@@ -203,7 +203,7 @@ class PolicyData(object):
                         if policy_list:
                             id_list[key] = policy_list['name']
                         else:
-                            raise Exception(f"Could not find name for list {value}, type zone")
+                            raise RuntimeError(f"Could not find name for list {value}, type zone")
                 elif key == 'ref':
                     policy_list = self.policy_lists.get_policy_list_by_id(id_list['ref'])
                     if policy_list:
@@ -211,7 +211,7 @@ class PolicyData(object):
                         id_list['listType'] = policy_list['type']
                         id_list.pop('ref')
                     else:
-                        raise Exception(f"Could not find name for list {id_list['ref']}")
+                        raise RuntimeError(f"Could not find name for list {id_list['ref']}")
                 elif key == 'class':
                     policy_list = self.policy_lists.get_policy_list_by_id(id_list['class'])
                     if policy_list:
@@ -219,7 +219,7 @@ class PolicyData(object):
                         id_list['classType'] = policy_list['type']
                         id_list.pop('class')
                     else:
-                        raise Exception(f"Could not find name for list {id_list['class']}")
+                        raise RuntimeError(f"Could not find name for list {id_list['class']}")
                 else:
                     self.convert_list_id_to_name(value)
         elif isinstance(id_list, list):
@@ -243,7 +243,7 @@ class PolicyData(object):
                             entry.pop('listName')
                             entry.pop('listType')
                         else:
-                            raise Exception("Could not find list {0} of type {1}".format(
+                            raise RuntimeError("Could not find list {0} of type {1}".format(
                                 entry['listName'], entry['listType']))
 
     def convert_definition_id_to_name(self, policy_definition):
@@ -261,7 +261,7 @@ class PolicyData(object):
                 if policy_definition_detail:
                     assembly_item['definitionName'] = policy_definition_detail['name']
                 else:
-                    raise Exception("Cannot find policy definition for {0}".format(definition_id))
+                    raise RuntimeError("Cannot find policy definition for {0}".format(definition_id))
                 if 'entries' in assembly_item:
                     # Translate list IDs to names
                     self.convert_list_id_to_name(assembly_item['entries'])
@@ -281,7 +281,7 @@ class PolicyData(object):
                 if definition_name in policy_definition_dict:
                     assembly_item['definitionId'] = policy_definition_dict[definition_name]['definitionId']
                 else:
-                    raise Exception("Cannot find policy definition {0}".format(definition_name))
+                    raise RuntimeError("Cannot find policy definition {0}".format(definition_name))
                 if 'entries' in assembly_item:
                     self.convert_list_name_to_id(assembly_item['entries'])
 
@@ -398,7 +398,7 @@ class PolicyData(object):
                             # Updating the policy defin returns a `processId` that locks the list and 'masterTemplatesAffected'
                             # that lists the templates affected by the change.
                             if 'error' in response['json']:
-                                raise Exception(response['json']['error']['message'])
+                                raise RuntimeError(response['json']['error']['message'])
                             elif 'processId' in response['json']:
                                 if push:
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
@@ -408,7 +408,7 @@ class PolicyData(object):
                                         vmanage_device_templates.reattach_device_template(
                                             template_id, obj['configType'])
                             else:
-                                raise Exception("Did not get a process id when updating policy definition")
+                                raise RuntimeError("Did not get a process id when updating policy definition")
             else:
                 # Policy definition does not exist
                 diff = list(dictdiffer.diff({}, payload))
@@ -505,7 +505,7 @@ class PolicyData(object):
                             # Updating the policy defin returns a `processId` that locks the list and 'masterTemplatesAffected'
                             # that lists the templates affected by the change.
                             if 'error' in response['json']:
-                                raise Exception(response['json']['error']['message'])
+                                raise RuntimeError(response['json']['error']['message'])
                             elif 'processId' in response['json']:
                                 if push:
                                     vmanage_device_templates = DeviceTemplates(self.session, self.host)
@@ -513,7 +513,7 @@ class PolicyData(object):
                                     vmanage_device_templates.reattach_multi_device_templates(
                                         response['json']['masterTemplatesAffected'])
                             else:
-                                raise Exception("Did not get a process id when updating local policy")
+                                raise RuntimeError("Did not get a process id when updating local policy")
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
@@ -579,12 +579,12 @@ class PolicyData(object):
                             # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
                             # that lists the templates affected by the change.
                             if 'error' in response['json']:
-                                raise Exception(response['json']['error']['message'])
+                                raise RuntimeError(response['json']['error']['message'])
                             elif 'deviceId' in response['json'][0]:
                                 if push:
                                     self.central_policy.reactivate_central_policy(existing_policy['policyId'])
                             else:
-                                raise Exception("Did not get a deviceid when updating central policy")
+                                raise RuntimeError("Did not get a deviceid when updating central policy")
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 central_policy_updates.append({'name': central_policy['policyName'], 'diff': diff})
