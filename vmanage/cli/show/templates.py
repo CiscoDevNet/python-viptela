@@ -77,9 +77,8 @@ def templates(ctx, template_type, diff, default, name, json):
                 for template in device_template_list:
                     attached_devices = device_templates.get_template_attachments(template['templateId'])
                     click.echo(
-                        f"{template['templateName'][:30]:30} {template['configType'][:10]:10} {len(attached_devices):<9} \
-                          {template['deviceType'][:16]:16} "
-                    )
+                        f"{template['templateName'][:30]:30} {template['configType'][:10]:10} {len(attached_devices):<9} "
+                        f"{template['deviceType'][:16]:16} ")
                 click.echo()
             else:
                 print_json(device_template_list)
@@ -91,8 +90,7 @@ def templates(ctx, template_type, diff, default, name, json):
                 click.echo("------------------------------------------------------------------------------------")
                 for template in feature_template_list:
                     click.echo(
-                        f"{template['templateName'][:30]:30} {template['templateType'][:20]:20} {template['attachedMastersCount']:<10} \
-                          {template['devicesAttached']:<9} {','.join(template['deviceType'])[:16]:16}"
-                    )
+                        f"{template['templateName'][:30]:30} {template['templateType'][:20]:20} {template['attachedMastersCount']:<10} "
+                        f"{template['devicesAttached']:<9} {','.join(template['deviceType'])[:16]:16}")
             else:
                 print_json(feature_template_list)

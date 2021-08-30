@@ -59,8 +59,10 @@ class PolicyData(object):
                                                                       cache=False)
             if policy_list['name'] in policy_list_dict:
                 existing_list = policy_list_dict[policy_list['name']]
-                diff_ignore = set(
-                    ['listId', 'referenceCount', 'references', 'owner', 'lastUpdated', 'activatedId', 'policyId', 'isActivatedByVsmart'])
+                diff_ignore = set([
+                    'listId', 'referenceCount', 'references', 'owner', 'lastUpdated', 'activatedId', 'policyId',
+                    'isActivatedByVsmart'
+                ])
                 diff = list(dictdiffer.diff(existing_list, policy_list, ignore=diff_ignore))
                 if diff:
                     policy_list_updates.append({'name': policy_list['name'], 'diff': diff})
