@@ -1,8 +1,8 @@
 import ipaddress
-import pprint
 
 import click
 from vmanage.api.device import Device
+from vmanage.cli.show.print_utils import print_json
 
 
 @click.command()
@@ -33,8 +33,7 @@ def table(ctx, device, json):
     routes = vmanage_device.get_device_data('ip/routetable', system_ip)
     for rte in routes:
         if json:
-            pp = pprint.PrettyPrinter(indent=2)
-            pp.pprint(rte)
+            print_json(rte)
         else:
             if 'nexthop-addr' not in rte:
                 rte['nexthop-addr'] = ''

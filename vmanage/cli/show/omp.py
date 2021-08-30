@@ -1,9 +1,9 @@
 import ipaddress
-import pprint
 
 import click
 from vmanage.api.device import Device
 from vmanage.api.monitor_network import MonitorNetwork
+from vmanage.cli.show.print_utils import print_json
 
 
 @click.command()
@@ -36,8 +36,7 @@ def peers(ctx, device, json):
     # try:
     omp_peers = mn.get_omp_peers(system_ip)
     if json:
-        pp = pprint.PrettyPrinter(indent=2)
-        pp.pprint(omp_peers)
+        print_json(omp_peers)
     else:
         for peer in omp_peers:
             click.echo(
@@ -74,8 +73,7 @@ def received(ctx, device, json):
     # try:
     omp_peers = mn.get_omp_routes_received(system_ip)
     if json:
-        pp = pprint.PrettyPrinter(indent=2)
-        pp.pprint(omp_peers)
+        print_json(omp_peers)
     else:
         for peer in omp_peers:
             click.echo(
@@ -112,8 +110,7 @@ def advertised(ctx, device, json):
     # try:
     omp_peers = mn.get_omp_routes_advertised(system_ip)
     if json:
-        pp = pprint.PrettyPrinter(indent=2)
-        pp.pprint(omp_peers)
+        print_json(omp_peers)
     else:
         for peer in omp_peers:
             if 'protocol' in peer:
