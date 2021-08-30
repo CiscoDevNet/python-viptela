@@ -479,7 +479,6 @@ class DeviceTemplates(object):
                 "isEdited": True,
                 "isMasterEdited": False
             })
-            #attach_resp = session.get(url=baseurl+'template/device/config/attached/'+template_id, proxies=proxydict)
             url = f"{self.base_url}template/device/config/attached/{template_id}"
             attach_resp = HttpMethods(self.session, url).request('GET')
             device_list = attach_resp['json']['data']
@@ -490,7 +489,6 @@ class DeviceTemplates(object):
                     "isEdited": False,
                     "isMasterEdited": False
                 }
-                #input_resp = session.post(url=baseurl+'template/device/config/input', proxies=proxydict, data=json.dumps(payload))
                 url = f"{self.base_url}template/device/config/input"
                 input_resp = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
                 return_dict['deviceTemplateList'][i]['device'].append(input_resp['json']['data'][0])
