@@ -362,6 +362,7 @@ class PolicyData(object):
 
         """
         policy_definition_updates = []
+        #pylint: disable=too-many-nested-blocks
         for definition in policy_definition_list:
             policy_definition_dict = self.policy_definitions.get_policy_definition_dict(definition['type'],
                                                                                         remove_key=False)
@@ -407,7 +408,7 @@ class PolicyData(object):
                                         vmanage_device_templates.reattach_device_template(
                                             template_id, obj['configType'])
                             else:
-                                raise Exception("Did not get a process id when updating policy list")
+                                raise Exception("Did not get a process id when updating policy definition")
             else:
                 # Policy definition does not exist
                 diff = list(dictdiffer.diff({}, payload))
@@ -478,6 +479,7 @@ class PolicyData(object):
         local_policy_dict = self.local_policy.get_local_policy_dict(remove_key=False)
         diff = []
         local_policy_updates = []
+        #pylint: disable=too-many-nested-blocks
         for local_policy in local_policy_list:
             payload = {'policyName': local_policy['policyName']}
             payload['policyDescription'] = local_policy['policyDescription']
@@ -511,7 +513,7 @@ class PolicyData(object):
                                     vmanage_device_templates.reattach_multi_device_templates(
                                         response['json']['masterTemplatesAffected'])
                             else:
-                                raise Exception("Did not get a process id when updating policy list")
+                                raise Exception("Did not get a process id when updating local policy")
             else:
                 diff = list(dictdiffer.diff({}, payload['policyDefinition']))
                 local_policy_updates.append({'name': local_policy['policyName'], 'diff': diff})
@@ -551,6 +553,7 @@ class PolicyData(object):
         central_policy_dict = self.central_policy.get_central_policy_dict(remove_key=False)
         diff = []
         central_policy_updates = []
+        #pylint: disable=too-many-nested-blocks
         for central_policy in central_policy_list:
             payload = {'policyName': central_policy['policyName']}
             payload['policyDescription'] = central_policy['policyDescription']

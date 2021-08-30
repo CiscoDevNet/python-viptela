@@ -162,6 +162,7 @@ class TemplateData(object):
         # Process the feature templates
         feature_template_updates = []
         feature_template_dict = self.feature_templates.get_feature_template_dict(factory_default=True, remove_key=False)
+        #pylint: disable=too-many-nested-blocks
         for feature_template in feature_template_list:
             if 'templateId' in feature_template:
                 feature_template.pop('templateId')
@@ -244,6 +245,7 @@ class TemplateData(object):
         device_template_updates = []
         device_template_dict = self.device_templates.get_device_template_dict()
         diff = []
+        #pylint: disable=too-many-nested-blocks
         for device_template in device_template_list:
             if 'policyId' in device_template:
                 device_template.pop('policyId')
