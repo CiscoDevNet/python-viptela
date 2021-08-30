@@ -310,11 +310,8 @@ class DeviceTemplates(object):
 
             utils = Utilities(self.session, self.host, self.port)
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-            if 'json' in response and 'id' in response['json']:
-                action_id = response['json']['id']
-                utils.waitfor_action_completion(action_id)
-            else:
-                raise Exception(f"Did not get action ID after attaching device to template {template_id}.")
+            action_id = ParseMethods.parse_id(response)
+            utils.waitfor_action_completion(action_id)
         else:
             raise Exception(f"Could not retrieve input for template {template_id}")
         return action_id
@@ -378,11 +375,8 @@ class DeviceTemplates(object):
 
         utils = Utilities(self.session, self.host, self.port)
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-        if 'json' in response and 'id' in response['json']:
-            action_id = response['json']['id']
-            utils.waitfor_action_completion(action_id)
-        else:
-            raise Exception('Did not get action ID after attaching device to template.')
+        action_id = ParseMethods.parse_id(response)
+        utils.waitfor_action_completion(action_id)
 
         return action_id
 
@@ -407,12 +401,9 @@ class DeviceTemplates(object):
         }
         url = f"{self.base_url}template/config/device/mode/cli"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-        ParseMethods.parse_data(response)
+        ParseMethods.parse_status(response)
+        action_id = ParseMethods.parse_id(response)
 
-        if 'json' in response and 'id' in response['json']:
-            action_id = response.json['id']
-        else:
-            raise Exception('Did not get action ID after attaching device to template.')
         return action_id
 
     def get_attachments(self, template_id, key='host-name'):
@@ -471,11 +462,8 @@ class DeviceTemplates(object):
 
             utils = Utilities(self.session, self.host, self.port)
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-            if 'json' in response and 'id' in response['json']:
-                action_id = response['json']['id']
-                utils.waitfor_action_completion(action_id)
-            else:
-                raise Exception(f"Did not get action ID after attaching device to template {template_ids}.")
+            action_id = ParseMethods.parse_id(response)
+            utils.waitfor_action_completion(action_id)
         else:
             raise Exception(f"Could not retrieve input for template {template_ids}")
         return action_id
