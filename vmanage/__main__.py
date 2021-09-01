@@ -1,6 +1,7 @@
 import click
 from vmanage.cli.activate import activate
 from vmanage.cli.deactivate import deactivate
+from vmanage.cli.decommission import decommission
 from vmanage.cli.show import show
 from vmanage.cli.export import export
 from vmanage.cli.import_cmd import import_cmd
@@ -61,6 +62,7 @@ def vmanage(ctx, host, port, username, password):
 
 vmanage.add_command(activate)
 vmanage.add_command(deactivate)
+vmanage.add_command(decommission)
 vmanage.add_command(show)
 vmanage.add_command(export)
 vmanage.add_command(import_cmd)
