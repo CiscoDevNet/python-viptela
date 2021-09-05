@@ -1,7 +1,8 @@
-import pprint
 import ipaddress
+
 import click
 from vmanage.api.device import Device
+from vmanage.cli.show.print_utils import print_json
 
 
 @click.command()
@@ -23,7 +24,6 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
     vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
     # output = mn.get_control_connections_history(sysip)
     # vmanage_session = ctx.obj
-    pp = pprint.PrettyPrinter(indent=2)
 
     if dev:
         # Check to see if we were passed in a device IP address or a device name
@@ -34,13 +34,13 @@ def status(ctx, dev, device_type, json):  #pylint: disable=unused-argument
             device_dict = vmanage_device.get_device_status(dev, key='host-name')
 
         if device_dict:
-            pp.pprint(device_dict)
+            print_json(device_dict)
         else:
             click.secho(f"Could not find device {dev}", err=True, fg='red')
     else:
         device_list = vmanage_device.get_device_status_list()
         if json:
-            pp.pprint(device_list)
+            print_json(device_list)
         else:
             click.echo(
                 f"{'Hostname':20} {'System IP':15} {'Model':15} {'Site':6} {'Status':9} {'BFD':>3} {'OMP':>3} {'CON':>3} {'Version':8} {'UUID':40} {'Serial'}"
@@ -81,7 +81,6 @@ def config(ctx, dev, device_type, json):
     Show device config information
     """
     vmanage_device = Device(ctx.auth, ctx.host, ctx.port)
-    pp = pprint.PrettyPrinter(indent=2)
 
     #pylint: disable=too-many-nested-blocks
     if dev:
@@ -99,7 +98,7 @@ def config(ctx, dev, device_type, json):
                 device_type = 'vedges'
 
             device_config = vmanage_device.get_device_config(device_type, device_dict['system-ip'])
-            pp.pprint(device_config)
+            print_json(device_config)
         else:
             click.secho(f"Could not find device {dev}", err=True, fg='red')
 
@@ -112,7 +111,7 @@ def config(ctx, dev, device_type, json):
             device_list = vmanage_device.get_device_config_list('controllers')
 
             if json:
-                pp.pprint(device_list)
+                print_json(device_list)
             else:
                 for device_entry in device_list:
                     if 'template' in device_entry:
@@ -135,7 +134,7 @@ def config(ctx, dev, device_type, json):
         if device_type in ['all', 'edge']:
             device_list = vmanage_device.get_device_config_list('vedges')
             if json:
-                pp.pprint(device_list)
+                print_json(device_list)
             else:
                 for device_entry in device_list:
                     if 'host-name' in device_entry:

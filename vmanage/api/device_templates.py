@@ -271,7 +271,8 @@ class DeviceTemplates(object):
         #else:
         url = f"{self.base_url}template/device/{device_template['templateId']}"
         response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(device_template))
-        return ParseMethods.parse_data(response)
+        ParseMethods.parse_data(response)
+        return response
 
     def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True):
         """Re-Attach a template to the devices it it attached to.
@@ -305,17 +306,14 @@ class DeviceTemplates(object):
             elif config_type == 'template':
                 url = f"{self.base_url}template/device/config/attachfeature"
             else:
-                raise Exception('Got invalid Config Type')
+                raise RuntimeError('Got invalid Config Type')
 
             utils = Utilities(self.session, self.host, self.port)
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-            if 'json' in response and 'id' in response['json']:
-                action_id = response['json']['id']
-                utils.waitfor_action_completion(action_id)
-            else:
-                raise Exception(f"Did not get action ID after attaching device to template {template_id}.")
+            action_id = ParseMethods.parse_id(response)
+            utils.waitfor_action_completion(action_id)
         else:
-            raise Exception(f"Could not retrieve input for template {template_id}")
+            raise RuntimeError(f"Could not retrieve input for template {template_id}")
         return action_id
 
     def attach_to_template(self, template_id, config_type, uuid):
@@ -355,7 +353,8 @@ class DeviceTemplates(object):
                     if entry['variable'] in uuid[device_uuid]['variables']:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
                     else:
-                        raise Exception(f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
+                        raise RuntimeError(
+                            f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
 
             device_template_var_list.append(device_template_variables)
 
@@ -373,15 +372,12 @@ class DeviceTemplates(object):
         elif config_type == 'template':
             url = f"{self.base_url}template/device/config/attachfeature"
         else:
-            raise Exception('Got invalid Config Type')
+            raise RuntimeError('Got invalid Config Type')
 
         utils = Utilities(self.session, self.host, self.port)
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-        if 'json' in response and 'id' in response['json']:
-            action_id = response['json']['id']
-            utils.waitfor_action_completion(action_id)
-        else:
-            raise Exception('Did not get action ID after attaching device to template.')
+        action_id = ParseMethods.parse_id(response)
+        utils.waitfor_action_completion(action_id)
 
         return action_id
 
@@ -406,12 +402,9 @@ class DeviceTemplates(object):
         }
         url = f"{self.base_url}template/config/device/mode/cli"
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-        ParseMethods.parse_data(response)
+        ParseMethods.parse_status(response)
+        action_id = ParseMethods.parse_id(response)
 
-        if 'json' in response and 'id' in response['json']:
-            action_id = response.json['id']
-        else:
-            raise Exception('Did not get action ID after attaching device to template.')
         return action_id
 
     def get_attachments(self, template_id, key='host-name'):
@@ -447,3 +440,59 @@ class DeviceTemplates(object):
         url = f"{self.base_url}template/config/running/{uuid}"
         response = HttpMethods(self.session, url).request('GET')
         return ParseMethods.parse_config(response)
+
+    def reattach_multi_device_templates(self, template_ids):
+        """Re-Attach a template to the devices it it attached to.
+
+        Args:
+            template_id (str): The template ID to attach to
+            config_type (str): Type of template i.e. device or CLI template
+            is_edited (bool): True if the template has been edited
+            is_master_edited (bool): For CLI device template needs to match is_edited.
+                    For device templates using feature templates needs to be set to False.
+
+        Returns:
+            action_id (str): Returns the action id of the attachment
+
+        """
+
+        payload = self.get_multi_attach_payload(template_ids)
+
+        if payload['deviceTemplateList'][0]['device']:
+            url = f"{self.base_url}template/device/config/attachfeature"
+
+            utils = Utilities(self.session, self.host, self.port)
+            response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+            action_id = ParseMethods.parse_id(response)
+            utils.waitfor_action_completion(action_id)
+        else:
+            raise RuntimeError(f"Could not retrieve input for template {template_ids}")
+        return action_id
+
+    def get_multi_attach_payload(self, template_ids):
+
+        return_dict = {"deviceTemplateList": []}
+        i = 0
+        for template_id in template_ids:
+            return_dict['deviceTemplateList'].append({
+                "templateId": template_id,
+                "device": [],
+                "isEdited": True,
+                "isMasterEdited": False
+            })
+            url = f"{self.base_url}template/device/config/attached/{template_id}"
+            attach_resp = HttpMethods(self.session, url).request('GET')
+            device_list = attach_resp['json']['data']
+            for device in device_list:
+                payload = {
+                    "templateId": template_id,
+                    "deviceIds": [device['uuid']],
+                    "isEdited": False,
+                    "isMasterEdited": False
+                }
+                url = f"{self.base_url}template/device/config/input"
+                input_resp = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+                return_dict['deviceTemplateList'][i]['device'].append(input_resp['json']['data'][0])
+            i += 1
+
+        return return_dict

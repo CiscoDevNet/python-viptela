@@ -4,6 +4,7 @@ import click
 import dictdiffer
 from vmanage.api.device_templates import DeviceTemplates
 from vmanage.api.feature_templates import FeatureTemplates
+from vmanage.cli.show.print_utils import print_json
 from vmanage.data.template_data import TemplateData
 
 
@@ -63,7 +64,7 @@ def templates(ctx, template_type, diff, default, name, json):
                     diff = dictdiffer.diff(template, diff_template, ignore=diff_ignore)
                     pp.pprint(list(diff))
             else:
-                pp.pprint(template)
+                print_json(template)
         else:
             click.secho(f"Cannot find template named {name}", fg="red")
     else:
@@ -76,11 +77,11 @@ def templates(ctx, template_type, diff, default, name, json):
                 for template in device_template_list:
                     attached_devices = device_templates.get_template_attachments(template['templateId'])
                     click.echo(
-                        f"{template['templateName'][:30]:30} {template['configType'][:10]:10} {len(attached_devices):<9} {template['deviceType'][:16]:16} "
-                    )
+                        f"{template['templateName'][:30]:30} {template['configType'][:10]:10} {len(attached_devices):<9} "
+                        f"{template['deviceType'][:16]:16} ")
                 click.echo()
             else:
-                pp.pprint(device_template_list)
+                print_json(device_template_list)
         if template_type in ['feature', None]:
             feature_template_list = feature_templates.get_feature_template_list(factory_default=default)
             if not json:
@@ -89,7 +90,7 @@ def templates(ctx, template_type, diff, default, name, json):
                 click.echo("------------------------------------------------------------------------------------")
                 for template in feature_template_list:
                     click.echo(
-                        f"{template['templateName'][:30]:30} {template['templateType'][:20]:20} {template['attachedMastersCount']:<10} {template['devicesAttached']:<9} {','.join(template['deviceType'])[:16]:16}"
-                    )
+                        f"{template['templateName'][:30]:30} {template['templateType'][:20]:20} {template['attachedMastersCount']:<10} "
+                        f"{template['devicesAttached']:<9} {','.join(template['deviceType'])[:16]:16}")
             else:
-                pp.pprint(feature_template_list)
+                print_json(feature_template_list)
