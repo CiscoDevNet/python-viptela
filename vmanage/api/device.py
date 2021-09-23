@@ -228,4 +228,4 @@ class Device(object):
         payload = f"{{'vpnId':'{vpnId}','ifname':'{ifname}'}}"
         response = HttpMethods(self.session, url).request('POST', payload=payload)
         result = ParseMethods.parse_status(response)
-        return results
+        return result
