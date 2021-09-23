@@ -216,3 +216,16 @@ class Device(object):
         Returns:
             result (list): Device status        
         """
+    def post_reset_interface(self, device_ip, vpnId, ifname):
+        """Reset an Interface
+        Args:
+            device_ip (str): device IP for device object
+            vpnId (int): VPN Id for Interface
+            ifname (str): Interface name to reset
+        """
+
+        url = f"{self.base_url}device/tools/reset/interface/{device_ip}"
+        payload = f"{{'vpnId':'{vpnId}','ifname':'{ifname}'}}"
+        response = HttpMethods(self.session, url).request('POST', payload=payload)
+        result = ParseMethods.parse_status(response)
+        return results
