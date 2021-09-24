@@ -8,6 +8,7 @@ from vmanage.cli.import_cmd import import_cmd
 from vmanage.cli.clean import clean
 from vmanage.cli.certificate import certificate
 from vmanage.cli.set_cmd import set_cmd
+from vmanage.cli.reset import reset
 from vmanage.api.authentication import Authentication
 
 # from vmanage.api.big import vmanage_session
@@ -69,3 +70,4 @@ vmanage.add_command(import_cmd)
 vmanage.add_command(certificate)
 vmanage.add_command(clean)
 vmanage.add_command(set_cmd)
+vmanage.add_command(reset)
