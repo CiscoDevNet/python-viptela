@@ -184,13 +184,15 @@ class DeviceTemplates(object):
             if 'header' in response['json'] and 'columns' in response['json']['header']:
                 column_list = response['json']['header']['columns']
 
-                regex = re.compile(r'\((?P<variable>[^(]+)\)')
+                prod1 = re.compile(r"(?P<titlename>.*)\((?P<titledesc>.*)\)")
 
                 for column in column_list:
                     if column['editable']:
-                        match = regex.search(column['title'])
-                        if match:
-                            variable = match.groups('variable')[0]
+                        m = prod1.match(column['title'])
+                        if m:
+                            intdict = m.groupdict()
+                            titledesc = intdict['titledesc']
+                            variable = titledesc
                         else:
                             # If the variable is not found, use toolTip as variable name
                             variable = column.get("toolTip")

@@ -171,6 +171,7 @@ class PolicyData(object):
             id_list (list): Object
 
         """
+        #print("DEBUG:",id_list)
         if isinstance(id_list, dict):
             for key, value in list(id_list.items()):
                 if key.endswith(
@@ -211,6 +212,7 @@ class PolicyData(object):
                         id_list['listType'] = policy_list['type']
                         id_list.pop('ref')
                     else:
+                        #print("DEBUG:",id_list)
                         raise RuntimeError(f"Could not find name for list {id_list['ref']}")
                 elif key == 'class':
                     policy_list = self.policy_lists.get_policy_list_by_id(id_list['class'])
@@ -340,6 +342,8 @@ class PolicyData(object):
         policy_definition_list = self.policy_definitions.get_policy_definition_list(definition_type)
         export_definition_list = []
         for policy_definition in policy_definition_list:
+            #print("DEBUG: ",policy_definition)
+            #print("")
             definition_detail = self.policy_definitions.get_policy_definition(policy_definition['type'],
                                                                               policy_definition['definitionId'])
             converted_policy_definition = self.convert_policy_definition_to_name(definition_detail)

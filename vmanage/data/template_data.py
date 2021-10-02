@@ -337,16 +337,25 @@ class TemplateData(object):
                     # the input changed, so we make an API call to get the input on last attach
                     existing_template_input = self.device_templates.get_template_input(
                         device_template_dict[attachment['template']]['templateId'], [device_uuid])
-                    current_variables = existing_template_input['data'][0]
+                    #current_variables = existing_template_input['data'][0]
+                    current_variables = {}
+                    data = existing_template_input['data'][0]
+                    for column in existing_template_input['columns']:
+                        current_variables[column['variable']] = data[column['property']]
+                    #print("DEBUG: current_variables: ",current_variables)
+                    # haven't changed variables from properties to variables
+                    #
                     changed = False
                     for property_name in attachment['variables']:
-                        # Check to see if any of the passed in varibles have changed from what is
+                        #print("DEBUG: checking: ",property_name)
+                        # Check to see if any of the passed in variables have changed from what is
                         # already on the attachment.  We are are not checking to see if the
                         # correct variables are here.  That will be done on attachment.
                         if ((property_name in current_variables) and
                             (str(attachment['variables'][property_name]) != str(current_variables[property_name]))):
                             changed = True
                     if changed:
+                        print("Changed!!!")
                         if not check_mode and update:
                             template_device_map.setdefault(template_id, []).append({
                                 "config_type": config_type,
