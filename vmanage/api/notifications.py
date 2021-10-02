@@ -1,17 +1,15 @@
 """Cisco vManage Notifications API Methods.
 """
 
-import time
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 
 
 class Notifications(object):
-    """Access to Various vManage Utilitiesinstance.
+    """Access to Notificaton rules.
 
-    vManage has several utilities that are needed for correct execution
-    of applications against the API.  For example, this includes waiting
-    for an action to complete before moving onto the next task.
+    vManage can generate notificatons. This class allows you to
+    read these notifications.
 
     """
     def __init__(self, session, host, port=443):
@@ -41,4 +39,3 @@ class Notifications(object):
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
         return result
-

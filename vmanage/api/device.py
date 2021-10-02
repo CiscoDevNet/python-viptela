@@ -1,6 +1,7 @@
 """Cisco vManage Device Inventory API Methods.
 """
 
+import re
 from vmanage.api.http_methods import HttpMethods
 from vmanage.data.parse_methods import ParseMethods
 from vmanage.utils import list_to_dict
@@ -28,7 +29,7 @@ class Device(object):
         self.port = port
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
 
-    def  generate_bootstrap(self, uuid):
+    def generate_bootstrap(self, uuid):
         """Generate a bootstrap file for a device
 
         Args:
@@ -39,9 +40,7 @@ class Device(object):
         """
 
         url = f"{self.base_url}system/device/bootstrap/device/{uuid}?configtype=cloudinit"
-        #print("DEBUG: ",url)
         response = HttpMethods(self.session, url).request('GET')
-        #print("DEBUG2:",response)
         #result = ParseMethods.parse_data(response)
         #bootstrap_config = result.json['bootstrapConfig']
         bootstrap_config = response['json']['bootstrapConfig']
@@ -51,11 +50,7 @@ class Device(object):
             otp = match.groups('otp')[0]
         else:
             otp = None
-        return_dict = {
-            'bootstrapConfig': bootstrap_config,
-            'otp': otp,
-            'uuid': uuid
-        }
+        return_dict = {'bootstrapConfig': bootstrap_config, 'otp': otp, 'uuid': uuid}
         return return_dict
 
     def get_device_list(self, category):
@@ -88,33 +83,35 @@ class Device(object):
         response = HttpMethods(self.session, url).request('POST', payload=payload)
         result = ParseMethods.parse_status(response)
         return result
-    
-    def get_device_ping(self,systemip,vpn,sourceip,destip):
-        """Obtain a list of specified device type
 
-        Args: None
+    def get_device_ping(self, systemip, vpn, sourceip, destip):
+        """Ping a specified destination ip address
+
+        Args:
+        systemip (str): systemip of source device
+        vpn (str): vpn id of source
+        sourceip (str): source ip address
+        destip (str): destination ip address
 
 
         Returns:
-            result (list): Device status
+            result (str): ping response time
         """
 
         #api = f"device/tools/nping/{systemip}"
         #url = self.base_url + api
         url = f"{self.base_url}device/tools/nping/{systemip}"
         payload = f"{{'host':'{destip}', 'vpn':'{vpn}', 'source':'{sourceip}', 'probetype':'icmp'}}"
-        #print("DEBUG:",url,payload)
         response = HttpMethods(self.session, url).request('POST', payload=payload)
-        #print("DEBUG:",response)
         if response['json']:
-        #if response['status_code']==200:
-            return(response['json'])
+            #if response['status_code']==200:
+            result = response['json']
         else:
-            error = result=response['details']
+            result = response['details']
         return result
         #result = ParseMethods.parse_data(response)
         #return result
-       
+
     def get_device_status_list(self):
         """Obtain a list of specified device type
 
@@ -272,7 +269,7 @@ class Device(object):
         Returns:
             result (list): Device status        
         """
- 
+
     def post_reset_interface(self, device_ip, vpn_id, ifname):
         """Reset an Interface
         Args:
