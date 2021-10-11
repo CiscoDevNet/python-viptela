@@ -123,18 +123,19 @@ class Settings(object):
         result = ParseMethods.parse_data(response)
         return result[0]
 
-    def set_vmanage_root_cert(self, cert):
+    def set_vmanage_root_cert(self, cert, timeout=20):
         """Set vManage root certiticate
 
         Args:
             cert (str): The root certiticate.
+            timeout (int): Timeout in seconds.
 
         Returns:
         """
 
         payload = {'enterpriseRootCA': cert}
         url = f"{self.base_url}certificate/enterpriserootca"
-        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(payload))
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(payload), timeout=timeout)
         result = ParseMethods.parse_data(response)
         return result[0]
 
