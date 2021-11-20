@@ -133,15 +133,15 @@ def run_module():
         # just leave it out since it is not required.
         for key, value in viptela.params['variables'].items():
             if key in template_variables:
-                property = template_variables[key]
-                device_template_variables[property] = viptela.params['variables'][key]
+                property_value = template_variables[key]
+                device_template_variables[property_value] = viptela.params['variables'][key]
 
         # When dealing with optional parameters if we do not have explicitely set a value for it
         # we must add the optional parameter to the payload with { key: 'TEMPLATE_IGNORE'}
         for key, value in optional_template_variables.items():
-            property = template_variables[key]
-            if property not in device_template_variables:
-                device_template_variables[property] = 'TEMPLATE_IGNORE'
+            property_value = template_variables[key]
+            if property_value not in device_template_variables:
+                device_template_variables[property_value] = 'TEMPLATE_IGNORE'
 
         attached_uuid_list = viptela.get_template_attachments(template_data['templateId'], key='uuid')
 

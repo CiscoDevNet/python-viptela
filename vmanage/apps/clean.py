@@ -14,7 +14,7 @@ from vmanage.api.policy_lists import PolicyLists
 
 
 class CleanVmanage(object):
-    """Reset all configuratios on a vManage instance.
+    """Reset all configurations on a vManage instance.
 
     Executes the necessary REST calls in specific order to remove
     configurations applied to a vManage instance.
@@ -60,11 +60,21 @@ class CleanVmanage(object):
         """
         data = self.device.get_device_list('vedges')
         for device in data:
-            if (('deviceIP' in device) and (device['configOperationMode'] == 'vmanage')):
+            if (('uuid' in device) and (device['configOperationMode'] == 'vmanage')):
                 deviceId = device['uuid']
-                deviceIP = device['deviceIP']
                 deviceType = device['deviceType']
-                self.device.post_device_cli_mode(deviceId, deviceIP, deviceType)
+                self.device.post_device_cli_mode(deviceId, deviceType)
+        self.active_count_delay()
+
+    def clean_vedge(self):
+        """Clean all vedges
+
+        """
+        data = self.device.get_device_list('vedges')
+        for device in data:
+            if ('uuid' in device):
+                deviceId = device['uuid']
+                self.device.put_decommission_device(deviceId)
         self.active_count_delay()
 
     def clean_controller_attachments(self):
@@ -73,11 +83,10 @@ class CleanVmanage(object):
         """
         data = self.device.get_device_list('controllers')
         for device in data:
-            if (('deviceIP' in device) and (device['configOperationMode'] == 'vmanage')):
+            if (('uuid' in device) and (device['configOperationMode'] == 'vmanage')):
                 deviceId = device['uuid']
-                deviceIP = device['deviceIP']
                 deviceType = device['deviceType']
-                self.device.post_device_cli_mode(deviceId, deviceIP, deviceType)
+                self.device.post_device_cli_mode(deviceId, deviceType)
                 # Requires pause between controllers
                 self.active_count_delay()
         self.active_count_delay()
@@ -88,8 +97,9 @@ class CleanVmanage(object):
         """
         data = self.device_templates.get_device_templates()
         for device in data:
-            templateId = device['templateId']
-            self.device_templates.delete_device_template(templateId)
+            if 'factoryDefault' in device and device['factoryDefault'] is not True:
+                templateId = device['templateId']
+                self.device_templates.delete_device_template(templateId)
         self.active_count_delay()
 
     def clean_feature_templates(self):
@@ -203,6 +213,9 @@ class CleanVmanage(object):
 
         # Step 2 - Detach vedges from template
         self.clean_vedge_attachments()
+
+        # Step 2 - Decommission vedges
+        self.clean_vedge()
 
         # Step 3 - Detach controllers from template
         self.clean_controller_attachments()

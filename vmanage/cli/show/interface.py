@@ -1,8 +1,8 @@
 import ipaddress
-import pprint
 
 import click
 from vmanage.api.device import Device
+from vmanage.cli.show.print_utils import print_json
 
 
 @click.command(name='list')
@@ -28,16 +28,13 @@ def list_interface(ctx, device, json):
 
     if not json:
         click.echo("IFNAME            VPNID  IP ADDR          MAC ADDR                  OPER STATE            DESC")
-        click.echo(
-            "----------------------------------------------------------------------------------------------------------------------"
-        )
+        click.echo("-" * 118)
 
     for dev in device_list:
         interfaces = vmanage_device.get_device_data('interface', dev)
         for iface in interfaces:
             if json:
-                pp = pprint.PrettyPrinter(indent=2)
-                pp.pprint(iface)
+                print_json(iface)
             else:
                 if 'hwaddr' not in iface:
                     iface['hwaddr'] = ''

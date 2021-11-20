@@ -52,7 +52,7 @@ class TemplateData(object):
             if policy_id in list(local_policy_dict.keys()):
                 device_template['policyName'] = local_policy_dict[policy_id]['policyName']
             else:
-                raise Exception(f"Could not find local policy {policy_id}")
+                raise RuntimeError(f"Could not find local policy {policy_id}")
 
         if 'securityPolicyId' in device_template and device_template['securityPolicyId']:
             security_policy_id = device_template['securityPolicyId']
@@ -61,7 +61,7 @@ class TemplateData(object):
             if security_policy_id in list(security_policy_dict.keys()):
                 device_template['securityPolicyName'] = security_policy_dict[security_policy_id]['policyName']
             else:
-                raise Exception(f"Could not find security policy {security_policy_id}")
+                raise RuntimeError(f"Could not find security policy {security_policy_id}")
 
         if 'generalTemplates' in device_template:
             generalTemplates = []
@@ -95,7 +95,7 @@ class TemplateData(object):
                 device_template['policyId'] = local_policy_dict[device_template['policyName']]['policyId']
                 device_template.pop('policyName')
             else:
-                raise Exception(f"Could not find local policy {device_template['policyName']}")
+                raise RuntimeError(f"Could not find local policy {device_template['policyName']}")
         else:
             device_template['policyId'] = ''
 
@@ -107,7 +107,7 @@ class TemplateData(object):
                     device_template['securityPolicyName']]['policyId']
                 device_template.pop('securityPolicyName')
             else:
-                raise Exception(f"Could not find security policy {device_template['securityPolicyName']}")
+                raise RuntimeError(f"Could not find security policy {device_template['securityPolicyName']}")
         else:
             device_template['securityPolicyId'] = ''
 
@@ -146,7 +146,7 @@ class TemplateData(object):
 
         return converted_generalTemplates
 
-    def import_feature_template_list(self, feature_template_list, check_mode=False, update=False):
+    def import_feature_template_list(self, feature_template_list, push=False, check_mode=False, update=False):
         """Import a list of feature templates from list to vManage.  Object Names are converted to IDs.
 
 
@@ -162,6 +162,7 @@ class TemplateData(object):
         # Process the feature templates
         feature_template_updates = []
         feature_template_dict = self.feature_templates.get_feature_template_dict(factory_default=True, remove_key=False)
+        #pylint: disable=too-many-nested-blocks
         for feature_template in feature_template_list:
             if 'templateId' in feature_template:
                 feature_template.pop('templateId')
@@ -173,7 +174,21 @@ class TemplateData(object):
                 if len(diff):
                     feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
                     if not check_mode and update:
-                        self.feature_templates.update_feature_template(feature_template)
+                        response = self.feature_templates.update_feature_template(feature_template)
+
+                        if response['json']:
+                            # Updating the policy list returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise RuntimeError(response['json']['error']['message'])
+                            elif 'processId' in response['json']:
+                                if push:
+                                    vmanage_device_templates = DeviceTemplates(self.session, self.host)
+                                    # If told to push out the change, we need to reattach each template affected by the change
+                                    vmanage_device_templates.reattach_multi_device_templates(
+                                        response['json']['masterTemplatesAffected'])
+                            else:
+                                raise RuntimeError("Did not get a process id when updating policy list")
             else:
                 diff = list(dictdiffer.diff({}, feature_template['templateDefinition']))
                 feature_template_updates.append({'name': feature_template['templateName'], 'diff': diff})
@@ -208,14 +223,13 @@ class TemplateData(object):
                 if not factory_default and obj['factoryDefault']:
                     continue
                 obj['templateId'] = device_template['templateId']
-
-                # obj['attached_devices'] = self.get_template_attachments(device['templateId'])
-                # obj['input'] = self.get_template_input(device['templateId'])
+                obj['attached_devices'] = self.device_templates.get_template_attachments(device_template['templateId'])
+                obj['input'] = self.device_templates.get_template_input(device_template['templateId'])
                 converted_device_template = self.convert_device_template_to_name(obj)
                 return_list.append(converted_device_template)
         return return_list
 
-    def import_device_template_list(self, device_template_list, check_mode=False, update=False):
+    def import_device_template_list(self, device_template_list, check_mode=False, update=False, push=False):
         """Import a list of device templates from list to vManage.  Object Names are converted to IDs.
 
 
@@ -231,6 +245,7 @@ class TemplateData(object):
         device_template_updates = []
         device_template_dict = self.device_templates.get_device_template_dict()
         diff = []
+        #pylint: disable=too-many-nested-blocks
         for device_template in device_template_list:
             if 'policyId' in device_template:
                 device_template.pop('policyId')
@@ -251,14 +266,29 @@ class TemplateData(object):
                     if not check_mode and update:
                         if not check_mode:
                             converted_device_template = self.convert_device_template_to_id(device_template)
-                            self.device_templates.update_device_template(converted_device_template)
+                            response = self.device_templates.update_device_template(converted_device_template)
+
+                        if response['json']:
+                            # Updating the policy defin returns a `processId` that locks the list and 'masterTemplatesAffected'
+                            # that lists the templates affected by the change.
+                            if 'error' in response['json']:
+                                raise RuntimeError(response['json']['error']['message'])
+                            elif 'processId' in response['json']['data']:
+                                if push:
+                                    # If told to push out the change, we need to reattach each template affected by the change
+                                    obj = self.device_templates.get_device_template_object(
+                                        converted_device_template['templateId'])
+                                    self.device_templates.reattach_device_template(
+                                        converted_device_template['templateId'], obj['configType'])
+                            else:
+                                raise RuntimeError("Did not get a process id when updating policy list")
             else:
                 if 'generalTemplates' in device_template:
                     diff = list(dictdiffer.diff({}, device_template['generalTemplates']))
                 elif 'templateConfiguration' in device_template:
                     diff = list(dictdiffer.diff({}, device_template['templateConfiguration']))
                 else:
-                    raise Exception("Template {0} is of unknown type".format(device_template['templateName']))
+                    raise RuntimeError("Template {0} is of unknown type".format(device_template['templateName']))
                 device_template_updates.append({'name': device_template['templateName'], 'diff': diff})
                 if not check_mode:
                     converted_device_template = self.convert_device_template_to_id(device_template)
@@ -297,7 +327,7 @@ class TemplateData(object):
                     if device_status:
                         device_uuid = device_status['uuid']
                     else:
-                        raise Exception(f"Cannot find UUID for {attachment['host_name']}")
+                        raise RuntimeError(f"Cannot find UUID for {attachment['host_name']}")
 
                 template_id = device_template_dict[attachment['template']]['templateId']
                 config_type = device_template_dict[attachment['template']]['configType']
@@ -339,7 +369,7 @@ class TemplateData(object):
                         })
 
             else:
-                raise Exception(f"No template named {attachment['template']}")
+                raise RuntimeError(f"No template named {attachment['template']}")
 
         for entry in template_device_map:
             device_uuid = dict()

@@ -50,7 +50,7 @@ class ParseMethods:
         else:
             status = response['status']
             result = response['status_code']
-            raise Exception(f'{status}: {result}')
+            raise RuntimeError(f'{status}: {result}')
         return result
 
     @staticmethod
@@ -72,5 +72,27 @@ class ParseMethods:
         else:
             error = response['error']
             result = response['details']
-            raise Exception(f'{error}: {result}')
+            raise RuntimeError(f'{error}: {result}')
+        return result
+
+    @staticmethod
+    def parse_id(response):
+        """Parse id and provide error handling for missing data.
+
+        Args:
+            response (obj): Requests response object
+
+        Returns:
+            result (dict): All data associated with a response.
+
+        Raises:
+            Exception: Provides error message and details of issue.
+        """
+
+        if response['json'] and 'id' in response['json']:
+            result = response['json']['id']
+        else:
+            error = response['error']
+            result = response['details']
+            raise RuntimeError(f'{error}: {result}')
         return result

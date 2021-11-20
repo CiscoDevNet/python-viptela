@@ -58,12 +58,11 @@ class Certificate(object):
         url = f"{self.base_url}install/signedCert"
         response = HttpMethods(self.session, url).request('POST', payload=cert)
         utilities = Utilities(self.session, self.host)
-        if 'json' in response and 'id' in response['json']:
-            if wait:
-                utilities.waitfor_action_completion(response['json']['id'])
-        else:
-            raise Exception('Did not get action ID after installing certificate.')
-        return response['json']['id']
+        action_id = ParseMethods.parse_id(response)
+        if wait:
+            utilities.waitfor_action_completion(action_id)
+
+        return action_id
 
     def push_certificates(self, wait=True):
         """Push certificates to all controllers
@@ -75,13 +74,11 @@ class Certificate(object):
         url = f"{self.base_url}vedge/list?action=push"
         response = HttpMethods(self.session, url).request('POST', payload={})
         utilities = Utilities(self.session, self.host)
+        action_id = ParseMethods.parse_id(response)
+        if wait:
+            utilities.waitfor_action_completion(action_id)
 
-        if 'json' in response and 'id' in response['json']:
-            if wait:
-                utilities.waitfor_action_completion(response['json']['id'])
-        else:
-            raise Exception('Did not get action ID after pushing certificates.')
-        return response['json']['id']
+        return action_id
 
     def get_vmanage_root_cert(self):
         """Get vManage root certificate

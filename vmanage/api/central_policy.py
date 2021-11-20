@@ -38,20 +38,36 @@ class CentralPolicy(object):
             policyId (str): ID of the active centralized policy
 
         Returns:
-            result (str): The Action ID from the activation.
+            action_id (str): The Action ID from the activation.
 
         """
 
         url = f"{self.base_url}template/policy/vsmart/activate/{policy_id}?confirm=true"
         payload = {'policyName': policy_name}
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
-        # result = ParseMethods.parse_status(response)
-        if 'json' in response and 'id' in response['json']:
-            return response['json']['id']
+        ParseMethods.parse_status(response)
+        action_id = ParseMethods.parse_id(response)
 
-        error = response['error']
-        result = response['details']
-        raise Exception(f'{error}: {result}')
+        return action_id
+
+    def reactivate_central_policy(self, policy_id):
+        """reActivates the current active centralized policy
+
+        Args:
+            policyId (str): ID of the active centralized policy
+
+        Returns:
+            action_id (str): The Action ID from the activation.
+
+        """
+
+        url = f"{self.base_url}template/policy/vsmart/activate/{policy_id}?confirm=true"
+        payload = {'isEdited': True}
+        response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
+        ParseMethods.parse_status(response)
+        action_id = ParseMethods.parse_id(response)
+
+        return action_id
 
     def deactivate_central_policy(self, policy_id):
         """Deactivates the current active centralized policy
@@ -98,7 +114,8 @@ class CentralPolicy(object):
         """
 
         url = f"{self.base_url}template/policy/vsmart/{policy_id}"
-        HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(policy))
+        return response
 
     def delete_central_policy(self, policyId):
         """Deletes the specified centralized policy

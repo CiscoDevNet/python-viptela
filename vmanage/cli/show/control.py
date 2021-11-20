@@ -1,9 +1,9 @@
 import ipaddress
-import pprint
 
 import click
 from vmanage.api.device import Device
 from vmanage.api.monitor_network import MonitorNetwork
+from vmanage.cli.show.print_utils import print_json
 
 
 @click.command()
@@ -37,16 +37,13 @@ def connections(ctx, device, json):
         click.echo(
             "SYSTEM IP       TYPE    PROT SYSTEM IP       ID     ID     PRIVATE IP      PUBLIC IP       LOCAL COLOR      PROXY STATE UPTIME"
         )
-        click.echo(
-            "-------------------------------------------------------------------------------------------------------------------"
-        )
+        click.echo("-" * 115)
 
     for dev in device_list:
         try:
             control_connections = mn.get_control_connections(dev)
             if json:
-                pp = pprint.PrettyPrinter(indent=2)
-                pp.pprint(control_connections)
+                print_json(control_connections)
             else:
                 for connection in control_connections:
                     click.echo(
@@ -85,14 +82,11 @@ def connections_history(ctx, device, json):
         click.echo(
             "TYPE     PROTOCOL SYSTEM IP        ID    ID     PRIVATE IP       PORT    PUBLIC IP        PORT   LOCAL COLOR      STATE       ERROR   ERROR"
         )
-        click.echo(
-            "-------------------------------------------------------------------------------------------------------------------------------------------"
-        )
+        click.echo("-" * 139)
     try:
         control_connections_history = mn.get_control_connections_history(system_ip)
         if json:
-            pp = pprint.PrettyPrinter(indent=2)
-            pp.pprint(control_connections_history)
+            print_json(control_connections_history)
         else:
             for connection in control_connections_history:
                 click.echo(

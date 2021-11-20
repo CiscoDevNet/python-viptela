@@ -1,12 +1,14 @@
 import click
 from vmanage.cli.activate import activate
 from vmanage.cli.deactivate import deactivate
+from vmanage.cli.decommission import decommission
 from vmanage.cli.show import show
 from vmanage.cli.export import export
 from vmanage.cli.import_cmd import import_cmd
 from vmanage.cli.clean import clean
 from vmanage.cli.certificate import certificate
 from vmanage.cli.set_cmd import set_cmd
+from vmanage.cli.reset import reset
 from vmanage.api.authentication import Authentication
 
 # from vmanage.api.big import vmanage_session
@@ -61,9 +63,11 @@ def vmanage(ctx, host, port, username, password):
 
 vmanage.add_command(activate)
 vmanage.add_command(deactivate)
+vmanage.add_command(decommission)
 vmanage.add_command(show)
 vmanage.add_command(export)
 vmanage.add_command(import_cmd)
 vmanage.add_command(certificate)
 vmanage.add_command(clean)
 vmanage.add_command(set_cmd)
+vmanage.add_command(reset)

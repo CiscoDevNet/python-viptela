@@ -99,14 +99,15 @@ class FeatureTemplates(object):
 
         """
         url = f"{self.base_url}template/feature/{feature_template['templateId']}"
-        return HttpMethods(self.session, url).request('PUT', payload=json.dumps(feature_template))
+        response = HttpMethods(self.session, url).request('PUT', payload=json.dumps(feature_template))
+        return response
 
     def get_feature_template_list(self, factory_default=False, name_list=None):
         """Obtain a list of all configured feature templates.
 
 
         Args:
-            factory_default (bool): Wheter to return factory default templates
+            factory_default (bool): Whether to return factory default templates
             name_list (list of strings): A list of the template names to return
 
         Returns:
@@ -138,9 +139,10 @@ class FeatureTemplates(object):
 
 
         Args:
-            factory_default (bool): Wheter to return factory default templates
+            factory_default (bool): Whether to return factory default templates
             key_name (string): The name of the attribute to use as the dictionary key
-            remove_key (boolean): remove the search key from the element
+            remove_key (boolean): Remove the search key from the element
+            name_list (list of strings): A list of the template names to return
 
         Returns:
             result (dict): All data associated with a response.

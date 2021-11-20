@@ -43,18 +43,17 @@ class Device(object):
         result = ParseMethods.parse_data(response)
         return result
 
-    def post_device_cli_mode(self, deviceId, deviceIP, deviceType):
+    def post_device_cli_mode(self, deviceId, deviceType):
         """Update a device to CLI mode
 
         Args:
             deviceId (str): uuid for device object
-            deviceIP (str): system IP equivalent
             deviceType (str): vedge or controller
 
         """
 
         url = f"{self.base_url}template/config/device/mode/cli"
-        devices = f"{{'deviceId':'{deviceId}','deviceIP':'{deviceIP}'}}"
+        devices = f"{{'deviceId':'{deviceId}'}}"
         payload = f"{{'deviceType':'{deviceType}','devices':[{devices}]}}"
         response = HttpMethods(self.session, url).request('POST', payload=payload)
         result = ParseMethods.parse_status(response)
@@ -191,4 +190,54 @@ class Device(object):
         url = f"{self.base_url}device/{path}?deviceId={device_ip}"
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
+        return result
+
+    def put_device_decommission(self, device_id):
+        """Decommission a device
+
+        Args:
+            device_id (str): uuid for device object
+
+        Returns:
+            result (list): Device status        
+        """
+
+        url = f"{self.base_url}system/device/decommission/{device_id}"
+        response = HttpMethods(self.session, url).request('PUT')
+        result = ParseMethods.parse_status(response)
+        return result
+
+    def post_device(self, device_ip, personality, username, password):
+        """Add control plane device
+
+        Args:
+            device_ip (str): device interface IP
+            personality (str): controller type (vmanage, vsmart, vbond)
+            username (str): device username
+            password (str): device password
+
+        Returns:
+            result (list): Device status        
+        """
+        url = f"{self.base_url}system/device"
+        payload = f"{{'deviceIP':'{device_ip}','username':'{username}','password':'{password}','personality':'{personality}','generateCSR':'false'}}"
+        response = HttpMethods(self.session, url).request('POST', payload=payload,timeout=35)
+        result = ParseMethods.parse_status(response)
+        return result
+ 
+    def post_reset_interface(self, device_ip, vpn_id, ifname):
+        """Reset an Interface
+        Args:
+            device_ip (str): device IP for device object
+            vpn_id (int): VPN Id for Interface
+            ifname (str): Interface name to reset
+            
+        Returns:
+            result (int): HTTP response status 
+        """
+
+        url = f"{self.base_url}device/tools/reset/interface/{device_ip}"
+        payload = f"{{'vpnId':'{vpn_id}','ifname':'{ifname}'}}"
+        response = HttpMethods(self.session, url).request('POST', payload=payload)
+        result = ParseMethods.parse_status(response)
         return result

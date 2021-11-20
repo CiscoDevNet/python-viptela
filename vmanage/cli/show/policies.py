@@ -1,13 +1,13 @@
 import pprint
 
 import click
-from vmanage.api.policy_lists import PolicyLists
-from vmanage.api.policy_definitions import PolicyDefinitions
-from vmanage.api.policy_definitions import all_definition_types
-from vmanage.data.policy_data import PolicyData
-from vmanage.api.local_policy import LocalPolicy
 from vmanage.api.central_policy import CentralPolicy
+from vmanage.api.local_policy import LocalPolicy
+from vmanage.api.policy_definitions import (PolicyDefinitions, all_definition_types)
+from vmanage.api.policy_lists import PolicyLists
 from vmanage.api.security_policy import SecurityPolicy
+from vmanage.cli.show.print_utils import print_json
+from vmanage.data.policy_data import PolicyData
 
 
 @click.command('list')
@@ -76,7 +76,7 @@ def central(ctx, name, json):  #pylint: disable=unused-argument
         central_policy_dict = central_policy.get_central_policy_dict()
         if name in central_policy_dict:
             if json:
-                pp.pprint(central_policy_dict[name])
+                print_json(central_policy_dict[name])
             else:
                 preview = central_policy.get_central_policy_preview(central_policy_dict[name]['policyId'])
                 pp.pprint(preview)
@@ -122,7 +122,7 @@ def security(ctx, name, json):  #pylint: disable=unused-argument
         security_policy_dict = security_policy.get_security_policy_dict()
         if name in security_policy_dict:
             if json:
-                pp.pprint(security_policy_dict[name])
+                print_json(security_policy_dict[name])
             else:
                 preview = security_policy.get_security_policy_preview(security_policy_dict[name]['policyId'])
                 pp.pprint(preview)

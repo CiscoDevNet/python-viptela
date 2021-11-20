@@ -70,7 +70,7 @@ class Authentication(object):
                                          timeout=self.timeout)
 
             if (response.status_code != 200 or response.text.startswith('<html>')):
-                raise Exception('Login failed, check user credentials.')
+                raise ConnectionError('Login failed, check user credentials.')
 
             version = Utilities(self.session, self.host, self.port).get_vmanage_version()
 
@@ -81,6 +81,6 @@ class Authentication(object):
                 self.session.headers['X-XSRF-TOKEN'] = response.content
 
         except requests.exceptions.RequestException as e:
-            raise Exception(f'Could not connect to {self.host}: {e}')
+            raise ConnectionError(f'Could not connect to {self.host}: {e}')
 
         return self.session

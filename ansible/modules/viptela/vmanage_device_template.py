@@ -24,6 +24,7 @@ def run_module():
                          update=dict(type='bool', defaut=True),
                          factory_default=dict(type='bool', alias='factoryDefault'),
                          aggregate=dict(type='list'),
+                         push=dict(type='bool', default=False)
                          )
 
     # seed the result dict in the object
@@ -74,7 +75,8 @@ def run_module():
         device_template_updates = vmanage_template_data.import_device_template_list(
             device_template_list,
             check_mode=module.check_mode,
-            update=vmanage.params['update']
+            update=vmanage.params['update'],
+            push=vmanage.params['push']
         )
         if device_template_updates:
             vmanage.result['changed'] = True
