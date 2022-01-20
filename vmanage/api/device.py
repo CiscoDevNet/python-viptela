@@ -264,11 +264,19 @@ class Device(object):
         """Add control plane device
 
         Args:
-            device_id (str): uuid for device object
+            device_ip (str): device interface IP
+            personality (str): controller type (vmanage, vsmart, vbond)
+            username (str): device username
+            password (str): device password
 
         Returns:
             result (list): Device status        
         """
+        url = f"{self.base_url}system/device"
+        payload = f"{{'deviceIP':'{device_ip}','username':'{username}','password':'{password}','personality':'{personality}','generateCSR':'false'}}"
+        response = HttpMethods(self.session, url).request('POST', payload=payload,timeout=35)
+        result = ParseMethods.parse_status(response)
+        return result
 
     def post_reset_interface(self, device_ip, vpn_id, ifname):
         """Reset an Interface
