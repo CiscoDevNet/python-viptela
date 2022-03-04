@@ -561,8 +561,11 @@ class viptelaModule(object):
         else:
             return None
 
-    def generate_bootstrap(self, uuid):
-        response = self.request('/dataservice/system/device/bootstrap/device/{0}?configtype=cloudinit'.format(uuid))
+    def generate_bootstrap(self, uuid, version='v1'):
+        if version == 'v2':
+            response = self.request('/dataservice/system/device/bootstrap/device/{0}?configtype=cloudinit&inclDefRootCert=true&version=v2'.format(uuid))
+        else:
+            response = self.request('/dataservice/system/device/bootstrap/device/{0}?configtype=cloudinit'.format(uuid))
 
         try:
             bootstrap_config = response.json['bootstrapConfig']
