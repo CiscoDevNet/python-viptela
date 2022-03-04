@@ -41,10 +41,11 @@ def run_module():
                            supports_check_mode=True,
                            )
     viptela = viptelaModule(module)
-    device_dict = viptela.get_device_dict('vedge')
+    device = {}
+    device = viptela.get_device_by_name(viptela.params['vedge'])
 
-    if viptela.params['vedge'] in device_dict:
-        system_ip = device_dict[viptela.params['vedge']]['system-ip']
+    if device:
+        system_ip = device['system-ip']
     else:
         viptela.fail_json(msg="Cannot find vedge {0}".format(viptela.params['vedge']))
 
