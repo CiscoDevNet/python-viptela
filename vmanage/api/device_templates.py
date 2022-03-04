@@ -184,7 +184,7 @@ class DeviceTemplates(object):
             if 'header' in response['json'] and 'columns' in response['json']['header']:
                 column_list = response['json']['header']['columns']
 
-                regex = re.compile(r'\((?P<variable>[^(]+)\)')
+                regex = re.compile(r'\((?P<variable>[^(]+)\)$')
 
                 for column in column_list:
                     if column['editable']:
