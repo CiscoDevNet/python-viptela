@@ -643,6 +643,9 @@ class viptelaModule(object):
                             # variable = match.groups('variable')[0]
                             variable = match[-1]
                             return_dict[variable] = column['property']
+                        else:
+                            # Some variables don't have a variable name in the title, use property instead
+                            return_dict[column['property']] = column['property']
 
         return return_dict
 
@@ -690,6 +693,9 @@ class viptelaModule(object):
                 # Until here
 
                 for column in column_list:
+                    # Skip this column if optional not found in dict
+                    if 'optional' not in column:
+                        continue
 
                     # The following can be removed once the API will mark as optional
                     # the nexthop value of a static route that has been marked as optional
