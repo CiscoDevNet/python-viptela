@@ -134,7 +134,7 @@ class viptelaModule(object):
         self.request('/dataservice/settings/clientSessionTimeout')
         self.request('/logout')
 
-    def request(self, url_path, method='GET', data=None, files=None, headers=None, payload=None, status_codes=None):
+    def request(self, url_path, method='GET', data=None, files=None, payload=None, status_codes=None):
         """Generic HTTP method for viptela requests."""
 
         if status_codes is None:
@@ -479,7 +479,7 @@ class viptelaModule(object):
         except:
             return {}
 
-    def get_device_list(self, type, key_name='host-name', remove_key=True):
+    def get_device_list(self, type):
         response = self.request('/dataservice/system/device/{0}'.format(type))
 
         if response.json:
@@ -839,7 +839,6 @@ class viptelaModule(object):
         return return_dict
 
     def get_software_images_list(self):
-        # TODO undertand the difference with the URL: /dataservice/device/action/software/images used in devnetsandbox
         response = self.request('/dataservice/device/action/software', method='GET')
 
         if response.json:
@@ -907,7 +906,7 @@ class viptelaModule(object):
             self.fail_json(msg='Did not get action ID after pushing certificates.')
         return response.json['id']
 
-    def reattach_device_template(self, template_id, process_id=None):
+    def reattach_device_template(self, template_id):
         device_list = self.get_template_attachments(template_id, key='uuid')
         # First, we need to get the input to feed to the re-attach
         payload = {
