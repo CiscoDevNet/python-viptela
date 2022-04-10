@@ -19,7 +19,7 @@ help: ## Display help
 all: clean venv_python_viptela check test dist ## Setup python-viptela env and run tests
 
 venv: ## Creates the needed virtual environment.
-	test -d $(VENV) || virtualenv -p $(PYTHON_EXE) $(VENV) $(ARGS)
+	test -d $(VENV) || $(PYTHON_EXE) -m venv $(VENV) $(ARGS)
 
 $(VENV): $(VENV_BIN)/activate ## Build virtual environment
 
