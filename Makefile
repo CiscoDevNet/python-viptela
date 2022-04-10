@@ -19,17 +19,17 @@ help: ## Display help
 all: clean venv_python_viptela check test dist ## Setup python-viptela env and run tests
 
 venv: ## Creates the needed virtual environment.
-	test -d $(VENV) || virtualenv -p $(PYTHON_EXE) $(VENV) $(ARGS)
+	test -d $(VENV) || $(PYTHON_EXE) -m venv $(VENV) $(ARGS)
 
 $(VENV): $(VENV_BIN)/activate ## Build virtual environment
 
 $(VENV_BIN)/activate: requirements.txt test-requirements.txt
-	test -d $(VENV) || virtualenv -p $(PYTHON_EXE) $(VENV)
+	test -d $(VENV) || $(PYTHON_EXE) -m venv $(VENV)
 	echo "export TOP_DIR=$(TOPDIR)" >> $(VENV_BIN)/activate
-	. $(VENV_BIN)/activate; pip install -U pip; pip install -r requirements.txt -r test-requirements.txt
+	. $(VENV_BIN)/activate; pip install --upgrade pip setuptools wheel; pip install -r requirements.txt -r test-requirements.txt
 
 deps: venv ## Installs the needed dependencies into the virtual environment.
-	$(VENV_BIN)/pip install -U pip
+	$(VENV_BIN)/pip install --upgrade pip setuptools wheel
 	$(VENV_BIN)/pip install -r requirements.txt -r test-requirements.txt
 
 dev: deps ## Installs python_viptela in develop mode.
@@ -65,7 +65,7 @@ dist: build ## Creates the distribution.
 
 
 test: deps ## Run python-viptela tests
-	. $(VENV_BIN)/activate; pip install -U pip; pip install -r requirements.txt -r test-requirements.txt;tox -r
+	. $(VENV_BIN)/activate; pip install --upgrade pip setuptools wheel; pip install -r requirements.txt -r test-requirements.txt;tox -r
 
 clean: ## Clean python-viptela $(VENV)
 	$(RM) -rf $(VENV)
