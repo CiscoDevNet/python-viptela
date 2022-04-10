@@ -24,7 +24,7 @@ venv: ## Creates the needed virtual environment.
 $(VENV): $(VENV_BIN)/activate ## Build virtual environment
 
 $(VENV_BIN)/activate: requirements.txt test-requirements.txt
-	test -d $(VENV) || virtualenv -p $(PYTHON_EXE) $(VENV)
+	test -d $(VENV) || $(PYTHON_EXE) -m venv $(VENV)
 	echo "export TOP_DIR=$(TOPDIR)" >> $(VENV_BIN)/activate
 	. $(VENV_BIN)/activate; pip install -U pip; pip install -r requirements.txt -r test-requirements.txt
 
