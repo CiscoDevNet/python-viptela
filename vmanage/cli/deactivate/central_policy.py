@@ -5,9 +5,9 @@ from vmanage.api.utilities import Utilities
 
 @click.command('central-policy')
 @click.option('--name', '-n', help="Name of policy to deactivate.")
-@click.option('--id', '-i', help="Id of policy to deactivate.")
+@click.option('--id', '-i', 'policy_id', help="Id of policy to deactivate.")
 @click.pass_obj
-def central_policy(ctx, name, id):
+def central_policy(ctx, name, policy_id):
     """
     deactivate Central Policy
     """
@@ -15,8 +15,8 @@ def central_policy(ctx, name, id):
     vmanage_central_policy = CentralPolicy(ctx.auth, ctx.host, ctx.port)
     vmanage_utilities = Utilities(ctx.auth, ctx.host, ctx.port)
     central_policy_dict = vmanage_central_policy.get_central_policy_dict(remove_key=True)
-    if id:
-        vmanage_central_policy.deactivate_central_policy(id)
+    if policy_id:
+        vmanage_central_policy.deactivate_central_policy(policy_id)
     elif name:
         if name in central_policy_dict:
             click.echo(f'Deactivating Central Policy {name}')
