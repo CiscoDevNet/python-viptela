@@ -17,6 +17,7 @@ def run_module():
                          device_ip=dict(type='str', alias='deviceIP'),
                          uuid=dict(type='str'),
                          model=dict(type='str'),
+                         version=dict(type='str', default='v1'),
                          )
 
     # seed the result dict in the object
@@ -59,11 +60,9 @@ def run_module():
             # device is in-use and cannot be bootstrapped.
             viptela.result['what_changed'].append('bootstrap')
             if not module.check_mode:
-                bootstrap = viptela.generate_bootstrap(uuid)
+                bootstrap = viptela.generate_bootstrap(uuid, viptela.params['version'])
                 viptela.result['uuid'] = uuid
                 viptela.result['bootstrap'] = bootstrap
-        # else:
-        #     viptela.fail_json(msg="Could not generate bootstrap for UUID: {0}. 'vedgeCertificateState' not 'tokengenerated' or 'bootstrapconfiggenerated'".format(uuid))
     elif viptela.params['model']:
         # if no uuid was specified, just grab the first free device
         device = viptela.get_unused_device(viptela.params['model'])
@@ -71,7 +70,7 @@ def run_module():
             viptela.fail_json(msg="Could not find available device")
         viptela.result['what_changed'].append('bootstrap')
         if not module.check_mode:
-            bootstrap = viptela.generate_bootstrap(device['uuid'])
+            bootstrap = viptela.generate_bootstrap(device['uuid'], viptela.params['version'])
             viptela.result['bootstrap'] = bootstrap
     else:
         viptela.fail_json(msg="Could not find UUID with supplied arguments")

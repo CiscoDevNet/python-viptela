@@ -134,7 +134,7 @@ class viptelaModule(object):
         self.request('/dataservice/settings/clientSessionTimeout')
         self.request('/logout')
 
-    def request(self, url_path, method='GET', data=None, files=None, headers=None, payload=None, status_codes=None):
+    def request(self, url_path, method='GET', data=None, files=None, payload=None, status_codes=None):
         """Generic HTTP method for viptela requests."""
 
         if status_codes is None:
@@ -479,7 +479,7 @@ class viptelaModule(object):
         except:
             return {}
 
-    def get_device_list(self, type, key_name='host-name', remove_key=True):
+    def get_device_list(self, type):
         response = self.request('/dataservice/system/device/{0}'.format(type))
 
         if response.json:
@@ -561,8 +561,11 @@ class viptelaModule(object):
         else:
             return None
 
-    def generate_bootstrap(self, uuid):
-        response = self.request('/dataservice/system/device/bootstrap/device/{0}?configtype=cloudinit'.format(uuid))
+    def generate_bootstrap(self, uuid, version='v1'):
+        if version == 'v2':
+            response = self.request('/dataservice/system/device/bootstrap/device/{0}?configtype=cloudinit&inclDefRootCert=true&version=v2'.format(uuid))
+        else:
+            response = self.request('/dataservice/system/device/bootstrap/device/{0}?configtype=cloudinit'.format(uuid))
 
         try:
             bootstrap_config = response.json['bootstrapConfig']
@@ -640,6 +643,9 @@ class viptelaModule(object):
                             # variable = match.groups('variable')[0]
                             variable = match[-1]
                             return_dict[variable] = column['property']
+                        else:
+                            # Some variables don't have a variable name in the title, use property instead
+                            return_dict[column['property']] = column['property']
 
         return return_dict
 
@@ -687,6 +693,9 @@ class viptelaModule(object):
                 # Until here
 
                 for column in column_list:
+                    # Skip this column if optional not found in dict
+                    if 'optional' not in column:
+                        continue
 
                     # The following can be removed once the API will mark as optional
                     # the nexthop value of a static route that has been marked as optional
@@ -830,7 +839,6 @@ class viptelaModule(object):
         return return_dict
 
     def get_software_images_list(self):
-        # TODO undertand the difference with the URL: /dataservice/device/action/software/images used in devnetsandbox
         response = self.request('/dataservice/device/action/software', method='GET')
 
         if response.json:
@@ -898,7 +906,7 @@ class viptelaModule(object):
             self.fail_json(msg='Did not get action ID after pushing certificates.')
         return response.json['id']
 
-    def reattach_device_template(self, template_id, process_id=None):
+    def reattach_device_template(self, template_id):
         device_list = self.get_template_attachments(template_id, key='uuid')
         # First, we need to get the input to feed to the re-attach
         payload = {
