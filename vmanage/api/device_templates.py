@@ -333,6 +333,10 @@ class DeviceTemplates(object):
         device_template_var_list = list()
         template_variables = self.get_template_input(template_id)
 
+        # Duplicate entries of variable get overwritten while set, Replace them with the property name
+        variables = [column.get('variable') for column in template_variables.get('columns')]
+        duplicates = set([v for v in variables if variables.count(v) > 1])
+
         for device_uuid in uuid:
 
             device_template_variables = {
@@ -350,8 +354,11 @@ class DeviceTemplates(object):
 
             for entry in template_variables['columns']:
                 if entry['variable']:
-                    if entry['variable'] in uuid[device_uuid]['variables']:
+                    if entry['variable'] in uuid[device_uuid]['variables'] and entry['variable'] not in duplicates:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
+                    elif entry['variable'] in duplicates:
+                        device_template_variables[entry['property']] = uuid[device_uuid]['variables'][
+                            entry['property'].split('/')[-1]]
                     else:
                         raise RuntimeError(
                             f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
