@@ -173,7 +173,7 @@ class DeviceTemplates(object):
         if device_id_list:
             deviceIds = device_id_list
         else:
-            deviceIds = []
+            deviceIds = self.get_template_attachments(template_id, key='uuid')
         payload = {"deviceIds": deviceIds, "isEdited": False, "isMasterEdited": False, "templateId": template_id}
         return_dict = {"columns": [], "data": []}
 
@@ -328,51 +328,16 @@ class DeviceTemplates(object):
             action_id (str): Returns the action id of the attachment
 
         """
-        # Construct the variable payload
-
-        device_template_var_list = list()
-        template_variables = self.get_template_input(template_id)
-
-        # Duplicate entries of variable get overwritten while set, Replace them with the property name
-        variables = [column.get('variable') for column in template_variables.get('columns')]
-        duplicates = set([v for v in variables if variables.count(v) > 1])
-
-        for device_uuid in uuid:
-
-            device_template_variables = {
-                "csv-status": "complete",
-                "csv-deviceId": device_uuid,
-                "csv-deviceIP": uuid[device_uuid]['system_ip'],
-                "csv-host-name": uuid[device_uuid]['host_name'],
-                '//system/host-name': uuid[device_uuid]['host_name'],
-                '//system/system-ip': uuid[device_uuid]['system_ip'],
-                '//system/site-id': uuid[device_uuid]['site_id'],
-            }
-
-            # Make sure they passed in the required variables and map
-            # variable name -> property mapping
-
-            for entry in template_variables['columns']:
-                if entry['variable']:
-                    if entry['variable'] in uuid[device_uuid]['variables'] and entry['variable'] not in duplicates:
-                        device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
-                    elif entry['variable'] in duplicates:
-                        device_template_variables[entry['property']] = uuid[device_uuid]['variables'][
-                            entry['property'].split('/')[-1]]
-                    else:
-                        raise RuntimeError(
-                            f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
-
-            device_template_var_list.append(device_template_variables)
-
-        payload = {
-            "deviceTemplateList": [{
-                "templateId": template_id,
-                "device": device_template_var_list,
-                "isEdited": False,
-                "isMasterEdited": False
-            }]
-        }
+        payload = self.get_multi_attach_payload([template_id])
+        for device in payload.get('deviceTemplateList')[0].get('device'):
+            device['csv-templateId'] = template_id
+            if len(uuid) == 0:
+                continue
+            if device.get('csv-deviceId') in uuid and uuid.get(device.get('csv-deviceId')) != {}:
+                for key in device:
+                    split_var = key.split('/')
+                    if split_var[-1] in uuid.get(device.get('csv-deviceId')):
+                        device[key] = uuid.get(device.get('csv-deviceId')).get(split_var[-1])
 
         if config_type == 'file':
             url = f"{self.base_url}template/device/config/attachcli"
