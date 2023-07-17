@@ -316,7 +316,7 @@ class DeviceTemplates(object):
             raise RuntimeError(f"Could not retrieve input for template {template_id}")
         return action_id
 
-    def attach_to_template(self, template_id, config_type, uuid):
+    def attach_to_template(self, template_id, config_type, uuid=None):
         """Attach and device to a template
 
         Args:
