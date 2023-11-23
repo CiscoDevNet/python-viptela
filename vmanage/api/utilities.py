@@ -47,7 +47,9 @@ class Utilities(object):
         url = self.base_url + api
         response = HttpMethods(self.session, url).request('GET')
         result = ParseMethods.parse_data(response)
-        version = result[0]['version']
+        version = None
+        if "version" in result[0]:
+            version = result[0]['version']
         return version
 
     def waitfor_action_completion(self, action_id):
