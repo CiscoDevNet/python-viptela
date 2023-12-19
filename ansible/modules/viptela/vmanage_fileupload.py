@@ -44,8 +44,7 @@ def run_module():
     if not module.check_mode:
         response = viptela.request('/dataservice/system/device/fileupload', method='POST',
                                    files={'file': open(module.params['file'], 'rb')},
-                                   data={'validity': 'valid', 'upload': 'true'},
-                                   headers=None)
+                                   data={'validity': 'valid', 'upload': 'true'})
 
         viptela.result['msg'] = response.json['vedgeListUploadStatus']
         if 'successfully' in response.json['vedgeListUploadStatus']:
