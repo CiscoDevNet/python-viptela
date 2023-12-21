@@ -18,7 +18,7 @@ setup(
     version='0.3.10',
     packages=find_namespace_packages(include=includes),
     description="Cisco DevNet SD-WAN vManage (Viptela) CLI/SDK",
-    install_requires=['Click', 'requests', 'dictdiffer', 'PyYAML'],
+    install_requires=['Click', 'requests', 'dictdiffer', 'PyYAML', 'six'],
     entry_points='''
         [console_scripts]
         vmanage=vmanage.__main__:vmanage
