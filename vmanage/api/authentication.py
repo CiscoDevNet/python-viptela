@@ -74,7 +74,7 @@ class Authentication(object):
 
             version = Utilities(self.session, self.host, self.port).get_vmanage_version()
 
-            if version >= '19.2.0':
+            if version is None or version >= '19.2.0':
                 api = 'client/token'
                 url = f'{self.base_url}{api}'
                 response = self.session.get(url=url, timeout=self.timeout)
