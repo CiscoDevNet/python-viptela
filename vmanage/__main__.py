@@ -25,19 +25,23 @@ class CatchAllExceptions(click.Group):
 
 
 class Viptela(object):
-    def __init__(self, host, port, username, password):
+    def __init__(self, host, port, username, password, tenant=None):
         self.host = host
         self.username = username
         self.password = password
         self.port = port
+        self.tenant = tenant
         self.__auth = None
 
     # use this to defer authentication until it's needed
     @property
     def auth(self):
         if self.__auth is None:
-            self.__auth = Authentication(host=self.host, port=self.port, user=self.username,
-                                         password=self.password).login()
+            self.__auth = Authentication(host=self.host,
+                                         port=self.port,
+                                         user=self.username,
+                                         password=self.password,
+                                         tenant=self.tenant).login()
         return self.__auth
 
 
@@ -56,9 +60,14 @@ class Viptela(object):
               hide_input=True,
               help='vManage Password (env: VMANAGE_PASSWORD)',
               required=True)
+@click.option('--tenant',
+              envvar='VMANAGE_TENANT',
+              default=None,
+              help='vManage Tenant Name (env: VMANAGE_TENANT)',
+              required=False)
 @click.pass_context
-def vmanage(ctx, host, port, username, password):
-    ctx.obj = Viptela(host, port, username, password)
+def vmanage(ctx, host, port, username, password, tenant=None):
+    ctx.obj = Viptela(host, port, username, password, tenant)
 
 
 vmanage.add_command(activate)
