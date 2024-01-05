@@ -274,7 +274,7 @@ class DeviceTemplates(object):
         ParseMethods.parse_data(response)
         return response
 
-    def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True):
+    def reattach_device_template(self, template_id, config_type, is_edited=True, is_master_edited=True, wait=True):
         """Re-Attach a template to the devices it it attached to.
 
         Args:
@@ -311,12 +311,13 @@ class DeviceTemplates(object):
             utils = Utilities(self.session, self.host, self.port)
             response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
             action_id = ParseMethods.parse_id(response)
-            utils.waitfor_action_completion(action_id)
+            if wait:
+                utils.waitfor_action_completion(action_id)
         else:
             raise RuntimeError(f"Could not retrieve input for template {template_id}")
         return action_id
 
-    def attach_to_template(self, template_id, config_type, uuid):
+    def attach_to_template(self, template_id, config_type, uuid, wait=True):
         """Attach and device to a template
 
         Args:
@@ -352,6 +353,8 @@ class DeviceTemplates(object):
                 if entry['variable']:
                     if entry['variable'] in uuid[device_uuid]['variables']:
                         device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['variable']]
+                    elif entry['property'] in uuid[device_uuid]['variables']:
+                        device_template_variables[entry['property']] = uuid[device_uuid]['variables'][entry['property']]
                     else:
                         raise RuntimeError(
                             f"{entry['variable']} is missing for template {uuid[device_uuid]['host_name']}")
@@ -377,7 +380,8 @@ class DeviceTemplates(object):
         utils = Utilities(self.session, self.host, self.port)
         response = HttpMethods(self.session, url).request('POST', payload=json.dumps(payload))
         action_id = ParseMethods.parse_id(response)
-        utils.waitfor_action_completion(action_id)
+        if wait:
+            utils.waitfor_action_completion(action_id)
 
         return action_id
 

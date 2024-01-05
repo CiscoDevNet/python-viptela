@@ -50,31 +50,28 @@ class Utilities(object):
         version = result[0]['version']
         return version
 
-    def waitfor_action_completion(self, action_id):
-        status = 'in_progress'
+    def get_action_status(self, action_id):
         response = {}
         action_status = None
         action_activity = None
         action_config = None
-        while status == "in_progress":
-            url = f"{self.base_url}device/action/status/{action_id}"
-            response = HttpMethods(self.session, url).request('GET')
-            ParseMethods.parse_data(response)
+        url = f"{self.base_url}device/action/status/{action_id}"
+        response = HttpMethods(self.session, url).request('GET')
+        ParseMethods.parse_data(response)
 
-            if 'json' in response:
-                status = response['json']['summary']['status']
-                if 'data' in response['json'] and response['json']['data']:
-                    action_status = response['json']['data'][0]['statusId']
-                    action_activity = response['json']['data'][0]['activity']
-                    if 'actionConfig' in response['json']['data'][0]:
-                        action_config = response['json']['data'][0]['actionConfig']
-                    else:
-                        action_config = None
+        if 'json' in response:
+            status = response['json']['summary']['status']
+            if 'data' in response['json'] and response['json']['data']:
+                action_status = response['json']['data'][0]['statusId']
+                action_activity = response['json']['data'][0]['activity']
+                if 'actionConfig' in response['json']['data'][0]:
+                    action_config = response['json']['data'][0]['actionConfig']
                 else:
-                    action_status = status
+                    action_config = None
             else:
-                raise Exception(msg="Unable to get action status: No response")
-            time.sleep(10)
+                action_status = status
+        else:
+            raise Exception(msg="Unable to get action status: No response")
 
         return {
             'action_response': response['json'],
@@ -83,6 +80,16 @@ class Utilities(object):
             'action_activity': action_activity,
             'action_config': action_config
         }
+
+    def waitfor_action_completion(self, action_id):
+        status = 'in_progress'
+        action_status = None
+        while status == "in_progress":
+            action_status = self.get_action_status(action_id)
+            status = action_status['action_response']['summary']['status']
+            time.sleep(10)
+
+        return action_status
 
     def upload_file(self, input_file):
         """Upload a file to vManage.

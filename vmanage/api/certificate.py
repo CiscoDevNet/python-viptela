@@ -45,7 +45,7 @@ class Certificate(object):
         result = ParseMethods.parse_data(response)
         return result[0]['deviceCSR']
 
-    def install_device_cert(self, cert):
+    def install_device_cert(self, cert, wait=True):
         """Install signed cert on vManage
 
         Args:
@@ -59,11 +59,12 @@ class Certificate(object):
         response = HttpMethods(self.session, url).request('POST', payload=cert)
         utilities = Utilities(self.session, self.host)
         action_id = ParseMethods.parse_id(response)
-        utilities.waitfor_action_completion(action_id)
+        if wait:
+            utilities.waitfor_action_completion(action_id)
 
         return action_id
 
-    def push_certificates(self):
+    def push_certificates(self, wait=True):
         """Push certificates to all controllers
 
         Returns:
@@ -74,7 +75,8 @@ class Certificate(object):
         response = HttpMethods(self.session, url).request('POST', payload={})
         utilities = Utilities(self.session, self.host)
         action_id = ParseMethods.parse_id(response)
-        utilities.waitfor_action_completion(action_id)
+        if wait:
+            utilities.waitfor_action_completion(action_id)
 
         return action_id
 
