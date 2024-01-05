@@ -123,5 +123,4 @@ class Authentication(object):
         except requests.exceptions.RequestException as e:
             raise ConnectionError(f'Could not connect to {self.host}: {e}')
 
-        print("executed logout")
         return session
