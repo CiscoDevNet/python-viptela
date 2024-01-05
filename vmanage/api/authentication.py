@@ -43,7 +43,7 @@ class Authentication(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.session = requests.Session()
         self.session.verify = validate_certs
-    
+
     def __enter__(self):
         self.login()
         return self.session
@@ -92,7 +92,7 @@ class Authentication(object):
             raise ConnectionError(f'Could not connect to {self.host}: {e}')
 
         return self.session
-    
+
     def logout(self, session=None):
         """Executes a logout query against the vManage to terminate session.
 
