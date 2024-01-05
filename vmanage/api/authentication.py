@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 
 import requests
 import urllib3
+from random import randint
 from vmanage.api.utilities import Utilities
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -42,6 +43,13 @@ class Authentication(object):
         self.base_url = f'https://{self.host}:{self.port}/dataservice/'
         self.session = requests.Session()
         self.session.verify = validate_certs
+
+    def __enter__(self):
+        self.login()
+        return self.session
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.logout()
 
     def login(self):
         """Executes login tasks against vManage to retrieve token(s).
@@ -84,3 +92,35 @@ class Authentication(object):
             raise ConnectionError(f'Could not connect to {self.host}: {e}')
 
         return self.session
+
+    def logout(self, session=None):
+        """Executes a logout query against the vManage to terminate session.
+
+        Args:
+            Session: Optionally pass in a session if the login function was run directly.
+            If no session is passed in, the logout operation is performed on self.session
+
+        Returns:
+            session: Returns the same session object after the logout functionality
+            has been performed.
+
+        Raises:
+            ConnectionError if failure to connect to vManage for logout query.
+        """
+        try:
+            if not session:
+                session = self.session
+
+            version = Utilities(session, self.host, self.port).get_vmanage_version()
+            api = f"logout?nocache={randint(1,999)}"
+            url = f'https://{self.host}:{self.port}/{api}'
+            response = session.get(url=url, timeout=self.timeout)
+            if response.status_code != 200:
+                raise ConnectionError('Logout operation failed. Recieved non-200 code from vManage')
+            if version >= '19.2.0':
+                session.headers.pop('X-XSRF-TOKEN', None)
+
+        except requests.exceptions.RequestException as e:
+            raise ConnectionError(f'Could not connect to {self.host}: {e}')
+
+        return session
